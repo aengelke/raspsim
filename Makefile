@@ -53,7 +53,7 @@ INCFLAGS += -DPTLSIM_HYPERVISOR -D__XEN__
 endif
 
 ifdef __x86_64__
-CFLAGS = -O99 -g -fomit-frame-pointer -pipe -march=k8 -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
+CFLAGS = -std=gnu++03 -O99 -g -fomit-frame-pointer -pipe -march=k8 -fno-builtin -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
 #CFLAGS = -O2 -g3 -march=k8 -falign-functions=16 -minline-all-stringops
 # -O1 doesn't work
 CFLAGS32BIT = $(CFLAGS) -m32
@@ -78,17 +78,17 @@ STDOBJS = glibc.o
 
 ifdef __x86_64__
 ifdef PTLSIM_HYPERVISOR
-COMMONOBJS = linkstart.o lowlevel-64bit-xen.o ptlsim.o ptlxen.o ptlxen-memory.o ptlxen-events.o ptlxen-common.o perfctrs.o mm.o superstl.o config.o mathlib.o klibc.o ptlhwdef.o datastore.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o ptlsim.dst.o linkend.o
+COMMONOBJS = lowlevel-64bit-xen.o ptlsim.o ptlxen.o ptlxen-memory.o ptlxen-events.o ptlxen-common.o perfctrs.o mm.o superstl.o config.o mathlib.o klibc.o ptlhwdef.o datastore.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o ptlsim.dst.o
 else
-COMMONOBJS = linkstart.o lowlevel-64bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o datastore.o injectcode-64bit.o seqcore.o $(BASEOBJS) klibc.o ptlsim.dst.o linkend.o
+COMMONOBJS = lowlevel-64bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o datastore.o injectcode-64bit.o seqcore.o $(BASEOBJS) klibc.o ptlsim.dst.o
 endif
 else
 # 32-bit PTLsim32 only:
-COMMONOBJS = linkstart.o lowlevel-32bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o datastore.o injectcode-32bit.o $(BASEOBJS) klibc.o ptlsim.dst.o linkend.o
+COMMONOBJS = lowlevel-32bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o datastore.o injectcode-32bit.o $(BASEOBJS) klibc.o ptlsim.dst.o
 endif
 
-OOOOBJS = branchpred.o dcache.o ooocore.o ooopipe.o oooexec.o 
-OBJFILES = $(COMMONOBJS) $(OOOOBJS)
+OOOOBJS = branchpred.o dcache.o ooocore.o ooopipe.o oooexec.o
+OBJFILES = linkstart.o $(COMMONOBJS) $(OOOOBJS) linkend.o
 
 COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h datastore.h superstl.h globals.h kernel.h mm.h ptlcalls.h loader.h mathlib.h klibc.h syscalls.h ptlxen.h stats.h xen-types.h
 OOOINCLUDES = branchpred.h ooocore.h ooocore-amd-k8.h
@@ -183,8 +183,8 @@ ifdef PTLSIM_HYPERVISOR
 ptlsim: ptlmon.o ptlxen.bin.o usage.o $(BASEOBJS) $(STDOBJS) ptlxen-common.o ptlhwdef.o ptlmon.lds Makefile
 	$(CC) $(CFLAGS) ptlmon.o ptlxen.bin.o usage.o $(BASEOBJS) $(STDOBJS) ptlxen-common.o ptlhwdef.o -lxenctrl -lxenguest -lxenstore -lstdc++ -lpthread -Wl,-T,ptlmon.lds -static -o ptlsim
 else
-ptlsim: $(OBJFILES) Makefile ptlsim.lds
-	ld -g -O2 $(OBJFILES) -o ptlsim $(LIBPERFCTR) -static --allow-multiple-definition -T ptlsim.lds -e ptlsim_preinit_entry `gcc -print-libgcc-file-name`
+ptlsim: $(OBJFILES) Makefile
+	$(CC) -nostdlib $(OBJFILES) -o ptlsim $(LIBPERFCTR) -static -static-libgcc -Wl,-Ttext-segment,0x70000000 -Wl,--allow-multiple-definition -e ptlsim_preinit_entry
 endif # PTLSIM_HYPERVISOR
 else
 ptlsim: $(OBJFILES) Makefile ptlsim32.lds
@@ -216,7 +216,7 @@ test.dat-32bit.S: test.dat Makefile
 clean:
 	rm -fv ptlsim ptlstats ptlctl ptlxen.bin ptlxen.bin.debug usage.txt cpuid ptlsim.dst dstbuild.temp dstbuild.temp.cpp stats.i makeusage *.o core core.[0-9]* .depend *.gch
 
-OBJFILES = $(COMMONOBJS) $(PT2XOBJS) $(OOOOBJS)
+OBJFILES = linkstart.o $(COMMONOBJS) $(PT2XOBJS) $(OOOOBJS) linkend.o
 INCLUDEFILES = $(COMMONINCLUDES) $(PT2XINCLUDES) $(OOOINCLUDES)
 CPPFILES = $(COMMONCPPFILES) $(PT2XCPPFILES) $(OOOCPPFILES)
 
@@ -224,7 +224,7 @@ CPPFILES = $(COMMONCPPFILES) $(PT2XCPPFILES) $(OOOCPPFILES)
 # Miscellaneous:
 #
 
-DISTFILES = $(CPPFILES) $(INCLUDEFILES) Makefile *.lds dstbuild COPYING README 
+DISTFILES = $(CPPFILES) $(INCLUDEFILES) Makefile *.lds dstbuild COPYING README
 
 dist: $(DISTFILES)
 	tar zcvf ptlsim-`date "+%Y%m%d%H%M%S"`.tar.gz $(DISTFILES)

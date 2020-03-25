@@ -4384,7 +4384,7 @@ union ieee754_double {
       /* 3. Compute ex2 = 2^(t/512+e+ex).  */
       ex2_u.d = exp2_accuratetable[tval & 511];
       tval >>= 9;
-      unsafe = abs(tval) >= -DBL_MIN_EXP - 1;
+      unsafe = abs<int>(tval) >= -DBL_MIN_EXP - 1;
       ex2_u.ieee.exponent += tval >> unsafe;
       scale_u.d = 1.0;
       scale_u.ieee.exponent += tval - (tval >> unsafe);

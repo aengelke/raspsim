@@ -75,13 +75,6 @@ namespace math {
   }
 
   /* All floating-point numbers can be put in one of these categories.  */
-  enum {
-    FP_NAN,
-    FP_INFINITE,
-    FP_ZERO,
-    FP_SUBNORMAL,
-    FP_NORMAL
-  };
 
 #undef isinf
   inline int isinf(double x) {

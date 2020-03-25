@@ -1407,7 +1407,7 @@ int format_float(char* buf, int bufsize, double v, int precision, int pad) {
     remaining--;
   }
 
-  int n = format_integer(buf, remaining, wholeint, abs(pad), (left ? FMT_LEFT : 0));
+  int n = format_integer(buf, remaining, wholeint, abs<int>(pad), (left ? FMT_LEFT : 0));
   remaining = max(remaining - n, 0);
   total += n;
   if (remaining < 1) return total;

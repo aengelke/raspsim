@@ -351,7 +351,7 @@ namespace superstl {
     char buf[128];
     int len = format_integer(buf, sizeof(buf), is.value);
     bool leftalign = (is.width < 0);
-    int width = (is.width) ? abs(is.width) : len;
+    int width = (is.width) ? abs<int>(is.width) : len;
 
     int reqbytes = max(len, width) + 1;
     os.reserve(reqbytes);
@@ -378,7 +378,7 @@ namespace superstl {
     char buf[128];
     int len = format_float(buf, sizeof(buf), fs.value, fs.precision);
     bool leftalign = (fs.width < 0);
-    int width = (fs.width) ? abs(fs.width) : len;
+    int width = (fs.width) ? abs<int>(fs.width) : len;
 
     int reqbytes = max(len, width) + 1;
     os.reserve(reqbytes);
@@ -404,7 +404,7 @@ namespace superstl {
   stringbuf& operator <<(stringbuf& os, const padstring& s) {
     int len = strlen(s.value);
     bool leftalign = (s.width < 0);
-    int width = (s.width) ? abs(s.width) : len;
+    int width = (s.width) ? abs<int>(s.width) : len;
 
     int reqbytes = max(len, width) + 1;
     os.reserve(reqbytes);

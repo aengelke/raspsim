@@ -361,7 +361,7 @@ inline Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool st
     pfec.p = !store;
     pfec.rw = store;
     pfec.us = 0;
-    return null;
+    return 0;
   }
 
   return virtaddr;
