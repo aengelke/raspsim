@@ -264,8 +264,6 @@ void print_banner(ostream& os, const PTLsimStats& stats, int argc, char** argv) 
     if (i != (argc-1)) os << ' ';
   }
   os << endl;
-  os << "//  Thread ", sys_getpid(), " is running in ", (ctx.use64 ? "64-bit x86-64" : "32-bit x86"), " mode", endl;
-  os << "//  ", endl;
 #endif
   os << endl;
   os << flush;

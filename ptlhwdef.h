@@ -932,10 +932,6 @@ struct Context: public ContextBase {
 
 ostream& operator <<(ostream& os, const Context& ctx);
 
-#ifndef PTLSIM_HYPERVISOR
-extern Context ctx; 
-#endif
-
 // Other flags not defined above
 enum {
   FLAG_TF = (1 << 8),

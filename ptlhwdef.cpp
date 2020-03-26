@@ -8,10 +8,6 @@
 #include <ptlsim.h>
 #include <dcache.h>
 
-#ifndef PTLSIM_HYPERVISOR
-Context ctx alignto(4096) insection(".ctx");
-#endif
-
 const char* opclass_names[OPCLASS_COUNT] = {
   "logic", "addsub", "addsubc", "addshift", "sel", "cmp", "br.cc", "jmp", "bru", 
   "assist", "mf", "ld", "st", "ld.pre", "shiftsimple", "shift", "mul", "bitscan", "flags",  "chk", 
@@ -611,12 +607,6 @@ ostream& operator <<(ostream& os, const UserContext& arf) {
     os << "  ", padstring(arch_reg_names[i], -6), " 0x", hexstring(arf[i], 64), "  ";
     if ((i % width) == (width-1)) os << endl;
   }
-#ifndef PTLSIM_HYPERVISOR
-  for (int i = 7; i >= 0; i--) {
-    int stackid = (i - (arf[REG_fptos] >> 3)) & 0x7;
-    os << "  fp", i, "  st(", stackid, ")  ", /* (bit(arf[REG_fptags], i*8) ? "Valid" : "Empty"), */ "  0x", hexstring(ctx.fpstack[i], 64), " => ", *((double*)&ctx.fpstack[i]), endl;
-  }
-#endif
   return os;
 }
 

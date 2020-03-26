@@ -1656,7 +1656,7 @@ void assist_exec_page_fault(Context& ctx) {
   bool page_now_valid = (pte.p & (!pte.nx) & ((!ctx.kernel_mode) ? pte.us : 1));
   if unlikely (!page_now_valid) ctx.flush_tlb_virt(faultaddr);
 #else
-  bool page_now_valid = asp.fastcheck((byte*)faultaddr, asp.execmap);
+  bool page_now_valid = asp_check_exec((byte*)faultaddr);
 #endif
   if unlikely (page_now_valid) {
     if (logable(3)) {

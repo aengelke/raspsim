@@ -11,11 +11,7 @@
 
 #include <globals.h>
 #include <mm.h>
-#ifdef PTLSIM_HYPERVISOR
-#include <ptlxen.h>
-#else
-#include <kernel.h>
-#endif
+#include <ptlsim-api.h>
 #include <ptlhwdef.h>
 #include <config.h>
 #include <datastore.h>

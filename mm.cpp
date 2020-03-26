@@ -6,11 +6,7 @@
 //
 
 #include <globals.h>
-#ifdef PTLSIM_HYPERVISOR
-#include <ptlxen.h>
-#else
-#include <kernel.h>
-#endif
+#include <ptlsim-api.h>
 #include <mm.h>
 #include <datastore.h>
 #include <mm-private.h>
