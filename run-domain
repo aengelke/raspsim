@@ -1,9 +1,0 @@
-#!/bin/sh
-DOMAIN=$1
-SCHEDWEIGHT=256
-PHYSCPUS=3
-sudo xm create $DOMAIN --paused;
-sudo xm list
-sudo xm sched-credit -d $DOMAIN -w $SCHEDWEIGHT
-sudo xm vcpu-pin $DOMAIN 0 $PHYSCPUS
-sudo xm console $DOMAIN
