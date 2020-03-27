@@ -693,6 +693,10 @@ void handle_config_arg(char* line) {
   if (toks.empty())
     return;
 
+  if (toks[0][0] == '#') {
+    return;
+  }
+
   if (toks[0][0] == 'M') { // allocate page M<addr> <prot>
     if (toks.size() != 2) {
       cerr << "Warning: option ", line, " has wrong number of arguments", endl;

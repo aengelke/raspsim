@@ -1,0 +1,10 @@
+# Try with: ./raspsim -logfile /dev/null -loglevel 0 @testinp "rdi 10"
+rdx 10
+rax 0x1234567890abcdef
+M7ffffffe0000 rw
+rsp 0x7ffffffe0ff8
+M1000000 rx
+W1000000 488D4701c3
+M0ffe000 rx
+W0ffe000 e8fb1f0000cd80
+rip 0x0ffe000
