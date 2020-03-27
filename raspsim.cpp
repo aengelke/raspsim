@@ -87,10 +87,10 @@ public:
   }
 
   void* page_virt_to_mapped(Waddr addr) {
-    void* res = mapped_mem.get(floor(addr, PAGE_SIZE));
+    W8** res = mapped_mem.get(floor(addr, PAGE_SIZE));
     if (!res) return res;
     // logfile << "ASP: Map ", (void*) addr, " to ", res, endl, flush;
-    return (W8*)res + lowbits(addr, 12);
+    return (W8*)*res + lowbits(addr, 12);
   }
 
   //
@@ -252,6 +252,7 @@ int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorC
   n = min((Waddr)(4096 - lowbits(addr, 12)), (Waddr)bytes);
 
   void* mapped_addr = asp.page_virt_to_mapped(addr);
+  assert(mapped_addr);
   // logfile << "VMEM: Read ", mapped_addr, " = ", *(W8*)mapped_addr, endl, flush;
   memcpy(target, mapped_addr, n);
 
@@ -782,6 +783,8 @@ int main(int argc, char** argv) {
   // Set up initial context:
   ctx.reset();
   asp.reset();
+  ctx.use32 = 1;
+  ctx.use64 = 1;
   ctx.commitarf[REG_rsp] = 0;
   ctx.commitarf[REG_rip] = 0x100000;
   ctx.commitarf[REG_flags] = 0;
@@ -795,8 +798,6 @@ int main(int argc, char** argv) {
   ctx.seg[SEGID_GS].selector = 0x00;
   ctx.update_shadow_segment_descriptors();
 
-  ctx.use32 = 1;
-  ctx.use64 = 1;
 
   // ctx.fxrstor(x87state);
 
