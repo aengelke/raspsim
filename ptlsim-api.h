@@ -23,6 +23,13 @@
 // Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool store, bool internal, int& exception, PageFaultErrorCode& pfec, PTEUpdate& pteupdate, Level1PTE& pteused);
 // RIPVirtPhys& RIPVirtPhys::update(Context& ctx, int bytes);
 
+// From ptlsim.h
+// bool check_for_async_sim_break();
+// void print_sysinfo(ostream& os);
+// int inject_events();
+
+// void assist_ptlcall(Context& ctx);
+
 extern bool asp_check_exec(void* addr);
 
 extern bool smc_isdirty(Waddr mfn);

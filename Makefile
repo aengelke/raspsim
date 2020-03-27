@@ -38,7 +38,7 @@ endif
 INCFLAGS = -I. -DBUILDHOST="`hostname -f`" -DSVNREV="$(SVNREV)" -DSVNDATE="$(SVNDATE)"
 
 ifdef __x86_64__
-CFLAGS = -std=gnu++03 -O99 -g -fomit-frame-pointer -pipe -march=k8 -fno-builtin -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
+CFLAGS = -std=gnu++03 -O99 -g -fomit-frame-pointer -pipe -march=k8 -fno-builtin-memmove -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
 #CFLAGS = -O2 -g3 -march=k8 -falign-functions=16 -minline-all-stringops
 # -O1 doesn't work
 CFLAGS32BIT = $(CFLAGS) -m32
@@ -56,22 +56,22 @@ CFLAGS += -fno-trapping-math -fno-stack-protector -fno-exceptions -fno-rtti -fun
 
 BASEOBJS = superstl.o config.o mathlib.o syscalls.o
 STDOBJS = glibc.o
-
-ifdef __x86_64__
-COMMONOBJS = lowlevel-64bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o datastore.o injectcode-64bit.o seqcore.o $(BASEOBJS) klibc.o ptlsim.dst.o
-else
-# 32-bit PTLsim32 only:
-COMMONOBJS = lowlevel-32bit.o ptlsim.o kernel.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o datastore.o injectcode-32bit.o $(BASEOBJS) klibc.o ptlsim.dst.o
-endif
+COMMONOBJS = ptlsim.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o datastore.o seqcore.o $(BASEOBJS) klibc.o ptlsim.dst.o
 
 OOOOBJS = branchpred.o dcache.o ooocore.o ooopipe.o oooexec.o
-OBJFILES = linkstart.o $(COMMONOBJS) $(OOOOBJS) linkend.o
+ifdef __x86_64__
+PTLSIM_OBJFILES = linkstart.o lowlevel-64bit.o $(COMMONOBJS) kernel.o injectcode-64bit.o $(OOOOBJS) linkend.o
+else
+# 32-bit PTLsim32 only:
+PTLSIM_OBJFILES = linkstart.o lowlevel-32bit.o $(COMMONOBJS) kernel.o injectcode-32bit.o $(OOOOBJS) linkend.o
+endif
+RASPSIM_OBJFILES = linkstart.o raspsim-64bit.o $(COMMONOBJS) raspsim.o $(OOOOBJS) linkend.o
 
 COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h datastore.h superstl.h globals.h ptlsim-api.h mm.h ptlcalls.h loader.h mathlib.h klibc.h syscalls.h stats.h
 OOOINCLUDES = branchpred.h ooocore.h ooocore-amd-k8.h
 INCLUDEFILES = $(COMMONINCLUDES) $(OOOINCLUDES)
 
-COMMONCPPFILES = ptlsim.cpp kernel.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp lowlevel-64bit.S lowlevel-32bit.S linkstart.S linkend.S uopimpl.cpp dcache.cpp config.cpp datastore.cpp injectcode.cpp ptlcalls.c cpuid.cpp ptlstats.cpp klibc.cpp glibc.cpp mathlib.cpp syscalls.cpp
+COMMONCPPFILES = ptlsim.cpp kernel.cpp raspsim.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp lowlevel-64bit.S lowlevel-32bit.S linkstart.S linkend.S uopimpl.cpp dcache.cpp config.cpp datastore.cpp injectcode.cpp ptlcalls.c cpuid.cpp ptlstats.cpp klibc.cpp glibc.cpp mathlib.cpp syscalls.cpp
 
 OOOCPPFILES = ooocore.cpp ooopipe.cpp oooexec.cpp seqcore.cpp branchpred.cpp
 
@@ -79,7 +79,7 @@ CPPFILES = $(COMMONCPPFILES) $(OOOCPPFILES)
 
 CFLAGS += -D__PTLSIM_OOO_ONLY__
 
-TOPLEVEL = ptlsim ptlstats ptlcalls.o ptlcalls-32bit.o cpuid
+TOPLEVEL = ptlsim raspsim ptlstats ptlcalls.o ptlcalls-32bit.o cpuid
 
 all: $(TOPLEVEL)
 	@echo "Compiled successfully..."
@@ -129,11 +129,16 @@ ptlsim.dst.o: ptlsim.dst
 	objcopy -I binary -O $(DATA_OBJ_TYPE) -B i386 --rename-section .data=.dst,alloc,load,readonly,data,contents ptlsim.dst ptlsim.dst.o
 
 ifdef __x86_64__
-ptlsim: $(OBJFILES) Makefile
-	$(CC) -nostdlib $(OBJFILES) -o ptlsim $(LIBPERFCTR) -static -static-libgcc -Wl,-Ttext-segment,0x70000000 -Wl,--allow-multiple-definition -e ptlsim_preinit_entry
+ptlsim: $(PTLSIM_OBJFILES) Makefile
+	$(CC) -nostdlib $(PTLSIM_OBJFILES) -o ptlsim $(LIBPERFCTR) -static -static-libgcc -Wl,-Ttext-segment,0x70000000 -Wl,--allow-multiple-definition -e ptlsim_preinit_entry
 else
-ptlsim: $(OBJFILES) Makefile ptlsim32.lds
-	ld --oformat=elf32-i386 -melf_i386 -g -O2 $(OBJFILES) -o ptlsim $(LIBPERFCTR) -static --allow-multiple-definition -T ptlsim32.lds -e ptlsim_preinit_entry `gcc -m32 -print-libgcc-file-name`
+ptlsim: $(PTLSIM_OBJFILES) Makefile ptlsim32.lds
+	ld --oformat=elf32-i386 -melf_i386 -g -O2 $(PTLSIM_OBJFILES) -o ptlsim $(LIBPERFCTR) -static --allow-multiple-definition -T ptlsim32.lds -e ptlsim_preinit_entry `gcc -m32 -print-libgcc-file-name`
+endif
+
+ifdef __x86_64__
+raspsim: $(RASPSIM_OBJFILES) Makefile
+	$(CXX) -nostdlib $(RASPSIM_OBJFILES) -static -static-libgcc -o $@ -Wl,--allow-multiple-definition -Wl,-e,raspsim_entry
 endif
 
 BASEADDR = 0
@@ -156,7 +161,7 @@ test.dat-32bit.S: test.dat Makefile
 	$(CC) $(CFLAGS) $(INCFLAGS) -c $<
 
 clean:
-	rm -fv ptlsim ptlstats cpuid ptlsim.dst dstbuild.temp dstbuild.temp.cpp stats.i *.o core core.[0-9]* .depend *.gch
+	rm -fv ptlsim raspsim ptlstats cpuid ptlsim.dst dstbuild.temp dstbuild.temp.cpp stats.i *.o core core.[0-9]* .depend *.gch
 
 OBJFILES = linkstart.o $(COMMONOBJS) $(PT2XOBJS) $(OOOOBJS) linkend.o
 INCLUDEFILES = $(COMMONINCLUDES) $(PT2XINCLUDES) $(OOOINCLUDES)

@@ -76,7 +76,7 @@ extern "C" void* memset(void* s, int c, size_t count) {
 	return s;
 }
 
-#define __HAVE_ARCH_MEMMOVE
+// #define __HAVE_ARCH_MEMMOVE
 void* memmove(void * dest,const void *src,size_t count);
 
 /* Use C out of line version for memcmp */ 
