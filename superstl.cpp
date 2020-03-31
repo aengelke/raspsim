@@ -1221,6 +1221,8 @@ int format_integer(char* buf, int bufsize, W64s v, int size, int flags, int base
   if (size < 0) size = bufsize-1;
   if ((v < 0) & (base == 10)) flags ^= FMT_SIGN;
   char* end = format_number(buf, buf + bufsize - 2, v, base, min(bufsize-1, size), precision, flags);
+  if (end >= buf + bufsize)
+    end = buf + bufsize - 1;
   // null terminate
   *end = 0;
   return (end - buf);
