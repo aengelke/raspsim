@@ -686,53 +686,53 @@ void switch_to_sim() {
   static const bool DEBUG = 0;
 }
 
-void handle_config_arg(char* line) {
-  if (*line == '\0') return;
+bool handle_config_arg(char* line) {
+  if (*line == '\0') return false;
   dynarray<char*> toks;
   toks.tokenize(line, " ");
   if (toks.empty())
-    return;
+    return false;
 
   if (toks[0][0] == '#') {
-    return;
+    return false;
   }
 
   if (toks[0][0] == 'M') { // allocate page M<addr> <prot>
     if (toks.size() != 2) {
-      cerr << "Warning: option ", line, " has wrong number of arguments", endl;
-      return;
+      cerr << "Error: option ", line, " has wrong number of arguments", endl;
+      return true;
     }
     char* endp;
     W64 addr = strtoull(toks[0] + 1, &endp, 16);
     if (*endp != '\0' || lowbits(addr, 12)) {
-      cerr << "Warning: invalid value ", toks[0], " ", endp, endl;
-      return;
+      cerr << "Error: invalid value ", toks[0], " ", endp, endl;
+      return true;
     }
     int prot = 0;
     if (!strcmp(toks[1], "ro")) prot = PROT_READ;
     else if (!strcmp(toks[1], "rw")) prot = PROT_READ | PROT_WRITE;
     else if (!strcmp(toks[1], "rx")) prot = PROT_READ | PROT_EXEC;
     else {
-      cerr << "Warning: invalid mem prot ", toks[1], endl;
-      return;
+      cerr << "Error: invalid mem prot ", toks[1], endl;
+      return true;
     }
     asp.map(addr, 0x1000, prot);
   } else if (toks[0][0] == 'W') { // write to mem W<addr> <hexbytes>, may not cross page boundaries
     char* endp;
     W64 addr = strtoull(toks[0] + 1, &endp, 16);
     if (*endp != '\0') {
-      cerr << "Warning: invalid value ", toks[0], endl;
-      return;
+      cerr << "Error: invalid value ", toks[0], endl;
+      return true;
     }
     W8* mapped = (W8*)asp.page_virt_to_mapped(addr);
     if (!mapped) {
-      cerr << "Warning: page not mapped ", (void*) addr, endl;
-      return;
+      cerr << "Error: page not mapped ", (void*) addr, endl;
+      return true;
     }
     Waddr arglen = strlen(toks[1]);
-    if ((arglen & 1) || arglen/2 >= 4096-lowbits(addr, 12)) {
-      cerr << "Warning: arg has odd size or crosses page boundary", (void*) addr, endl;
-      return;
+    if ((arglen & 1) || arglen/2 > 4096-lowbits(addr, 12)) {
+      cerr << "Error: arg has odd size or crosses page boundary", (void*) addr, endl;
+      return true;
     }
     unsigned n = min((Waddr)(4096 - lowbits(addr, 12)), arglen/2);
     foreach (i, n) {
@@ -741,8 +741,8 @@ void handle_config_arg(char* line) {
     }
   } else {
     if (toks.size() != 2) {
-      cerr << "Warning: option ", line, " has wrong number of arguments", endl;
-      return;
+      cerr << "Error: option ", line, " has wrong number of arguments", endl;
+      return true;
     }
     int reg = -1;
     foreach (j, sizeof(arch_reg_names) / sizeof(arch_reg_names[0])) {
@@ -751,17 +751,19 @@ void handle_config_arg(char* line) {
       }
     }
     if (reg < 0) {
-      cerr << "Warning: invalid register ", toks[0], endl;
-      return;
+      cerr << "Error: invalid register ", toks[0], endl;
+      return true;
     }
     char* endp;
     W64 v = strtoull(toks[1], &endp, 0);
     if (*endp != '\0') {
-      cerr << "Warning: invalid value ", toks[1], endl;
-      return;
+      cerr << "Error: invalid value ", toks[1], endl;
+      return true;
     }
     ctx.commitarf[reg] = v;
   }
+
+  return false;
 }
 
 //
@@ -811,6 +813,7 @@ int main(int argc, char** argv) {
   ctx.commitarf[REG_fpstack] = (Waddr)&ctx.fpstack;
 
   // TODO(AE): set seccomp filter before parsing arguments
+  bool parse_err = false;
   for (unsigned i = ptlsim_arg_count; i < argc; i++) {
     if (argv[i][0] == '@') {
       stringbuf line;
@@ -827,11 +830,16 @@ int main(int argc, char** argv) {
 
         char* p = strchr(line, '#');
         if (p) *p = 0;
-        handle_config_arg(line);
+        parse_err |= handle_config_arg(line);
       }
     } else {
-      handle_config_arg(argv[i]);
+      parse_err |= handle_config_arg(argv[i]);
     }
+  }
+
+  if (parse_err) {
+    cerr << "Error: could not parse all arguments", endl, flush;
+    sys_exit(1);
   }
 
   // asp.map(0x100000, 0x1000, PROT_READ|PROT_WRITE|PROT_EXEC);
