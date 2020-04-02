@@ -686,7 +686,7 @@ void switch_to_sim() {
   static const bool DEBUG = 0;
 }
 
-bool handle_config_arg(char* line) {
+bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
   if (*line == '\0') return false;
   dynarray<char*> toks;
   toks.tokenize(line, " ");
@@ -718,6 +718,10 @@ bool handle_config_arg(char* line) {
     }
     asp.map(addr, 0x1000, prot);
   } else if (toks[0][0] == 'W') { // write to mem W<addr> <hexbytes>, may not cross page boundaries
+    if (toks.size() != 2) {
+      cerr << "Error: option ", line, " has wrong number of arguments", endl;
+      return true;
+    }
     char* endp;
     W64 addr = strtoull(toks[0] + 1, &endp, 16);
     if (*endp != '\0') {
@@ -739,6 +743,18 @@ bool handle_config_arg(char* line) {
       char hex_byte[3] = {toks[1][i*2],toks[1][i*2+1], 0};
       mapped[i] = strtoul(hex_byte, NULL, 16);
     }
+  } else if (toks[0][0] == 'D') { // dump page D<page>
+    if (toks.size() != 1) {
+      cerr << "Error: option ", line, " has wrong number of arguments", endl;
+      return true;
+    }
+    char* endp;
+    W64 addr = strtoull(toks[0] + 1, &endp, 16);
+    if (*endp != '\0') {
+      cerr << "Error: invalid value ", toks[0], endl;
+      return true;
+    }
+    dump_pages->push(floor(addr, PAGE_SIZE));
   } else {
     if (toks.size() != 2) {
       cerr << "Error: option ", line, " has wrong number of arguments", endl;
@@ -812,6 +828,8 @@ int main(int argc, char** argv) {
   ctx.commitarf[REG_ctx] = (Waddr)&ctx;
   ctx.commitarf[REG_fpstack] = (Waddr)&ctx.fpstack;
 
+  dynarray<Waddr> dump_pages;
+
   // TODO(AE): set seccomp filter before parsing arguments
   bool parse_err = false;
   for (unsigned i = ptlsim_arg_count; i < argc; i++) {
@@ -830,10 +848,10 @@ int main(int argc, char** argv) {
 
         char* p = strchr(line, '#');
         if (p) *p = 0;
-        parse_err |= handle_config_arg(line);
+        parse_err |= handle_config_arg(line, &dump_pages);
       }
     } else {
-      parse_err |= handle_config_arg(argv[i]);
+      parse_err |= handle_config_arg(argv[i], &dump_pages);
     }
   }
 
@@ -866,19 +884,22 @@ int main(int argc, char** argv) {
   x86_set_mxcsr(ctx.mxcsr | MXCSR_EXCEPTION_DISABLE_MASK);
 
   simulate(config.core_name);
-  cerr << "End state:", endl;
-  cerr << ctx, endl, flush;
   capture_stats_snapshot("final");
   flush_stats();
 
-  done |= (config.dump_at_end | config.overshoot_and_dump);
-
-  // Sanitize flags (AMD and Intel CPUs also use bits 1 and 3 for reserved bits, but not for INV and WAIT like we do).
-  ctx.commitarf[REG_flags] &= FLAG_NOT_WAIT_INV;
-
-  logfile << "Switching to native: returning to rip ", (void*)(Waddr)ctx.commitarf[REG_rip], endl, flush;
-
-  x86_set_mxcsr(MXCSR_DEFAULT);
+  cerr << "End state:", endl;
+  cerr << ctx, endl;
+  foreach (i, dump_pages.length) {
+    Waddr addr = dump_pages[i];
+    byte* mapped = (byte*)asp.page_virt_to_mapped(addr);
+    if (!mapped) {
+      cerr << "Error dumping memory: page not mapped ", (void*) addr, endl;
+    } else {
+      cerr << "Dump of memory at ", (void*) addr, ": ", endl;
+      cerr << bytestring(mapped, PAGE_SIZE), endl;
+    }
+  }
+  cerr << flush;
 
   cerr << endl, "=== Exiting after full simulation on tid ", sys_gettid(), " at rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " (",
     sim_cycle, " cycles, ", total_user_insns_committed, " user commits, ", iterations, " iterations) ===", endl, endl;
