@@ -1364,7 +1364,7 @@ void* ptl_mm_alloc(size_t bytes, void* caller) {
       // PTLsim/X, this is not required since we have complete control over the
       // page tables and can put the entire page pool in one 2 GB aligned block.
       //
-      int prot = PROT_READ|PROT_WRITE|PROT_EXEC;
+      int prot = PROT_READ|PROT_WRITE;
       void* newpool = ptl_mm_try_alloc_private_pages(pagebytes, prot, 0, getcaller());
       if unlikely (!newpool) {
         size_t largest_free_extent = pagealloc.largest_free_extent_bytes();

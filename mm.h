@@ -11,9 +11,9 @@
 
 #include <globals.h>
 
-void* ptl_mm_alloc_private_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE|PROT_EXEC, Waddr base = 0);
-void* ptl_mm_try_alloc_private_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE|PROT_EXEC, Waddr base = 0, void* caller = 0);
-void* ptl_mm_alloc_private_32bit_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE|PROT_EXEC, Waddr base = 0);
+void* ptl_mm_alloc_private_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE, Waddr base = 0);
+void* ptl_mm_try_alloc_private_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE, Waddr base = 0, void* caller = 0);
+void* ptl_mm_alloc_private_32bit_pages(Waddr bytecount, int prot = PROT_READ|PROT_WRITE, Waddr base = 0);
 void ptl_mm_free_private_pages(void* addr, Waddr bytecount);
 void ptl_mm_zero_private_pages(void* base, Waddr bytecount);
 
