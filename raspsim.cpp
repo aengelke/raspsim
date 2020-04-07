@@ -214,16 +214,26 @@ void assist_ptlcall(Context& ctx) {
 Context& contextof(int vcpu) { return ctx; }
 
 W64 loadphys(Waddr addr) {
-  // logfile << "VMEM: Loadphys ", (void*)addr, " (8)", endl, flush;
-  addr = floor(signext64(addr, 48), 8);
-  W64& data = *(W64*)asp.page_virt_to_mapped(addr);
+  W64* ptr;
+  if (addr & 0x0000800000000000) {
+    ptr = (W64*)(addr & 0x7fffffffffff);
+  } else {
+    ptr = (W64*)asp.page_virt_to_mapped(floor(signext64(addr, 48), 8));
+  }
+  W64& data = *ptr;
+  // logfile << "VMEM: Loadphys ", (void*)addr, " (8) ", data, endl, flush;
   return data;
 }
 
 W64 storemask(Waddr addr, W64 data, byte bytemask) {
   // logfile << "VMEM: Storemask ", (void*)addr, " (8, ", bytemask, ")", endl, flush;
-  addr = floor(signext64(addr, 48), 8);
-  W64& mem = *(W64*)asp.page_virt_to_mapped(addr);
+  W64* ptr;
+  if (addr & 0x0000800000000000) {
+    ptr = (W64*)(addr & 0x7fffffffffff);
+  } else {
+    ptr = (W64*)asp.page_virt_to_mapped(floor(signext64(addr, 48), 8));
+  }
+  W64& mem = *ptr;
   mem = mux64(expand_8bit_to_64bit_lut[bytemask], mem, data);
   return data;
 }
@@ -326,7 +336,7 @@ Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool store, bo
 
   if unlikely (internal) {
     // Directly mapped to PTL space:
-    return virtaddr;
+    return virtaddr | 0x0000800000000000;
   }
 
   AddressSpace::spat_t top = (store) ? asp.writemap : asp.readmap;
