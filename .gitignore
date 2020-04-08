@@ -1,0 +1,10 @@
+.depend
+cpuid
+dstbuild.temp.cpp
+ptlsim
+ptlsim.dst
+ptlstats
+raspsim
+test.dat
+dumpcode.dat
+*.o
