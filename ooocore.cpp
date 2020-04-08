@@ -1021,6 +1021,8 @@ bool ThreadContext::handle_exception() {
     ctx.x86_exception = EXCEPTION_x86_fpu_not_avail; break;
   case EXCEPTION_FloatingPoint:
     ctx.x86_exception = EXCEPTION_x86_fpu; break;
+  case EXCEPTION_DivideOverflow:
+    ctx.x86_exception = EXCEPTION_x86_divide; break;
   default:
     logfile << "Unsupported internal exception type ", exception_name(ctx.exception), endl, flush;
     assert(false);
