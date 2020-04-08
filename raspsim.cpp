@@ -256,6 +256,7 @@ int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorC
     faultaddr = addr;
     pfec.p = !readable;
     pfec.nx = (forexec & (!executable));
+    pfec.us = 1;
     return n;
   }
 
@@ -276,6 +277,7 @@ int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorC
     faultaddr = addr + n;
     pfec.p = !readable;
     pfec.nx = (forexec & (!executable));
+    pfec.us = 1;
     return n;
   }
 
@@ -312,6 +314,7 @@ int Context::copy_to_user(Waddr target, void* source, int bytes, PageFaultErrorC
     faultaddr = target + nlo;
     pfec.p = asp.fastcheck((byte*)(target + nlo), asp.readmap);
     pfec.rw = 1;
+    pfec.us = 1;
     return nlo;
   }
 
@@ -343,9 +346,9 @@ Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool store, bo
 
   if unlikely (!asp.fastcheck(virtaddr, top)) {
     exception = (store) ? EXCEPTION_PageFaultOnWrite : EXCEPTION_PageFaultOnRead;
-    pfec.p = !store;
+    pfec.p = asp.fastcheck(virtaddr, asp.readmap);
     pfec.rw = store;
-    pfec.us = 0;
+    pfec.us = 1;
     return 0;
   }
 
@@ -568,6 +571,20 @@ void Context::propagate_x86_exception(byte exception, W32 errorcode, Waddr virta
 
   logfile << "Exception ", exception, " (", x86_exception_names[exception], ") code=", errorcode, " addr=", (void*)virtaddr, " @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
   cerr << "Exception ", exception, " (", x86_exception_names[exception], ") code=", errorcode, " addr=", (void*)virtaddr, " @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
+
+  // PF
+  if (exception == 14) {
+    // PF Flags
+    W8 p    = errorcode & 0x00000001;
+    W8 wr   = errorcode & 0x00000002;
+    W8 us   = errorcode & 0x00000004;
+    W8 rsvd = errorcode & 0x00000008;
+    W8 id   = errorcode & 0x00000010;
+    W8 pk   = errorcode & 0x00000020;
+
+    logfile << "PageFault error code: 0x", hexstring(errorcode, 32), ", Flags: ", (pk ? "PK " : ""), (id ? "I " : "D "), (rsvd ? "RSVD " : ""), (us ? "U " : "S "), (wr ? "W " : "R "), (p ? "P" : ""), endl, flush;
+    cerr    << "PageFault error code: 0x", hexstring(errorcode, 32), ", Flags: ", (pk ? "PK " : ""), (id ? "I " : "D "), (rsvd ? "RSVD " : ""), (us ? "U " : "S "), (wr ? "W " : "R "), (p ? "P" : ""), endl, flush;
+  }
 
   if (config.dumpcode_filename.set()) {
     byte insnbuf[1024];
