@@ -1004,7 +1004,6 @@ bool ThreadContext::handle_exception() {
     return true;
   }
 
-#ifdef PTLSIM_HYPERVISOR
   //
   // Map PTL internal hardware exceptions to their x86 equivalents,
   // depending on the context. The error_code field should already
@@ -1029,7 +1028,9 @@ bool ThreadContext::handle_exception() {
 
   if (logable(4)) {
     logfile << ctx;
+#ifdef PTLSIM_HYPERVISOR
     logfile << sshinfo;
+#endif
   }
 
   ctx.propagate_x86_exception(ctx.x86_exception, ctx.error_code, ctx.cr2);
@@ -1038,24 +1039,6 @@ bool ThreadContext::handle_exception() {
   flush_pipeline();
 
   return true;
-#else
-  if (logable(6)) 
-    logfile << "Exception (", exception_name(ctx.exception), " called from ", (void*)(Waddr)ctx.commitarf[REG_rip], 
-      ") at ", sim_cycle, " cycles, ", total_user_insns_committed, " commits", endl, flush;
-
-  stringbuf sb;
-  logfile << exception_name(ctx.exception), " detected at fault rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " @ ", 
-    total_user_insns_committed, " commits (", total_uops_committed, " uops): genuine user exception (",
-    exception_name(ctx.exception), "); aborting", endl;
-  logfile << ctx, endl;
-  logfile << flush;
-
-  logfile << "Aborting...", endl, flush;
-  cerr << "Aborting...", endl, flush;
-
-  assert(false);
-  return false;
-#endif
 }
 
 bool ThreadContext::handle_interrupt() {

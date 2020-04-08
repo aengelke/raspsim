@@ -973,7 +973,6 @@ struct SequentialCore {
   bool handle_exception() {
     core_to_external_state(ctx);
 
-#ifdef PTLSIM_HYPERVISOR
     if (logable(4)) {
       logfile << "PTL Exception ", exception_name(ctx.exception), " called from rip ", (void*)(Waddr)ctx.commitarf[REG_rip], 
         " at ", sim_cycle, " cycles, ", total_user_insns_committed, " commits", endl, flush;
@@ -1002,7 +1001,9 @@ struct SequentialCore {
 
     if (logable(4)) {
       logfile << ctx;
+#ifdef PTLSIM_HYPERVISOR
       logfile << sshinfo;
+#endif
     }
 
     ctx.propagate_x86_exception(ctx.x86_exception, ctx.error_code, ctx.cr2);
@@ -1010,24 +1011,6 @@ struct SequentialCore {
     external_to_core_state(ctx);
 
     return true;
-#else
-    if (logable(6)) 
-      logfile << "Exception (", exception_name(ctx.exception), " called from ", (void*)(Waddr)ctx.commitarf[REG_rip], 
-        ") at ", sim_cycle, " cycles, ", total_user_insns_committed, " commits", endl, flush;
-
-    stringbuf sb;
-    logfile << exception_name(ctx.exception), " detected at fault rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " @ ", 
-      total_user_insns_committed, " commits (", total_uops_committed, " uops): genuine user exception (",
-      exception_name(ctx.exception), "); aborting", endl;
-    logfile << ctx, endl;
-    logfile << flush;
-
-    logfile << "Aborting...", endl, flush;
-    cerr << "Aborting...", endl, flush;
-
-    assert(false);
-    return false;
-#endif
   }
 
 #ifdef PTLSIM_HYPERVISOR
@@ -1257,9 +1240,7 @@ struct SequentialCore {
         if (status == ISSUE_EXCEPTION) {
           ctx.exception = LO32(state.reg.rddata);
           ctx.error_code = HI32(state.reg.rddata); // page fault error code
-#ifdef PTLSIM_HYPERVISOR
           ctx.cr2 = origvirt;
-#endif
           arf[REG_flags] = saved_flags;
           return SEQEXEC_EXCEPTION;
         } else if (status == ISSUE_REFETCH) {

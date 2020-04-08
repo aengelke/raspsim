@@ -566,8 +566,8 @@ W16 saved_gs;
 void Context::propagate_x86_exception(byte exception, W32 errorcode, Waddr virtaddr) {
   Waddr rip = ctx.commitarf[REG_selfrip];
 
-  logfile << "Exception ", exception, " (", x86_exception_names[exception], ") @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
-  cerr << "Exception ", exception, " (", x86_exception_names[exception], ") @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
+  logfile << "Exception ", exception, " (", x86_exception_names[exception], ") code=", errorcode, " addr=", (void*)virtaddr, " @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
+  cerr << "Exception ", exception, " (", x86_exception_names[exception], ") code=", errorcode, " addr=", (void*)virtaddr, " @ rip ", (void*)(Waddr)commitarf[REG_rip], " (", total_user_insns_committed, " commits, ", sim_cycle, " cycles)", endl, flush;
 
   if (config.dumpcode_filename.set()) {
     byte insnbuf[1024];

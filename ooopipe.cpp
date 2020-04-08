@@ -1693,13 +1693,11 @@ int ReorderBufferEntry::commit() {
       ctx.exception = LO32(subrob.physreg->data);
       ctx.error_code = HI32(subrob.physreg->data);
 
-#ifdef PTLSIM_HYPERVISOR
       // Capture the faulting virtual address for page faults
       if ((ctx.exception == EXCEPTION_PageFaultOnRead) |
           (ctx.exception == EXCEPTION_PageFaultOnWrite)) {
         ctx.cr2 = subrob.origvirt;
       }
-#endif
 
       if unlikely (config.event_log_enabled) core.eventlog.add_commit(EVENT_COMMIT_EXCEPTION_DETECTED, &subrob);
 

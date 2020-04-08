@@ -833,6 +833,9 @@ struct ContextBase {
 #else
   // Always running in userspace version:
   byte running;
+
+  Waddr x86_exception;
+  Waddr cr2;
 #endif
 
   inline void reset() {
