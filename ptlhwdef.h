@@ -836,6 +836,8 @@ struct ContextBase {
 
   Waddr x86_exception;
   Waddr cr2;
+
+  byte no_x87, no_sse;
 #endif
 
   inline void reset() {

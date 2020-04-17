@@ -1674,12 +1674,15 @@ int ReorderBufferEntry::commit() {
     }
 
 #ifdef PTLSIM_HYPERVISOR
-    if unlikely ((subrob.uop.is_sse|subrob.uop.is_x87) && (ctx.cr0.ts | (subrob.uop.is_x87 & ctx.cr0.em))) {
+    bool force_fp_unavailable = (subrob.uop.is_sse|subrob.uop.is_x87) && (ctx.cr0.ts | (subrob.uop.is_x87 & ctx.cr0.em));
+#else
+    bool force_fp_unavailable = (subrob.uop.is_sse&ctx.no_sse)|(subrob.uop.is_x87&ctx.no_x87);
+#endif
+    if unlikely (force_fp_unavailable) {
       subrob.physreg->data = EXCEPTION_FloatingPointNotAvailable;
       subrob.physreg->flags = FLAG_INV;
       if unlikely (subrob.lsq) subrob.lsq->invalid = 1;
     }
-#endif
 
     if unlikely (subrob.physreg->flags & FLAG_INV) {
       //

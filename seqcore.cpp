@@ -1208,6 +1208,8 @@ struct SequentialCore {
       if unlikely (uop.is_sse|uop.is_x87) {
         force_fpu_not_avail_fault = ctx.cr0.ts | (uop.is_x87 & ctx.cr0.em);
       }
+#else
+      force_fpu_not_avail_fault = (uop.is_sse&ctx.no_sse)|(uop.is_x87&ctx.no_x87);
 #endif
       if unlikely (force_fpu_not_avail_fault) {
         if unlikely (config.event_log_enabled) {
