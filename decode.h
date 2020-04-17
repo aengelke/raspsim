@@ -561,7 +561,6 @@ extern odstream bbcache_dump_file;
 // data store template; these must be in sync with the
 // corresponding definitions elsewhere.
 //
-#ifdef DSTBUILD
 static const char* decode_type_names[DECODE_TYPE_COUNT] = {
   "fast", "complex", "x87", "sse", "assist"
 };
@@ -569,6 +568,5 @@ static const char* decode_type_names[DECODE_TYPE_COUNT] = {
 static const char* invalidate_reason_names[INVALIDATE_REASON_COUNT] = {
   "smc", "dma", "spurious", "reclaim", "dirty", "empty"
 };
-#endif
 
 #endif // _DECODE_H_

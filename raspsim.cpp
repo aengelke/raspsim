@@ -926,6 +926,11 @@ int main(int argc, char** argv) {
       cerr << bytestring(mapped, PAGE_SIZE), endl;
     }
   }
+  cerr << "Decoder stats:";
+  foreach(i, DECODE_TYPE_COUNT) {
+    cerr << " ", decode_type_names[i], "=", stats.decoder.x86_decode_type[i];
+  }
+  cerr << endl;
   cerr << flush;
 
   cerr << endl, "=== Exiting after full simulation on tid ", sys_gettid(), " at rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " (",
