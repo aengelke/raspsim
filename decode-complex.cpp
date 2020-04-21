@@ -46,9 +46,10 @@ void assist_int(Context& ctx) {
 #else
   if (intid == 0x80) {
     handle_syscall_32bit(SYSCALL_SEMANTICS_INT80);
+  } else if (intid == 0x01 || intid == 0x03) {
+    ctx.propagate_x86_exception(intid, 0);
   } else {
-    logfile << "Unknown int 0x", hexstring(intid, 8), "; aborting", endl, flush;
-    assert(false);
+    ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault, 0);
   }
 #endif
 }
@@ -489,7 +490,7 @@ void assist_wrmsr(Context& ctx) {
     ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
   }
 #else
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 #endif
 }
 
@@ -525,7 +526,7 @@ void assist_rdmsr(Context& ctx) {
     ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
   }
 #else
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 #endif
 }
 
@@ -625,27 +626,27 @@ void assist_write_debug_reg(Context& ctx) {
 //
 void assist_write_cr0(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 
 void assist_write_cr2(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 
 void assist_write_cr3(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 
 void assist_write_cr4(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 
 void assist_write_debug_reg(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 #endif
 
@@ -783,12 +784,12 @@ void assist_ioport_out(Context& ctx) {
 #else
 void assist_ioport_in(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 
 void assist_ioport_out(Context& ctx) {
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_selfrip];
-  ctx.propagate_x86_exception(EXCEPTION_x86_invalid_opcode);
+  ctx.propagate_x86_exception(EXCEPTION_x86_gp_fault);
 }
 #endif
 
@@ -1405,7 +1406,7 @@ bool TraceDecoder::decode_complex() {
   case 0xcc: {
     // INT3 (breakpoint)
     EndOfDecode();
-    immediate(REG_ar1, 3, 0);
+    immediate(REG_ar1, 0, 3);
     microcode_assist(ASSIST_INT, ripstart, rip);
     end_of_block = 1;
     break;
@@ -1544,7 +1545,6 @@ bool TraceDecoder::decode_complex() {
     break;
   }
 
-#ifdef PTLSIM_HYPERVISOR
   case 0xe6 ... 0xe7: {
     // out [imm8] = %al|%ax|%eax
     DECODE(iform, ra, b_mode);
@@ -1598,7 +1598,6 @@ bool TraceDecoder::decode_complex() {
     end_of_block = 1;
     break;
   }
-#endif
 
   case 0xf0 ... 0xf3: {
     // (prefixes: lock icebrkpt repne repe)
@@ -1610,7 +1609,11 @@ bool TraceDecoder::decode_complex() {
     // hlt (nop)
     // This should be trapped by hypervisor to properly do idle time
     EndOfDecode();
+#ifdef PTLSIM_HYPERVISOR
     this << TransOp(OP_nop, REG_temp0, REG_zero, REG_zero, REG_zero, 3);
+#else
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
+#endif
     break;
   }
 
@@ -1758,7 +1761,11 @@ bool TraceDecoder::decode_complex() {
     // (nop)
     // NOTE! We still have to output something so %rip gets incremented correctly!
     EndOfDecode();
+#ifdef PTLSIM_HYPERVISOR
     this << TransOp(OP_nop, REG_temp0, REG_zero, REG_zero, REG_zero, 3);
+#else
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
+#endif
     break;
   }
 
@@ -1766,7 +1773,11 @@ bool TraceDecoder::decode_complex() {
     // (nop)
     // NOTE! We still have to output something so %rip gets incremented correctly!
     EndOfDecode();
+#ifdef PTLSIM_HYPERVISOR
     this << TransOp(OP_nop, REG_temp0, REG_zero, REG_zero, REG_zero, 3);
+#else
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
+#endif
     break;
   }
 
@@ -1818,7 +1829,7 @@ bool TraceDecoder::decode_complex() {
 
     TransOp ldp(OP_ld, arch_pseudo_reg_to_arch_reg[rd.reg.reg], REG_ctx, REG_imm, REG_zero, 3, offset); ldp.internal = 1; this << ldp;
 #else
-    MakeInvalid();
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
 #endif
     break;
   }
@@ -1860,7 +1871,7 @@ bool TraceDecoder::decode_complex() {
     microcode_assist(index_to_assist[modrm.reg], ripstart, rip);
     end_of_block = 1;
 #else
-    MakeInvalid();
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
 #endif
     break;
   }
@@ -1890,7 +1901,7 @@ bool TraceDecoder::decode_complex() {
 
     TransOp ldp(OP_ld, arch_pseudo_reg_to_arch_reg[rd.reg.reg], REG_ctx, REG_imm, REG_zero, 3, offset); ldp.internal = 1; this << ldp;
 #else
-    MakeInvalid();
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
 #endif
     break;
   }
@@ -1909,7 +1920,7 @@ bool TraceDecoder::decode_complex() {
     microcode_assist(ASSIST_WRITE_DEBUG_REG, ripstart, rip);
     end_of_block = 1;
 #else
-    MakeInvalid();
+    outcome = DECODE_OUTCOME_GP_FAULT; MakeInvalid();
 #endif
     break;
   }
