@@ -254,7 +254,7 @@ int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorC
   if likely (forexec) executable = asp.fastcheck((byte*)addr, asp.execmap);
   if unlikely ((!readable) | (forexec & !executable)) {
     faultaddr = addr;
-    pfec.p = !readable;
+    pfec.p = readable;
     pfec.nx = (forexec & (!executable));
     pfec.us = 1;
     return n;
@@ -275,7 +275,7 @@ int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorC
   if likely (forexec) executable = asp.fastcheck((byte*)(addr + n), asp.execmap);
   if unlikely ((!readable) | (forexec & !executable)) {
     faultaddr = addr + n;
-    pfec.p = !readable;
+    pfec.p = readable;
     pfec.nx = (forexec & (!executable));
     pfec.us = 1;
     return n;
