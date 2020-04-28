@@ -79,7 +79,7 @@ CPPFILES = $(COMMONCPPFILES) $(OOOCPPFILES)
 
 CFLAGS += -D__PTLSIM_OOO_ONLY__
 
-TOPLEVEL = ptlsim raspsim ptlstats ptlcalls.o ptlcalls-32bit.o cpuid
+TOPLEVEL = ptlsim raspsim ptlstats cpuid
 
 all: $(TOPLEVEL)
 	@echo "Compiled successfully..."
