@@ -89,7 +89,6 @@ public:
   void* page_virt_to_mapped(Waddr addr) {
     W8** res = mapped_mem.get(floor(addr, PAGE_SIZE));
     if (!res) return res;
-    // logfile << "ASP: Map ", (void*) addr, " to ", res, endl, flush;
     return (W8*)*res + lowbits(addr, 12);
   }
 
@@ -150,7 +149,7 @@ public:
 #ifdef __x86_64__
     // Is it outside of userspace address range?
     // Check disabled to allow access to VDSO in kernel space.
-    // if unlikely (addr >> 48) return 0;
+    if unlikely (addr >> 48) return 0;
 
     W64 chunkid = pageid(addr) >> log2(SPAT_PAGES_PER_CHUNK);
 
@@ -214,26 +213,12 @@ void assist_ptlcall(Context& ctx) {
 Context& contextof(int vcpu) { return ctx; }
 
 W64 loadphys(Waddr addr) {
-  W64* ptr;
-  if (addr & 0x0000800000000000) {
-    ptr = (W64*)(addr & 0x7fffffffffff);
-  } else {
-    ptr = (W64*)asp.page_virt_to_mapped(floor(signext64(addr, 48), 8));
-  }
-  W64& data = *ptr;
-  // logfile << "VMEM: Loadphys ", (void*)addr, " (8) ", data, endl, flush;
+  W64& data = *(W64*)addr;
   return data;
 }
 
 W64 storemask(Waddr addr, W64 data, byte bytemask) {
-  // logfile << "VMEM: Storemask ", (void*)addr, " (8, ", bytemask, ")", endl, flush;
-  W64* ptr;
-  if (addr & 0x0000800000000000) {
-    ptr = (W64*)(addr & 0x7fffffffffff);
-  } else {
-    ptr = (W64*)asp.page_virt_to_mapped(floor(signext64(addr, 48), 8));
-  }
-  W64& mem = *ptr;
+  W64& mem = *(W64*)addr;
   mem = mux64(expand_8bit_to_64bit_lut[bytemask], mem, data);
   return data;
 }
@@ -339,7 +324,7 @@ Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool store, bo
 
   if unlikely (internal) {
     // Directly mapped to PTL space:
-    return virtaddr | 0x0000800000000000;
+    return virtaddr;
   }
 
   AddressSpace::spat_t top = (store) ? asp.writemap : asp.readmap;
@@ -352,7 +337,7 @@ Waddr Context::check_and_translate(Waddr virtaddr, int sizeshift, bool store, bo
     return 0;
   }
 
-  return virtaddr;
+  return (Waddr) asp.page_virt_to_mapped(floor(signext64(virtaddr, 48), 8));
 }
 
 int Context::write_segreg(unsigned int segid, W16 selector) {
