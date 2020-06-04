@@ -1075,7 +1075,9 @@ enum {
   OP_ld,
   OP_ldx,
   OP_ld_pre,
+  OP_ld_a16,
   OP_st,
+  OP_st_a16,
   OP_mf,
   // Shifts, rotates and complex masking
   OP_shl,

@@ -178,7 +178,9 @@ namespace OutOfOrderModel {
     {OP_ld,             3, LSU1|LSU2},
     {OP_ldx,            3, LSU1|LSU2},
     {OP_ld_pre,         1, LSU1     },
+    {OP_ld_a16,         3, LSU1|LSU2},
     {OP_st,             1, LSU1|LSU2},
+    {OP_st_a16,         1, LSU1|LSU2},
     {OP_mf,             1, LSU1     },
     // Shifts, rotates and complex masking
     {OP_shl,            1, ALU1|ALU2|ALU3},

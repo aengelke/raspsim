@@ -182,7 +182,9 @@ namespace OutOfOrderModel {
     {OP_ld,             L, ANYLDU},
     {OP_ldx,            L, ANYLDU},
     {OP_ld_pre,         1, ANYLDU},
+    {OP_ld_a16,         L, ANYLDU},
     {OP_st,             1, ANYSTU},
+    {OP_st_a16,         1, ANYSTU},
     {OP_mf,             1, STU0  },
     // Shifts, rotates and complex masking
     {OP_shl,            A, ANYALU},

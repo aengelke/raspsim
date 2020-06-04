@@ -81,7 +81,9 @@ const OpcodeInfo opinfo[OP_MAX_OPCODE] = {
   {"ld",             OPCLASS_LOAD,          opABC    }, // load zero extended
   {"ldx",            OPCLASS_LOAD,          opABC    }, // load sign extended
   {"ld.pre",         OPCLASS_PREFETCH,      opAB     }, // prefetch
+  {"ld.a16",         OPCLASS_LOAD,          opABC    }, // load zero extended, 16-byte aligned
   {"st",             OPCLASS_STORE,         opABC    }, // store
+  {"st.a16",         OPCLASS_STORE,         opABC    }, // store, 16-byte aligned
   {"mf",             OPCLASS_FENCE,         opNOSIZE }, // memory fence (extshift holds type: 01 = st, 10 = ld, 11 = ld.st)
   // Shifts, rotates and complex masking
   {"shl",            OPCLASS_SHIFTROT,      opABC|ccC},
