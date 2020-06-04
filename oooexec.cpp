@@ -1610,7 +1610,7 @@ LoadStoreQueueEntry* ReorderBufferEntry::find_nearest_memory_fence() {
   ThreadContext& thread = getthread();
 
   bool ld = isload(uop.opcode);
-  bool st = (uop.opcode == OP_st);
+  bool st = (uop.opcode == OP_st || uop.opcode == OP_st_a16);
 
   foreach_backward_before(thread.LSQ, lsq, i) {
     LoadStoreQueueEntry& stbuf = thread.LSQ[i];

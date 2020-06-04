@@ -1795,7 +1795,7 @@ int ReorderBufferEntry::commit() {
   // release will never appear, and thread 1 will spin forever.
   //
 
-  if unlikely (uop.opcode == OP_st) {
+  if unlikely (uop.opcode == OP_st || uop.opcode == OP_st_a16) {
     W64 lockaddr = lsq->physaddr << 3;
     MemoryInterlockEntry* lock = interlocks.probe(lockaddr);
 
@@ -1932,7 +1932,7 @@ int ReorderBufferEntry::commit() {
     }
   }
 
-  if unlikely (uop.opcode == OP_st) {
+  if unlikely (uop.opcode == OP_st || uop.opcode == OP_st_a16) {
     Waddr mfn = (lsq->physaddr << 3) >> 12;
     smc_setdirty(mfn);
 

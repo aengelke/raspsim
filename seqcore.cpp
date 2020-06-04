@@ -1307,7 +1307,7 @@ struct SequentialCore {
 
       assert(!ctx.exception);
 
-      if unlikely (uop.opcode == OP_st) {
+      if unlikely (uop.opcode == OP_st || uop.opcode == OP_st_a16) {
         if (sfr.bytemask) {
           if unlikely (cmtrec) {
             transactmem.store(sfr.physaddr << 3, sfr.data, sfr.bytemask);
