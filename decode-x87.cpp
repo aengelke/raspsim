@@ -604,7 +604,7 @@ bool TraceDecoder::decode_x87() {
       if (op == 0x651) {
         this << TransOp(OP_fcvt_d2q, REG_temp0, REG_zero, REG_temp0,
                                      REG_zero, 3);
-        result_store(REG_temp0, REG_temp1, rd, DATATYPE_DOUBLE);
+        result_store(REG_temp0, REG_temp1, rd, OP_st, DATATYPE_DOUBLE);
         x87_pop_stack();
       } else {
         /* REG_ar1 is the target address
@@ -637,7 +637,7 @@ bool TraceDecoder::decode_x87() {
       EndOfDecode();
       x87_load_stack(REG_temp0, REG_fptos);
       this << TransOp(OP_fcvt_d2s_ins, REG_temp0, REG_zero, REG_temp0, REG_zero, 3);
-      result_store(REG_temp0, REG_temp1, rd, DATATYPE_FLOAT);
+      result_store(REG_temp0, REG_temp1, rd, OP_st, DATATYPE_FLOAT);
 
       if (bit(op, 0)) {
         x87_pop_stack();
@@ -669,7 +669,7 @@ bool TraceDecoder::decode_x87() {
       EndOfDecode();
 
       x87_load_stack(REG_temp0, REG_fptos);
-      result_store(REG_temp0, REG_temp1, rd, DATATYPE_DOUBLE);
+      result_store(REG_temp0, REG_temp1, rd, OP_st, DATATYPE_DOUBLE);
 
       if (bit(op, 0)) {
         x87_pop_stack();

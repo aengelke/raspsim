@@ -1053,8 +1053,8 @@ void TraceDecoder::operand_load(int destreg, const DecodedOperand& memref, int o
   address_generate_and_load_or_store(destreg, REG_zero, memref, opcode, datatype, cachelevel, false, rmw);
 }
 
-void TraceDecoder::result_store(int srcreg, int tempreg, const DecodedOperand& memref, int datatype, bool rmw) {
-  address_generate_and_load_or_store(REG_mem, srcreg, memref, OP_st, datatype, 0, 0, rmw);
+void TraceDecoder::result_store(int srcreg, int tempreg, const DecodedOperand& memref, int opcode, int datatype, bool rmw) {
+  address_generate_and_load_or_store(REG_mem, srcreg, memref, opcode, datatype, 0, 0, rmw);
 }
 
 void TraceDecoder::alu_reg_or_mem(int opcode, const DecodedOperand& rd, const DecodedOperand& ra, W32 setflags, int rcreg, 

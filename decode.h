@@ -203,8 +203,8 @@ struct TraceDecoder {
   int bias_by_segreg(int basereg);
   void address_generate_and_load_or_store(int destreg, int srcreg, const DecodedOperand& memref, int opcode, int datatype = DATATYPE_INT, int cachelevel = 0, bool force_seg_bias = false, bool rmw = false);
   void operand_load(int destreg, const DecodedOperand& memref, int loadop = OP_ld, int datatype = 0, int cachelevel = 0, bool rmw = false);
-  void result_store(int srcreg, int tempreg, const DecodedOperand& memref, int datatype = 0, bool rmw = false);
-  void alu_reg_or_mem(int opcode, const DecodedOperand& rd, const DecodedOperand& ra, W32 setflags, int rcreg, 
+  void result_store(int srcreg, int tempreg, const DecodedOperand& memref, int opcode = OP_st, int datatype = 0, bool rmw = false);
+  void alu_reg_or_mem(int opcode, const DecodedOperand& rd, const DecodedOperand& ra, W32 setflags, int rcreg,
                       bool flagsonly = false, bool isnegop = false, bool ra_rb_imm_form = false, W64s ra_rb_imm_form_rbimm = 0);
 
   void move_reg_or_mem(const DecodedOperand& rd, const DecodedOperand& ra, int force_rd = REG_zero);

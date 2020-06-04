@@ -873,9 +873,9 @@ bool TraceDecoder::decode_sse() {
     if (rd.type == OPTYPE_MEM) {
       // Store
       // This is still idempotent since if the second one was unaligned, the first one must be too
-      result_store(rareg+0, REG_temp0, rd, datatype);
+      result_store(rareg+0, REG_temp0, rd, OP_st, datatype);
       rd.mem.offset += 8;
-      result_store(rareg+1, REG_temp1, rd, datatype);
+      result_store(rareg+1, REG_temp1, rd, OP_st, datatype);
     } else {
       // Move
       int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
@@ -940,7 +940,7 @@ bool TraceDecoder::decode_sse() {
     if (rd.type == OPTYPE_MEM) {
       // Store
       rd.mem.size = (isdouble) ? 3 : 2;
-      result_store(rareg, REG_temp0, rd, datatype);
+      result_store(rareg, REG_temp0, rd, OP_st, datatype);
     } else {
       // Register to register
       int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
@@ -1150,7 +1150,7 @@ bool TraceDecoder::decode_sse() {
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     if (rd.type != OPTYPE_MEM) MakeInvalid();
-    result_store(rareg + ((lowbits(op, 8) == 0x17) ? 1 : 0), REG_temp0, rd, datatype);
+    result_store(rareg + ((lowbits(op, 8) == 0x17) ? 1 : 0), REG_temp0, rd, OP_st, datatype);
     break;
   }
 
@@ -1251,7 +1251,7 @@ bool TraceDecoder::decode_sse() {
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (rd.type == OPTYPE_MEM) {
-      result_store(rareg, REG_temp0, rd, datatype);
+      result_store(rareg, REG_temp0, rd, OP_st, datatype);
     } else {
       int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
       int rdshift = reginfo[rd.reg.reg].sizeshift;
@@ -1287,7 +1287,7 @@ bool TraceDecoder::decode_sse() {
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (rd.type == OPTYPE_MEM) {
       rd.mem.size = 3; // quadword
-      result_store(rareg, REG_temp0, rd, datatype);
+      result_store(rareg, REG_temp0, rd, OP_st, datatype);
     } else {
       int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
       this << TransOp(OP_mov, rdreg, REG_zero, rareg, REG_zero, 3);
