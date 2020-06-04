@@ -1162,10 +1162,10 @@ void TraceDecoder::alu_reg_or_mem(int opcode, const DecodedOperand& rd, const De
 
     if (isimm) {
       this << TransOp(opcode, REG_temp0, REG_temp0, REG_imm, rcreg, sizeshift, ra.imm.imm, 0, setflags);
-      if (!flagsonly) result_store(REG_temp0, REG_temp3, rd, 0, 1);
+      if (!flagsonly) result_store(REG_temp0, REG_temp3, rd, OP_st, 0, 1);
     } else {
       this << TransOp(opcode, REG_temp0, REG_temp0, srcreg, rcreg, sizeshift, 0, 0, setflags);
-      if (!flagsonly) result_store(REG_temp0, REG_temp3, rd, 0, 1);
+      if (!flagsonly) result_store(REG_temp0, REG_temp3, rd, OP_st, 0, 1);
     }
   } else if ((rd.type == OPTYPE_MEM) && (ra.type == OPTYPE_MEM)) {
     //
