@@ -190,6 +190,7 @@ enum {
   EXCEPTION_FloatingPoint,
   EXCEPTION_FloatingPointNotAvailable,
   EXCEPTION_DivideOverflow,
+  EXCEPTION_InvalidAddr,
   EXCEPTION_COUNT
 };
 

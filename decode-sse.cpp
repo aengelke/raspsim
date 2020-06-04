@@ -137,10 +137,12 @@ bool TraceDecoder::decode_sse() {
       //
       if ((op >> 8) == 0x2) ra.mem.size = 2;
 
-      operand_load(REG_temp0, ra, OP_ld, datatype);
       if (packed) {
+        operand_load(REG_temp0, ra, OP_ld_a16, datatype);
         ra.mem.offset += 8;
         operand_load(REG_temp1, ra, OP_ld, datatype);
+      } else {
+        operand_load(REG_temp0, ra, OP_ld, datatype);
       }
     } else {
       rbreg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
@@ -228,9 +230,9 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_128BIT);
       ra.mem.offset += 8;
-        operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
     } else {
       rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     }
@@ -294,9 +296,9 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_128BIT);
       ra.mem.offset += 8;
-        operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
     } else {
       rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     }
@@ -466,9 +468,9 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_128BIT);
       ra.mem.offset += 8;
-        operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
+      operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_128BIT);
     } else {
       rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     }
@@ -504,7 +506,7 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_DOUBLE);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_DOUBLE);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_DOUBLE);
     } else {
@@ -535,7 +537,7 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_DOUBLE);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_DOUBLE);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_DOUBLE);
     } else {
@@ -624,7 +626,7 @@ bool TraceDecoder::decode_sse() {
     int rareg;
 
     if (ra.type == OPTYPE_MEM) {
-      operand_load(REG_temp0, ra, OP_ld);
+      operand_load(REG_temp0, ra, OP_ld_a16);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld);
       rareg = REG_temp0;
@@ -646,7 +648,7 @@ bool TraceDecoder::decode_sse() {
     int rareg;
 
     if (ra.type == OPTYPE_MEM) {
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_DOUBLE);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_DOUBLE);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_DOUBLE);
       rareg = REG_temp0;
@@ -669,7 +671,7 @@ bool TraceDecoder::decode_sse() {
     int rareg;
 
     if (ra.type == OPTYPE_MEM) {
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_DOUBLE);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_DOUBLE);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_DOUBLE);
       rareg = REG_temp0;
@@ -712,7 +714,7 @@ bool TraceDecoder::decode_sse() {
     int rareg;
 
     if (ra.type == OPTYPE_MEM) {
-      operand_load(REG_temp0, ra, OP_ld, DATATYPE_VEC_FLOAT);
+      operand_load(REG_temp0, ra, OP_ld_a16, DATATYPE_VEC_FLOAT);
       ra.mem.offset += 8;
       operand_load(REG_temp1, ra, OP_ld, DATATYPE_VEC_FLOAT);
       rareg = REG_temp0;
@@ -842,9 +844,10 @@ bool TraceDecoder::decode_sse() {
     int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (ra.type == OPTYPE_MEM) {
+      bool a16 = op == 0x328 || op == 0x528 || op == 0x56f;
       // Load
       // This is still idempotent since if the second one was unaligned, the first one must be too
-      operand_load(rdreg+0, ra, OP_ld, datatype);
+      operand_load(rdreg+0, ra, a16 ? OP_ld_a16 : OP_ld, datatype);
       ra.mem.offset += 8;
       operand_load(rdreg+1, ra, OP_ld, datatype);
     } else {
@@ -871,9 +874,10 @@ bool TraceDecoder::decode_sse() {
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (rd.type == OPTYPE_MEM) {
+      bool a16 = op == 0x329 || op == 0x529 || op == 0x57f || op == 0x5e7 || op == 0x5e2b || op == 0x32b;
       // Store
       // This is still idempotent since if the second one was unaligned, the first one must be too
-      result_store(rareg+0, REG_temp0, rd, OP_st, datatype);
+      result_store(rareg+0, REG_temp0, rd, a16 ? OP_st_a16 : OP_st, datatype);
       rd.mem.offset += 8;
       result_store(rareg+1, REG_temp1, rd, OP_st, datatype);
     } else {
@@ -1000,7 +1004,7 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(rareg+0, ra, OP_ld, (op == 0x570) ? DATATYPE_VEC_32BIT : DATATYPE_VEC_FLOAT);
+      operand_load(rareg+0, ra, OP_ld_a16, (op == 0x570) ? DATATYPE_VEC_32BIT : DATATYPE_VEC_FLOAT);
       ra.mem.offset += 8;
       operand_load(rareg+1, ra, OP_ld, (op == 0x570) ? DATATYPE_VEC_32BIT : DATATYPE_VEC_FLOAT);
     } else {
@@ -1036,6 +1040,7 @@ bool TraceDecoder::decode_sse() {
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
       ra.mem.offset += (8 * hi);
+      // TODO(AE): Use OP_ld_a16 for low part.
       operand_load(rareg+hi, ra, OP_ld, DATATYPE_VEC_16BIT);
     } else {
       rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
@@ -1066,7 +1071,7 @@ bool TraceDecoder::decode_sse() {
 
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(rareg+0, ra, OP_ld, DATATYPE_VEC_DOUBLE);
+      operand_load(rareg+0, ra, OP_ld_a16, DATATYPE_VEC_DOUBLE);
       ra.mem.offset += 8;
       operand_load(rareg+1, ra, OP_ld, DATATYPE_VEC_DOUBLE);
     } else {
@@ -1162,6 +1167,7 @@ bool TraceDecoder::decode_sse() {
     int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (ra.type == OPTYPE_MEM) {
+      // TODO(AE): Use OP_ld_a16 for low part.
       switch (op) {
       case 0x514: // unpcklpd
         operand_load(rdreg+1, ra, OP_ld, datatype); break;
@@ -1196,7 +1202,7 @@ bool TraceDecoder::decode_sse() {
     int rareg;
     if (ra.type == OPTYPE_MEM) {
       rareg = REG_temp0;
-      operand_load(rareg+0, ra, OP_ld, datatype);
+      operand_load(rareg+0, ra, OP_ld_a16, datatype);
       ra.mem.offset += 8;
       operand_load(rareg+1, ra, OP_ld, datatype);
     } else {

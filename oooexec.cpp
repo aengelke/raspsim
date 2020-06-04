@@ -550,13 +550,18 @@ Waddr ReorderBufferEntry::addrgen(LoadStoreQueueEntry& state, Waddr& origaddr, W
   int aligntype = uop.cond;
   bool internal = uop.internal;
   bool signext = (uop.opcode == OP_ldx);
+  bool a16 = (uop.opcode == OP_ld_a16 || uop.opcode == OP_st_a16);
 
   addr = (st) ? (ra + rb) : ((aligntype == LDST_ALIGN_NORMAL) ? (ra + rb) : ra);
   //
-  // x86-64 requires virtual addresses to be canonical: if bit 47 is set, 
+  // x86-64 requires virtual addresses to be canonical: if bit 47 is set,
   // all upper 16 bits must be set. If this is not true, we need to signal
   // a general protection fault.
   //
+  if (addr != (W64)signext64(addr, 48) || (a16 && (addr & 0xf))) {
+    exception = EXCEPTION_InvalidAddr;
+    return 0;
+  }
   addr = (W64)signext64(addr, 48);
   addr &= ctx.virt_addr_mask;
   origaddr = addr;

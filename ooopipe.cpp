@@ -510,6 +510,7 @@ bool ThreadContext::fetch() {
       synthop = current_basic_block->synthops[current_basic_block_transop_index];
     }
 
+    // If opcode is OP_ld_a16/OP_st_a16, it must be aligned.
     transop.unaligned = core.get_unaligned_hint(fetchrip) &&
       ((transop.opcode == OP_ld) | (transop.opcode == OP_ldx) | (transop.opcode == OP_st)) &&
       (transop.cond == LDST_ALIGN_NORMAL);

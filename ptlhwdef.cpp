@@ -202,6 +202,7 @@ const char* exception_names[EXCEPTION_COUNT] = {
   "Float",
   "FloatNotAvail",
   "DivideOverflow",
+  "InvalidAddr",
 };
 
 const char* x86_exception_names[256] = {

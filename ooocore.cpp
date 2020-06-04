@@ -1023,6 +1023,8 @@ bool ThreadContext::handle_exception() {
     ctx.x86_exception = EXCEPTION_x86_fpu; break;
   case EXCEPTION_DivideOverflow:
     ctx.x86_exception = EXCEPTION_x86_divide; break;
+  case EXCEPTION_InvalidAddr:
+    ctx.x86_exception = EXCEPTION_x86_gp_fault; break;
   default:
     logfile << "Unsupported internal exception type ", exception_name(ctx.exception), endl, flush;
     assert(false);
