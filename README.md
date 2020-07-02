@@ -60,6 +60,8 @@ Supported configuration commands:
 - `D<hex addr>` -- dump contents of a 4k page after the simulation.
 - `Fnox87` -- disable x87 FPU emulation
 - `Fnosse` -- disable SSE emulation
+- `Fnocache` -- disable emulation of cache hierarchy, all memory accesses will
+  be emulated as cache hits
 - `<reg> <64-bit value>` -- set a register to a value. Valid register names are
   the 16 general-purpose registers, `rip`, and `flags`. SSE registers are split
   in _low_ and _high_ registers (each 64-bit in size) and are prefixed `xmml`
