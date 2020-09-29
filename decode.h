@@ -11,7 +11,6 @@
 
 #include <globals.h>
 #include <ptlsim.h>
-#include <datastore.h>
 
 struct RexByte {
   // a.k.a., b, x, r, w

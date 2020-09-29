@@ -11,7 +11,6 @@
 
 #include <globals.h>
 #include <superstl.h>
-#include <datastore.h>
 #include <ptlsim.h>
 
 #define STATS_ONLY

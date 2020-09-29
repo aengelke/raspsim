@@ -7,7 +7,6 @@
 
 #include <globals.h>
 #include <ptlsim.h>
-#include <datastore.h>
 #define CPT_STATS
 #include <stats.h>
 #undef CPT_STATS
@@ -320,38 +319,6 @@ void force_logging_enabled() {
   config.flush_event_log_every_cycle = 1;
 }
 
-extern byte _binary_ptlsim_dst_start;
-extern byte _binary_ptlsim_dst_end;
-StatsFileWriter statswriter;
-
-void capture_stats_snapshot(const char* name) {
-  if unlikely (!statswriter) return;
-
-  if (logable(100)|1) {
-    logfile << "Making stats snapshot uuid ", statswriter.next_uuid();
-    if (name) logfile << " named ", name;
-    logfile << " at cycle ", sim_cycle, endl;
-  }
-
-  if (PTLsimMachine::getcurrent()) {
-    PTLsimMachine::getcurrent()->update_stats(stats);
-  }
-
-  setzero(stats.snapshot_name);
-
-  if (name) {
-    stringbuf sb;
-    strncpy(stats.snapshot_name, name, sizeof(stats.snapshot_name));
-  }
-
-  stats.snapshot_uuid = statswriter.next_uuid();
-  statswriter.write(&stats, name);
-}
-
-void flush_stats() {
-  statswriter.flush();
-}
-
 void print_sysinfo(ostream& os);
 
 bool handle_config_change(PTLsimConfig& config, int argc, char** argv) {
@@ -523,11 +490,9 @@ void update_progress() {
 
   if unlikely ((sim_cycle - last_stats_captured_at_cycle) >= config.snapshot_cycles) {
     last_stats_captured_at_cycle = sim_cycle;
-    capture_stats_snapshot();
   }
 
   if unlikely (config.snapshot_now.set()) {
-    capture_stats_snapshot(config.snapshot_now);
     config.snapshot_now.reset();
   }
 }

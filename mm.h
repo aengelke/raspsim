@@ -47,8 +47,6 @@ bool ptl_mm_register_reclaim_handler(mm_reclaim_handler_t handler);
 void ptl_mm_reclaim(size_t bytes = 0, int urgency = 0);
 void ptl_mm_cleanup();
 
-class DataStoreNode;
-DataStoreNode& ptl_mm_capture_stats(DataStoreNode& root);
 void ptl_mm_init(byte* heap_start = null, byte* heap_end = null);
 size_t ptl_mm_getsize(void* p);
 void ptl_mm_dump(ostream& os);

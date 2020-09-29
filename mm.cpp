@@ -8,7 +8,6 @@
 #include <globals.h>
 #include <ptlsim-api.h>
 #include <mm.h>
-#include <datastore.h>
 #include <mm-private.h>
 
 extern ostream logfile;
@@ -675,17 +674,6 @@ struct ExtentAllocator {
 
     return os;
   }
-
-  DataStoreNode& capture_stats(DataStoreNode& root) {
-    root.add("current-bytes-allocated", current_bytes_allocated);
-    root.add("peak-bytes-allocated", peak_bytes_allocated);
-    root.add("allocs", allocs);
-    root.add("frees", frees);
-    root.add("extents-reclaimed", extents_reclaimed);
-    root.add("extent-reclaim-reqs", extent_reclaim_reqs);
-    root.add("chunks-allocated", chunks_allocated);
-    return root;
-  }
 };
 
 template <int CHUNKSIZE, int SIZESLOTS, int HASHSLOTS>
@@ -1085,24 +1073,6 @@ struct SlabAllocator {
     }
 
     return bytes;
-  }
-
-  DataStoreNode& capture_stats(DataStoreNode& root) {
-    root.add("current-objs-allocated", current_objs_allocated);
-    root.add("peak-objs-allocated", peak_objs_allocated);
-
-    root.add("current-bytes-allocated", current_bytes_allocated);
-    root.add("peak-bytes-allocated", peak_bytes_allocated);
-
-    root.add("current-pages-allocated", current_pages_allocated);
-    root.add("peak-pages-allocated", peak_pages_allocated);
-
-    root.add("allocs", allocs);
-    root.add("frees", frees);
-    root.add("page-allocs", page_allocs);
-    root.add("page-frees", page_frees);
-    root.add("reclaim-reqs", reclaim_reqs);
-    return root;
   }
 };
 
@@ -1608,22 +1578,6 @@ void ptl_mm_reclaim(size_t bytes, int urgency) {
   ptl_mm_cleanup();
 
   ptl_mm_add_event(PTL_MM_EVENT_RECLAIM_END, PTL_MM_POOL_ALL, getcaller(), null, bytes);
-}
-
-DataStoreNode& ptl_mm_capture_stats(DataStoreNode& root) {
-#ifndef PTLSIM_HYPERVISOR
-  pagealloc.capture_stats(root("page"));
-  genalloc.capture_stats(root("general"));
-  DataStoreNode& slab = root("slab"); {
-    slab.summable = 1;
-    slab.identical_subtrees = 1;
-    foreach (i, SLAB_ALLOC_SLOT_COUNT) {
-      stringbuf sizestr; sizestr << slaballoc[i].objsize;
-      slaballoc[i].capture_stats(slab(sizestr));
-    }
-  }
-#endif
-  return root;
 }
 
 asmlinkage void* malloc(size_t size) {

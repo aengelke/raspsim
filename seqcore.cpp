@@ -10,7 +10,6 @@
 #include <seqcore.h>
 #include <branchpred.h>
 #include <dcache.h>
-#include <datastore.h>
 #include <stats.h>
 
 // With these disabled, simulation is faster

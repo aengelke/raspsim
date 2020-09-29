@@ -55,16 +55,16 @@ CFLAGS += -fno-trapping-math -fno-stack-protector -fno-exceptions -fno-rtti -fun
 
 
 BASEOBJS = superstl.o config.o mathlib.o syscalls.o
-COMMONOBJS = ptlsim.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o datastore.o seqcore.o $(BASEOBJS) klibc.o
+COMMONOBJS = ptlsim.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o $(BASEOBJS) klibc.o
 
 OOOOBJS = branchpred.o dcache.o ooocore.o ooopipe.o oooexec.o
 RASPSIM_OBJFILES = linkstart.o raspsim-64bit.o $(COMMONOBJS) raspsim.o $(OOOOBJS) linkend.o
 
-COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h datastore.h superstl.h globals.h ptlsim-api.h mm.h loader.h mathlib.h klibc.h syscalls.h stats.h
+COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h superstl.h globals.h ptlsim-api.h mm.h loader.h mathlib.h klibc.h syscalls.h stats.h
 OOOINCLUDES = branchpred.h ooocore.h ooocore-amd-k8.h
 INCLUDEFILES = $(COMMONINCLUDES) $(OOOINCLUDES)
 
-COMMONCPPFILES = ptlsim.cpp raspsim.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp linkstart.S linkend.S uopimpl.cpp dcache.cpp config.cpp datastore.cpp klibc.cpp mathlib.cpp syscalls.cpp
+COMMONCPPFILES = ptlsim.cpp raspsim.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp linkstart.S linkend.S uopimpl.cpp dcache.cpp config.cpp klibc.cpp mathlib.cpp syscalls.cpp
 
 OOOCPPFILES = ooocore.cpp ooopipe.cpp oooexec.cpp seqcore.cpp branchpred.cpp
 

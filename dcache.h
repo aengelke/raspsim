@@ -10,7 +10,6 @@
 #define _DCACHE_H_
 
 #include <ptlsim.h>
-//#include <datastore.h>
 
 struct LoadStoreInfo {
   W16 rob;
@@ -260,12 +259,6 @@ namespace CacheSubsystem {
     static void unlocked(V& slot, W64 tag, int way) { }
 
     static void invalidated(V& line, W64 oldtag, int way) { evicted(line, oldtag); }
-
-    static void savestats(DataStoreNode& ds) {
-      ds.add("lifetime", (W64s*)line_lifetime_histogram, LIFETIME_SLOTS, 0, ((LIFETIME_SLOTS-1) * LIFETIME_INTERVAL), LIFETIME_INTERVAL);
-      ds.add("deadtime", (W64s*)line_deadtime_histogram, DEADTIME_SLOTS, 0, ((DEADTIME_SLOTS-1) * DEADTIME_INTERVAL), DEADTIME_INTERVAL);
-      ds.add("hitcount", (W64s*)line_hitcount_histogram, HITCOUNT_SLOTS, 0, ((HITCOUNT_SLOTS-1) * HITCOUNT_INTERVAL), HITCOUNT_INTERVAL);
-    }
   };
 
   typedef HistogramAssociativeArrayStatisticsCollector<0, L1CacheLine,

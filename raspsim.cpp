@@ -904,8 +904,6 @@ int main(int argc, char** argv) {
   x86_set_mxcsr(ctx.mxcsr | MXCSR_EXCEPTION_DISABLE_MASK);
 
   simulate(config.core_name);
-  capture_stats_snapshot("final");
-  flush_stats();
 
   cerr << "End state:", endl;
   cerr << ctx, endl;
