@@ -547,7 +547,7 @@ void uop_impl_permb(IssueState& state, W64 ra, W64 rb, W64 rc, W16 raflags, W16 
     struct { W64 data; } w64;
     struct { byte b[8]; } bytes;
   };
-  
+
   vec128 ab;
   vec64 d;
 
@@ -746,7 +746,7 @@ inline bool evaluate_cond(int ra, int rb) {
     return ((ra & FLAG_ZF) || (rb & FLAG_CF));
   case 7:  // {1, REG_zf,   REG_cf},   // !cf & !zf:        jnbe ja
     return !((ra & FLAG_ZF) || (rb & FLAG_CF));
-  case 8:  // {0, REG_zf,   REG_zero}, // sf:               js 
+  case 8:  // {0, REG_zf,   REG_zero}, // sf:               js
     return !!(ra & FLAG_SF);
   case 9:  // {0, REG_zf,   REG_zero}, // !sf:              jns
     return !(ra & FLAG_SF);
@@ -792,12 +792,12 @@ uopimpl_func_t implmap_ ## mapname [16]subarrays = { \
 
 #define function(expr, rettype, ...) class { public: rettype operator () (__VA_ARGS__) { return (expr); } }
 
-template <typename T> struct sub_flag_gen_op { 
-  W16 operator ()(T ra, T rb) { x86_op_sub<T, ZAPS|CF|OF> op; byte cf, of; T rd = op(ra, rb, 0, 0, 0, 0, cf, of); return (of << 11) | cf | x86_genflags<T>(rd); } 
+template <typename T> struct sub_flag_gen_op {
+  W16 operator ()(T ra, T rb) { x86_op_sub<T, ZAPS|CF|OF> op; byte cf, of; T rd = op(ra, rb, 0, 0, 0, 0, cf, of); return (of << 11) | cf | x86_genflags<T>(rd); }
 };
 
-template <typename T> struct and_flag_gen_op { 
-  W16 operator ()(T ra, T rb) { return x86_genflags<T>(ra & rb); } 
+template <typename T> struct and_flag_gen_op {
+  W16 operator ()(T ra, T rb) { return x86_genflags<T>(ra & rb); }
 };
 
 //
@@ -1328,7 +1328,7 @@ void x86_op_nop(IssueState& state, W64 ra, W64 rb, W64 rc, W16 raflags, W16 rbfl
   state.reg.rddata = 0;
   state.reg.rdflags = 0;
 }
- 
+
 make_x86_vecop_named_sizes(vadd,    paddb,   paddw,   paddd,  paddq, sizes(1,1,1,1));
 make_x86_vecop_named_sizes(vsub,    psubb,   psubw,   psubd,  psubq, sizes(1,1,1,1));
 make_x86_vecop_named_sizes(vadd_us, paddusb, paddusw, nop,    nop,   sizes(1,1,0,0));
@@ -1434,7 +1434,7 @@ template <typename T>
 W16 compare_and_gen_flags(T ra, T rb) {
   byte cf = 0; byte of = 0;
   asm("sub %[rb],%[ra]; setc %[cf]; seto %[of]" : [ra] "+q" (ra), [cf] "=q" (cf), [of] "=q" (of) : [rb] "qm" (rb));
-  
+
   return x86_genflags<T>(ra) | (W16(cf) << 0) | (W16(of) << 11);
 }
 
@@ -1515,27 +1515,27 @@ uopimpl_func_t get_synthcode_for_uop(int op, int size, bool setflags, int cond, 
   switch (op) {
   case OP_nop:
     func = uop_impl_nop; break;
-  case OP_mov: 
+  case OP_mov:
     func = implmap_mov[size]; break;
   case OP_and:
     func = implmap_and[size][setflags]; break;
-  case OP_or: 
+  case OP_or:
     func = implmap_or[size][setflags]; break;
-  case OP_xor: 
+  case OP_xor:
     func = implmap_xor[size][setflags]; break;
-  case OP_andnot: 
+  case OP_andnot:
     func = implmap_andnot[size][setflags]; break;
-  case OP_ornot: 
+  case OP_ornot:
     func = implmap_ornot[size][setflags]; break;
-  case OP_nand: 
+  case OP_nand:
     func = implmap_nand[size][setflags]; break;
-  case OP_nor: 
+  case OP_nor:
     func = implmap_nor[size][setflags]; break;
-  case OP_eqv: 
+  case OP_eqv:
     func = implmap_eqv[size][setflags]; break;
-  case OP_add: 
+  case OP_add:
     func = implmap_add[size][setflags]; break;
-  case OP_sub: 
+  case OP_sub:
     func = implmap_sub[size][setflags]; break;
   case OP_adda:
     func = implmap_adda[size][extshift][setflags]; break;
@@ -1543,7 +1543,7 @@ uopimpl_func_t get_synthcode_for_uop(int op, int size, bool setflags, int cond, 
     func = implmap_suba[size][extshift][setflags]; break;
   case OP_addm:
     func = implmap_addm[size][setflags]; break;
-  case OP_subm: 
+  case OP_subm:
     func = implmap_subm[size][setflags]; break;
   case OP_sel:
     func = implmap_sel[cond][size]; break;
@@ -1595,26 +1595,26 @@ uopimpl_func_t get_synthcode_for_uop(int op, int size, bool setflags, int cond, 
   case OP_btc:
     func = implmap_btc[size][setflags]; break;
 
-  case OP_rotl: 
+  case OP_rotl:
     func = implmap_rotl[size][setflags]; break;
-  case OP_rotr: 
+  case OP_rotr:
     func = implmap_rotr[size][setflags]; break;
-  case OP_rotcl: 
+  case OP_rotcl:
     func = implmap_rotcl[size][setflags]; break;
-  case OP_rotcr: 
+  case OP_rotcr:
     func = implmap_rotcr[size][setflags]; break;
-  case OP_shl: 
+  case OP_shl:
     func = implmap_shl[size][setflags]; break;
-  case OP_shr: 
+  case OP_shr:
     func = implmap_shr[size][setflags]; break;
   case OP_sar:
     func = implmap_sar[size][setflags]; break;
   case OP_mask:
     func = implmap_mask[size][cond]; break;
 
-  case OP_shls: 
+  case OP_shls:
     func = implmap_shls[size][setflags]; break;
-  case OP_shrs: 
+  case OP_shrs:
     func = implmap_shrs[size][setflags]; break;
   case OP_sars:
     func = implmap_sars[size][setflags]; break;
@@ -1647,9 +1647,9 @@ uopimpl_func_t get_synthcode_for_uop(int op, int size, bool setflags, int cond, 
   case OP_mulhl:
     func = implmap_mulhl[size]; break;
 
-  case OP_ctz: 
+  case OP_ctz:
     func = implmap_ctz[size][setflags]; break;
-  case OP_clz: 
+  case OP_clz:
     func = implmap_clz[size][setflags]; break;
     // case OP_ctpop:
   case OP_permb:

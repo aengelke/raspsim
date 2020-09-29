@@ -21,7 +21,7 @@ namespace math {
     int4 i[2];
     double x;
   } mynumber;
-  
+
 #define ABS(x)   (((x)>0)?(x):-(x))
 #define max(x,y)  (((y)>(x))?(y):(x))
 #define min(x,y)  (((y)<(x))?(y):(x))
@@ -648,9 +648,9 @@ namespace dosincos {
   static const mynumber cc6 = {{0xE6346F14, 0xBBD2E846}};/* -1.6015133010194884e-20 */
   static const mynumber  c8 = {{0x821D5987, 0xBEFA019F}};/* -2.480157866754367e-05  */
   static const mynumber cc8 = {{0x72FFE5CC, 0x3B7AB71E}};/*  3.5357416224857556e-22 */
-  
+
   static const mynumber big = {{0x00000000, 0x42c80000}}; /* 52776558133248         */
-  
+
   static const mynumber hp0 = {{0x54442D18, 0x3FF921FB}}; /* PI / 2                 */
   static const mynumber hp1 = {{0x33145C07, 0x3C91A626}}; /* 6.123233995736766e-17  */
 
@@ -660,7 +660,7 @@ namespace dosincos {
   /* arithmetic action on Double-Length numbers                          */
   /*(x+dx) between 0 and PI/4                                            */
   /***********************************************************************/
-  
+
   void __dubsin(double x, double dx, double v[]) {
     double r,s,p,hx,tx,hy,ty,q,c,cc,d,dd,d2,dd2,e,ee,
       sn,ssn,cs,ccs,ds,dss,dc,dcc;
@@ -669,7 +669,7 @@ namespace dosincos {
 #endif
     mynumber u;
     int4 k;
-    
+
     u.x=x+big.x;
     k = u.i[LOW_HALF]<<2;
     x=x-(u.x-big.x);
@@ -988,7 +988,7 @@ namespace mpa {
   /* d[p+1], d[p+2], ... of a none zero number have no         */
   /* significance and so are the terms e, d[1],d[2],...        */
   /* of a zero.                                                */
-  
+
 #define  X   x->d
 #define  Y   y->d
 #define  Z   z->d
@@ -1492,7 +1492,7 @@ namespace mpa {
     else                {__inv(y,&w,p);   __mul(x,&w,z,p);}
     return;
   }
-  
+
 #undef  X
 #undef  Y
 #undef  Z
@@ -1515,7 +1515,7 @@ namespace mpa {
                               6737716.0,15273068.0,12626985.0,12044668.0,5299519.0,8705461.0,11880201.0,
                               1544726.0,14014857.0,7994139.0,13709579.0,10918111.0,11906095.0,16610011.0,
                               13638367.0,12040417.0,11529578.0,2522774.0}};
-  
+
   static const mp_no hp = {1,{1.0, 1.0,
                               9576373.0,4473553.0,8677769.0,9225495.0,112697.0,10637828.0,
                               10227988.0,13605096.0,268157.0,5010983.0,3556514.0,9703667.0,
@@ -1853,10 +1853,10 @@ namespace mpa {
 
   void __mptan(double x, mp_no *mpy, int p) {
     static const double MONE = -1.0;
-    
+
     int n;
     mp_no mpw, mpc, mps;
-    
+
     n = __mpranred(x, &mpw, p) & 0x00000001; /* negative or positive result */
     __c32(&mpw, &mpc, &mps, p);              /* computing sin(x) and cos(x) */
     if (n)                     /* second or fourth quarter of unit circle */
@@ -1864,7 +1864,7 @@ namespace mpa {
       mpy->d[0] *= MONE;
       }                          /* tan is negative in this area */
     else  __dvd(&mps,&mpc,mpy,p);
-    
+
     return;
   }
 
@@ -2751,7 +2751,7 @@ namespace mpa {
        {{0x6f7c51e8, 0x3ff001fb} },
        {{0x31032e0a, 0xbb5a12e7} },}
     };
-  
+
     int ux,i,n;
     double a,da,a2,b,db,c,dc,c1,cc1,c2,cc2,c3,cc3,fi,ffi,gi,pz,s,sy,
       t,t1,t2,t3,t4,t5,t6,t7,t8,t9,t10,w,x2,xn,xx2,y,ya,yya,z0,z,zz,z2,zz2;
@@ -4349,7 +4349,7 @@ union ieee754_double {
       double rx, x22, result;
       union ieee754_double ex2_u, scale_u;
       //fenv_t oldenv;
-      
+
       MXCSR mxcsr(x86_get_mxcsr());
       W32 oldmxcsr = mxcsr;
       mxcsr.fields.rc = MXCSR_ROUND_NEAREST;
@@ -5025,7 +5025,7 @@ union ieee754_double {
         i1 &= (~i);
       }
     }
-  
+
     u.hilo.hi = i0;
     u.hilo.lo = i1;
     return u.d;
@@ -5165,11 +5165,11 @@ union ieee754_double {
     if (u.ieee.exponent == 0x7ff) { // is it a NaN?
       return (x * 1.0); // 0x3ff0000000000000);
     }
-    
+
     if (x == 0.0) return x;
     u.d = u.d * c2e54;
     u.ieee.exponent = 1023;
-    
+
     return u.d;
   }
 };

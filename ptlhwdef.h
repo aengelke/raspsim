@@ -219,10 +219,10 @@ struct Context;
 
 struct RIPVirtPhysBase {
   W64 rip;
-  W64 mfnlo:28, use64:1, kernel:1, padlo:2, mfnhi:28, df:1, padhi:3;
+  W64 mfnlo:36, use64:1, kernel:1, padlo:2, mfnhi:36, df:1, padhi:3;
 
-  // 28 bits + 12 page offset bits = 40 bit physical addresses
-  static const Waddr INVALID = 0xfffffff;
+  // 36 bits + 12 page offset bits = 48 bit physical addresses
+  static const Waddr INVALID = 0xfffffffff;
 
   ostream& print(ostream& os) const;
 };
@@ -288,7 +288,7 @@ struct IssueState {
       W64 physaddr:48, flags:8, lfrqslot:8;
     } ldreg;
 
-    struct { 
+    struct {
       W64 riptaken;
       W64 ripseq;
     } brreg;
@@ -380,7 +380,7 @@ struct FXSAVEStruct {
       W16 ds;
       W16 reserved2;
     } use32;
-    struct { 
+    struct {
       W64 rip;
       W64 rdp;
     } use64;
@@ -423,7 +423,7 @@ inline void cpu_set_fpcw(W16 fpcw) {
   asm volatile("fldcw %[fpcw]" : : [fpcw] "m" (fpcw));
 }
 
-struct SegmentDescriptor { 
+struct SegmentDescriptor {
 	W16 limit0;
 	W16 base0;
 	W16 base1:8, type:4, s:1, dpl:2, p:1;
@@ -707,7 +707,7 @@ enum {
 enum {
   DEBUGREG_SIZE_1 = 0,
   DEBUGREG_SIZE_2 = 1,
-  DEBUGREG_SIZE_8 = 2, 
+  DEBUGREG_SIZE_8 = 2,
   DEBUGREG_SIZE_4 = 3,
 };
 
@@ -956,7 +956,7 @@ enum {
 
 //
 // Operation Classes
-// 
+//
 
 #define OPCLASS_LOGIC                   (1 << 0)
 
@@ -1263,7 +1263,7 @@ static inline W32 make_mask_control_info(int ms, int mc, int ds) {
 #define MF_TYPE_SFENCE (1 << 0)
 #define MF_TYPE_LFENCE (1 << 1)
 
-// These go in the extshift field of branch and/or jump operations; they are used as hints only: 
+// These go in the extshift field of branch and/or jump operations; they are used as hints only:
 #define BRANCH_HINT_PUSH_RAS (1 << 0)
 #define BRANCH_HINT_POP_RAS (1 << 1)
 
@@ -1303,11 +1303,11 @@ extern const W16 setflags_to_x86_flags[1<<3];
 //
 
 // This is for profiling purposes only, since all loads and stores are uniform except for their sizes:
-enum { 
-  DATATYPE_INT, DATATYPE_FLOAT, DATATYPE_VEC_FLOAT, 
-  DATATYPE_DOUBLE, DATATYPE_VEC_DOUBLE, 
-  DATATYPE_VEC_8BIT, DATATYPE_VEC_16BIT, 
-  DATATYPE_VEC_32BIT, DATATYPE_VEC_64BIT, 
+enum {
+  DATATYPE_INT, DATATYPE_FLOAT, DATATYPE_VEC_FLOAT,
+  DATATYPE_DOUBLE, DATATYPE_VEC_DOUBLE,
+  DATATYPE_VEC_8BIT, DATATYPE_VEC_16BIT,
+  DATATYPE_VEC_32BIT, DATATYPE_VEC_64BIT,
   DATATYPE_VEC_128BIT, DATATYPE_COUNT
 };
 extern const char* datatype_names[DATATYPE_COUNT];
@@ -1346,7 +1346,7 @@ struct TransOp: public TransOpBase {
   void init(int opcode, int rd, int ra, int rb, int rc, int size, W64s rbimm = 0, W64s rcimm = 0, W32 setflags = 0, int memid = 0)  {
     setzero(*this);
     this->opcode = opcode;
-    this->rd = rd; 
+    this->rd = rd;
     this->ra = ra;
     this->rb = rb;
     this->rc = rc;
@@ -1523,9 +1523,9 @@ struct flagstring {
   W64 bits;
   int n;
   bool reverse;
-  
+
   flagstring() { }
-  
+
   flagstring(const W64 bits) {
     this->bits = bits;
   }

@@ -23,7 +23,7 @@
 //
 #ifdef __x86_64__
 
-/* Only used for special circumstances. Stolen from i386/string.h */ 
+/* Only used for special circumstances. Stolen from i386/string.h */
 static inline void * __inline_memcpy(void * to, const void * from, size_t n)
 {
 unsigned long d0, d1, d2;
@@ -46,7 +46,7 @@ return (to);
    function. */
 
 #define __HAVE_ARCH_MEMCPY 1
-extern "C" void *__memcpy(void *to, const void *from, size_t len); 
+extern "C" void *__memcpy(void *to, const void *from, size_t len);
 #define memcpy(dst,src,len) \
 	({ size_t __len = (len);				\
 	   void *__ret;						\
@@ -54,7 +54,7 @@ extern "C" void *__memcpy(void *to, const void *from, size_t len);
 		 __ret = __memcpy((dst),(src),__len);		\
 	   else							\
 		 __ret = __builtin_memcpy((dst),(src),__len);	\
-	   __ret; }) 
+	   __ret; })
 
 #define __HAVE_ARCH_MEMSET
 extern "C" void* memset(void* s, int c, size_t count) {
@@ -79,10 +79,10 @@ extern "C" void* memset(void* s, int c, size_t count) {
 // #define __HAVE_ARCH_MEMMOVE
 void* memmove(void * dest,const void *src,size_t count);
 
-/* Use C out of line version for memcmp */ 
+/* Use C out of line version for memcmp */
 #define memcmp __builtin_memcmp
 
-/* out of line string functions use always C versions */ 
+/* out of line string functions use always C versions */
 #define strlen __builtin_strlen
 #define strcpy __builtin_strcpy
 #define strcat __builtin_strcat
@@ -173,7 +173,7 @@ static __attribute__((always_inline)) inline void * __constant_memcpy(void * to,
 }
 
 #define __HAVE_ARCH_MEMCPY
- 
+
 extern "C" void* memcpy(void* t, const void* f, size_t n) {
   if (__builtin_constant_p(n))
     return __constant_memcpy((t),(f),(n));
@@ -220,7 +220,7 @@ __asm__ __volatile__(
 	:"=&c" (d0), "=&D" (d1)
 	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
 	:"memory");
-return (s);	
+return (s);
 }
 
 /* end of additional stuff */
@@ -264,7 +264,7 @@ __asm__  __volatile__( \
 		default: COMMON("\n\tstosw\n\tstosb"); return s;
 	}
 }
-  
+
 #undef COMMON
 }
 
@@ -1511,7 +1511,7 @@ int vsnprintf(char *buf, size_t size, const char *fmt, va_list args)
 		/* get the precision */
 		precision = -1;
 		if (*fmt == '.') {
-			++fmt;	
+			++fmt;
 			if (isdigit(*fmt))
 				precision = skip_atoi(&fmt);
 			else if (*fmt == '*') {
@@ -1791,7 +1791,7 @@ int vsscanf(const char * buf, const char * fmt, va_list args)
 		if (!*fmt)
 			break;
 		++fmt;
-		
+
 		/* skip this conversion.
 		 * advance both strings to next white space
 		 */
@@ -1880,7 +1880,7 @@ int vsscanf(const char * buf, const char * fmt, va_list args)
 			break;
 		case '%':
 			/* looking for '%' in str */
-			if (*str++ != '%') 
+			if (*str++ != '%')
 				return num;
 			continue;
 		default:

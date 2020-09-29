@@ -13,16 +13,16 @@
 #include <ptlsim.h>
 #include <datastore.h>
 
-struct RexByte { 
+struct RexByte {
   // a.k.a., b, x, r, w
-  byte extbase:1, extindex:1, extreg:1, mode64:1, insnbits:4; 
+  byte extbase:1, extindex:1, extreg:1, mode64:1, insnbits:4;
   RexByte() { }
   RexByte(const byte& b) { *((byte*)this) = b; }
   operator byte() const { return (*((byte*)this)); }
 };
 
-struct ModRMByte { 
-  byte rm:3, reg:3, mod:2; 
+struct ModRMByte {
+  byte rm:3, reg:3, mod:2;
   ModRMByte() { }
   ModRMByte(const byte& b) { *((byte*)this) = b; }
   //operator bool() { return (*((byte*)this)) != 0; }
@@ -68,7 +68,7 @@ enum {
   APR_spl, APR_bpl, APR_sil, APR_dil,
   APR_r8b, APR_r9b, APR_r10b, APR_r11b, APR_r12b, APR_r13b, APR_r14b, APR_r15b,
   // SSE registers
-  APR_xmm0, APR_xmm1, APR_xmm2, APR_xmm3, APR_xmm4, APR_xmm5, APR_xmm6, APR_xmm7, APR_xmm8, APR_xmm9, APR_xmm10, APR_xmm11, APR_xmm12, APR_xmm13, APR_xmm14, APR_xmm15, 
+  APR_xmm0, APR_xmm1, APR_xmm2, APR_xmm3, APR_xmm4, APR_xmm5, APR_xmm6, APR_xmm7, APR_xmm8, APR_xmm9, APR_xmm10, APR_xmm11, APR_xmm12, APR_xmm13, APR_xmm14, APR_xmm15,
   // segments:
   APR_es, APR_cs, APR_ss, APR_ds, APR_fs, APR_gs,
   // special:

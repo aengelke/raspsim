@@ -102,9 +102,9 @@ bitvec<PTL_PAGE_POOL_SIZE> page_is_slab_bitmap;
 struct AddressSizeSpan {
   void* address;
   Waddr size;
-  
+
   AddressSizeSpan() { }
-  
+
   AddressSizeSpan(void* address, Waddr size) {
     this->address = address;
     this->size = size;
@@ -160,7 +160,7 @@ bool is_inside_ptlsim_heap(const void* pp) {
 // overlap an area that is already free.
 //
 // The parameters CHUNKSIZE, SIZESLOTS and HASHSLOTS must
-// be a power of two. 
+// be a power of two.
 //
 // Allocations smaller than one chunk are rounded up to a
 // chunk, i.e. CHUNKSIZE is the minimum granularity. The
@@ -182,13 +182,13 @@ struct ExtentAllocator {
   struct FreeExtent: public FreeExtentBase {
     Waddr size;
     byte padding[CHUNKSIZE - (sizeof(FreeExtentBase) + sizeof(Waddr))];
-    static FreeExtent* sizelink_to_self(selflistlink* link) { return (link) ? (FreeExtent*)(link - 0) : null; } 
+    static FreeExtent* sizelink_to_self(selflistlink* link) { return (link) ? (FreeExtent*)(link - 0) : null; }
     static FreeExtent* startaddrlink_to_self(selflistlink* link) { return (link) ? (FreeExtent*)(link - 1) : null; }
     static FreeExtent* endaddrlink_to_self(selflistlink* link) { return (link) ? (FreeExtent*)(link - 2) : null; }
 
     ostream& print(ostream& os) {
-      return os << this, ": size ", intstring(size, 7), " = ", intstring(size * CHUNKSIZE, 10), 
-        " bytes (range ", (void*)this, " to ", (void*)(this + size), "); sizelink ", FreeExtentBase::sizelink, ", startaddrlink ", FreeExtentBase::startaddrlink, 
+      return os << this, ": size ", intstring(size, 7), " = ", intstring(size * CHUNKSIZE, 10),
+        " bytes (range ", (void*)this, " to ", (void*)(this + size), "); sizelink ", FreeExtentBase::sizelink, ", startaddrlink ", FreeExtentBase::startaddrlink,
         ", endaddrlink ", FreeExtentBase::endaddrlink;
     }
   };
@@ -300,13 +300,13 @@ struct ExtentAllocator {
         if (DEBUG) cerr << "  Exact match: ", r, endl;
         return r;
       }
-      
+
       int remaining_size = r->size - size;
       FreeExtent* rsplit = r + size;
       if (DEBUG) cerr << "rsplit = ", rsplit, ", size ", size, ", r->size = ", r->size, ", remaining_size = ", remaining_size, endl, flush;
 
       free_extent(rsplit, remaining_size);
-      
+
       return r;
     }
 
@@ -453,7 +453,7 @@ struct ExtentAllocator {
         }
 
         if likely (!bytes_in_middle) {
-          r = FreeExtent::sizelink_to_self(r->sizelink.next);          
+          r = FreeExtent::sizelink_to_self(r->sizelink.next);
           continue;
         }
 
@@ -464,7 +464,7 @@ struct ExtentAllocator {
         if (DEBUG) cout << "    Adding reclaimed full page extent at ", (void*)first_full_page, " of ", full_page_bytes, " bytes (", full_page_bytes / sizealign, " pages)", endl;
         ass[n++] = AddressSizeSpan((void*)first_full_page, full_page_bytes);
 
-        Waddr bytes_at_end_of_first_page = ceil(rstart, sizealign) - rstart; 
+        Waddr bytes_at_end_of_first_page = ceil(rstart, sizealign) - rstart;
         Waddr bytes_at_start_of_last_page = rend - floor(rend, sizealign);
 
         alloc_extent(r);
@@ -753,7 +753,7 @@ struct SlabAllocator {
         link = link->next;
       }
 
-      assert(n == freecount); 
+      assert(n == freecount);
       return true;
     }
   };
@@ -780,7 +780,7 @@ struct SlabAllocator {
   W16 objsize;
   W16 max_objects_per_page;
   W16 padding;
-  
+
   static const int FREE_PAGE_HI_THRESH = 4;
   static const int FREE_PAGE_LO_THRESH = 1;
 
@@ -822,14 +822,14 @@ struct SlabAllocator {
     return page->allocator;
   }
 
-  FreeObjectHeader* alloc_from_page(PageHeader* page) {  
+  FreeObjectHeader* alloc_from_page(PageHeader* page) {
     FreeObjectHeader* obj = page->freelist;
     if unlikely (!obj) return obj;
 
     obj->unlink();
     assert(page->freecount > 0);
     page->freecount--;
-    
+
     if unlikely (!page->freelist) {
       assert(page->freecount == 0);
       page->link.unlink();
@@ -1176,7 +1176,7 @@ void* ptl_mm_try_alloc_private_pages(Waddr bytecount, int prot, Waddr base, void
   return p;
 }
 
-void* ptl_mm_alloc_private_pages(Waddr bytecount, int prot, Waddr base) { 
+void* ptl_mm_alloc_private_pages(Waddr bytecount, int prot, Waddr base) {
   static const int retry_count = 64;
 
   foreach (i, retry_count) {
@@ -1240,7 +1240,7 @@ void* ptl_mm_alloc_private_32bit_pages(Waddr bytecount, int prot, Waddr base) {
 #else
   int flags = MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE | (base ? MAP_FIXED : 0);
 #endif
-  void* addr = sys_mmap((void*)base, ceil(bytecount, PAGE_SIZE), prot, flags, 0, 0);  
+  void* addr = sys_mmap((void*)base, ceil(bytecount, PAGE_SIZE), prot, flags, 0, 0);
   ptl_mm_add_event(PTL_MM_EVENT_ALLOC, PTL_MM_POOL_PAGES, getcaller(), addr, bytecount);
   if (addr) {
     pagealloc.allocs++;
@@ -1295,7 +1295,7 @@ void ptl_mm_init(byte* heap_start, byte* heap_end) {
 #else
   // No special actions required
 #endif
-  genalloc.reset();  
+  genalloc.reset();
 
   foreach (i, SLAB_ALLOC_SLOT_COUNT) {
     slaballoc[i].reset((i+1) * SlabAllocator::GRANULARITY);
@@ -1315,7 +1315,7 @@ void ptl_mm_init(byte* heap_start, byte* heap_end) {
     mm_event_buffer_head = ptl_mm_alloc_private_pages_for_objects<MemoryManagerEvent>(MM_EVENT_BUFFER_SIZE);
     mm_event_buffer_end = mm_event_buffer_head + mm_event_buffer_size;
     mm_event_buffer_tail = mm_event_buffer_head;
-    
+
     ptl_mm_add_event(PTL_MM_EVENT_ALLOC, PTL_MM_POOL_PAGES, null, mm_event_buffer_head, MM_EVENT_BUFFER_SIZE * sizeof(MemoryManagerEvent));
   */
 #endif
@@ -1536,7 +1536,7 @@ void ptl_mm_validate() {
   logfile << "ptl_mm_validate() called by ", getcaller(), endl;
   pagealloc.fast_validate();
   genalloc.fast_validate();
-  
+
   foreach (i, SLAB_ALLOC_SLOT_COUNT) {
     slaballoc[i].validate();
   }

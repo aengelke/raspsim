@@ -110,7 +110,7 @@ namespace OutOfOrderModel {
 #define ANYINT ANYALU|ANYSTU|ANYLDU
 
   struct FunctionalUnitInfo {
-    byte opcode;   // Must match definition in ptlhwdef.h and ptlhwdef.cpp! 
+    byte opcode;   // Must match definition in ptlhwdef.h and ptlhwdef.cpp!
     byte latency;  // Latency in cycles, assuming ideal bypass
     W16  fu;       // Map of functional units on which this uop can issue
   };
@@ -191,10 +191,10 @@ namespace OutOfOrderModel {
     {OP_shr,            A, ANYALU},
     {OP_mask,           A, ANYALU},
     {OP_sar,            A, ANYALU},
-    {OP_rotl,           A, ANYALU},  
-    {OP_rotr,           A, ANYALU},   
+    {OP_rotl,           A, ANYALU},
+    {OP_rotr,           A, ANYALU},
     {OP_rotcl,          A, ANYALU},
-    {OP_rotcr,          A, ANYALU},  
+    {OP_rotcr,          A, ANYALU},
     // Multiplication
     {OP_mull,           4, ANYFPU},
     {OP_mulh,           4, ANYFPU},
@@ -203,7 +203,7 @@ namespace OutOfOrderModel {
     // Bit scans
     {OP_ctz,            3, ANYFPU},
     {OP_clz,            3, ANYFPU},
-    {OP_ctpop,          3, ANYFPU},  
+    {OP_ctpop,          3, ANYFPU},
     {OP_permb,          4, ANYFPU},
     // Integer divide and remainder step
     {OP_div,           32, ALU0},
@@ -305,18 +305,18 @@ namespace OutOfOrderModel {
 #undef ANYSTU
 #undef ANYFPU
 #undef ANYINT
-  
+
   //
   // Global limits
   //
-  
+
   const int MAX_ISSUE_WIDTH = 4;
-  
+
   // Largest size of any physical register file or the store queue:
   const int MAX_PHYS_REG_FILE_SIZE = 256;
   const int PHYS_REG_FILE_SIZE = 256;
   const int PHYS_REG_NULL = 0;
-  
+
   //
   // IMPORTANT! If you change this to be greater than 256, you MUST
   // #define BIG_ROB below to use the correct associative search logic
@@ -327,13 +327,13 @@ namespace OutOfOrderModel {
 #define BIG_ROB
 
   const int ROB_SIZE = 128;
-  
+
   // Maximum number of branches in the pipeline at any given time
   const int MAX_BRANCHES_IN_FLIGHT = 16;
 
   // Set this to combine the integer and FP phys reg files:
   // #define UNIFIED_INT_FP_PHYS_REG_FILE
-  
+
 #ifdef UNIFIED_INT_FP_PHYS_REG_FILE
   // unified, br, st
   const int PHYS_REG_FILE_COUNT = 3;
@@ -341,7 +341,7 @@ namespace OutOfOrderModel {
   // int, fp, br, st
   const int PHYS_REG_FILE_COUNT = 4;
 #endif
-  
+
   //
   // Load and Store Queues
   //
@@ -450,8 +450,8 @@ namespace OutOfOrderModel {
     int reserved_entries;
 
     void set_reserved_entries(int num) { reserved_entries = num; }
-    bool reset_shared_entries() { 
-      shared_entries = size - reserved_entries; 
+    bool reset_shared_entries() {
+      shared_entries = size - reserved_entries;
       return true;
     }
     bool alloc_reserved_entry() {
@@ -463,7 +463,7 @@ namespace OutOfOrderModel {
       assert(shared_entries < size - reserved_entries);
       shared_entries++;
       return true;
-    }    
+    }
     bool shared_empty() {
       return (shared_entries == 0);
     }
@@ -575,7 +575,7 @@ namespace OutOfOrderModel {
 
     void init(const char* name, ListOfStateLists& lol, W32 flags = 0);
 
-    StateList(const char* name, ListOfStateLists& lol, W32 flags = 0) {  
+    StateList(const char* name, ListOfStateLists& lol, W32 flags = 0) {
       init(name, lol, flags);
     }
 
@@ -592,7 +592,7 @@ namespace OutOfOrderModel {
         return null;
       count--;
       assert(count >=0);
-      selfqueuelink* obj = removehead(); 
+      selfqueuelink* obj = removehead();
       return obj;
     }
 
@@ -623,7 +623,7 @@ namespace OutOfOrderModel {
     void checkvalid();
   };
 
-  template <typename T> 
+  template <typename T>
   static void print_list_of_state_lists(ostream& os, const ListOfStateLists& lol, const char* title);
 
   //
@@ -648,7 +648,7 @@ namespace OutOfOrderModel {
     void validate() { }
 
     FetchBufferEntry() { }
-    
+
     FetchBufferEntry(const TransOp& transop) {
       *((TransOp*)this) = transop;
     }
@@ -663,7 +663,7 @@ namespace OutOfOrderModel {
   struct OutOfOrderCoreEvent;
   //
   // Reorder Buffer (ROB) structure, used for tracking all uops in flight.
-  // This same structure is used to represent both dispatched but not yet issued 
+  // This same structure is used to represent both dispatched but not yet issued
   // uops as well as issued uops.
   //
   struct ReorderBufferEntry: public selfqueuelink {
@@ -784,7 +784,7 @@ namespace OutOfOrderModel {
     }
 
     void validate() { entry_valid = 1; }
-  
+
     ostream& print(ostream& os) const;
 
     LoadStoreQueueEntry& operator =(const SFR& sfr) {
@@ -814,7 +814,7 @@ namespace OutOfOrderModel {
   //
   // Physical Register File
   //
- 
+
   struct PhysicalRegister: public selfqueuelink {
     ReorderBufferEntry* rob;
     W64 data;
@@ -867,7 +867,7 @@ namespace OutOfOrderModel {
     void complete() { changestate(PHYSREG_BYPASS); }
     void writeback() { changestate(PHYSREG_WRITTEN); }
 
-    void free() {      
+    void free() {
       changestate(PHYSREG_FREE);
       rob = 0;
       refcount = 0;
@@ -925,7 +925,7 @@ namespace OutOfOrderModel {
 
     void init(const char* name, int coreid, int rfid, int size);
     bool remaining() const { return (!states[PHYSREG_FREE].empty()); }
-   
+
     PhysicalRegister* alloc(W8 threadid, int r = -1);
     void reset(W8 threadid);
     ostream& print(ostream& os) const;
@@ -1005,17 +1005,17 @@ namespace OutOfOrderModel {
     W8 threadid;
 
     void reset() { uuid = 0; rob = 0; vcpuid = 0; threadid = 0;}
- 
+
     ostream& print(ostream& os, W64 physaddr) const {
       os << "phys ", (void*)physaddr, ": vcpu ", vcpuid, ", threadid ", threadid, ", uuid ", uuid, ", rob ", rob;
       return os;
     }
   };
- 
+
   struct MemoryInterlockBuffer: public LockableAssociativeArray<W64, MemoryInterlockEntry, 16, 4, 8> { };
- 
+
   extern MemoryInterlockBuffer interlocks;
- 
+
   //
   // Event Tracing
   //
@@ -1233,11 +1233,11 @@ namespace OutOfOrderModel {
         byte ready;
       } replay;
       struct {
-        W64 virtaddr; 
+        W64 virtaddr;
         W64 data_to_store;
         SFR sfr;
         SFR inherit_sfr;
-        W64 inherit_sfr_uuid;        
+        W64 inherit_sfr_uuid;
         W64 inherit_sfr_rip;
         W16 inherit_sfr_lsq;
         W16 inherit_sfr_rob;
@@ -1447,7 +1447,7 @@ namespace OutOfOrderModel {
     // statistics:
     W64 total_uops_committed;
     W64 total_insns_committed;
-    int dispatch_deadlock_countdown;    
+    int dispatch_deadlock_countdown;
     int issueq_count;
 
     //
@@ -1536,7 +1536,7 @@ namespace OutOfOrderModel {
 
 
 #define foreach_issueq(expr) { OutOfOrderCore& core = getcore(); core.issueq_int0.expr; core.issueq_int1.expr; core.issueq_ld.expr; core.issueq_fp.expr; }
-  
+
     void sched_get_all_issueq_free_slots(int* a) {
       a[0] = issueq_int0.remaining();
       a[1] = issueq_int1.remaining();
@@ -1588,10 +1588,10 @@ namespace OutOfOrderModel {
       threadcount = 0;
       setzero(threads);
     }
-    
+
     ~OutOfOrderCore(){};
 
-    // 
+    //
     // Initialize structures independent of the core parameters
     //
     void init_generic();
@@ -1617,7 +1617,7 @@ namespace OutOfOrderModel {
 
     enum { PHYS_REG_FILE_INT, PHYS_REG_FILE_FP, PHYS_REG_FILE_ST, PHYS_REG_FILE_BR };
 
-    enum {  
+    enum {
       PHYS_REG_FILE_MASK_INT = (1 << 0),
       PHYS_REG_FILE_MASK_FP  = (1 << 1),
       PHYS_REG_FILE_MASK_ST  = (1 << 2),
@@ -1888,7 +1888,7 @@ struct PerContextOutOfOrderCoreStats { // rootnode:
         W64 sfr;
         W64 sfr_and_cache;
       } forward;
-        
+
       struct dependency { // node: summable
         W64 independent;
         W64 predicted_alias_unresolved;
@@ -1896,13 +1896,13 @@ struct PerContextOutOfOrderCoreStats { // rootnode:
         W64 stq_address_not_ready;
         W64 fence;
       } dependency;
-        
+
       struct type { // node: summable
         W64 aligned;
         W64 unaligned;
         W64 internal;
       } type;
-        
+
       W64 size[4]; // label: sizeshift_names
 
       W64 datatype[DATATYPE_COUNT]; // label: datatype_names
@@ -1932,13 +1932,13 @@ struct PerContextOutOfOrderCoreStats { // rootnode:
         W64 zero;
         W64 sfr;
       } forward;
-        
+
       struct type { // node: summable
         W64 aligned;
         W64 unaligned;
         W64 internal;
       } type;
-        
+
       W64 size[4]; // label: sizeshift_names
 
       W64 datatype[DATATYPE_COUNT]; // label: datatype_names

@@ -156,7 +156,7 @@ switch_to_native_restore_context_temp_64_to_32:
   .long 0
   .word 0x23   # selector for 32-bit x86 code
 
-switch_to_native_restore_context_temp_64_or_32_func: 
+switch_to_native_restore_context_temp_64_or_32_func:
   .quad 0
 
 .previous
@@ -236,20 +236,20 @@ inside_sim_escape_code_template_64bit_end:
  * from arch/x86_64/lib/memcpy.S
  * memcpy - Copy a memory block.
  *
- * Input:	
+ * Input:
  * rdi destination
  * rsi source
  * rdx count
- * 
+ *
  * Output:
  * rax original destination
- */	
+ */
 .att_syntax
  	.globl __memcpy
 	.globl memcpy
 	.p2align 4
 __memcpy:
-memcpy:		
+memcpy:
 	pushq %rbx
 	movq %rdi,%rax
 

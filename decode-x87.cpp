@@ -118,12 +118,12 @@ double x87_fpatan(double st1, double st0) {
   asm("fldl %[st1]; fldl %[st0]; fpatan; fstpl %[stout];" : [stout] "=m" (stout) : [st0] "m" (st0), [st1] "m" (st1));
   return stout;
 }
- 
+
 // st(1) = st(1) * log2(st(0)) and pop st(0)
 make_two_input_x87_func_with_pop(fyl2x, st1u.d = x87_fyl2x(st1u.d, st0u.d));
 
 // st(1) = st(1) * log2(st(0) + 1.0) and pop st(0)
-// This insn has very strange semantics: if (st0 < -1.0), 
+// This insn has very strange semantics: if (st0 < -1.0),
 // such that ((st0 + 1.0) < 0), rather than return NaN, it
 // returns the old value in st0 but still pops the stack.
 make_two_input_x87_func_with_pop(fyl2xp1, st1u.d = x87_fyl2xp1(st1u.d, st0u.d));
@@ -412,11 +412,11 @@ void check_warned_about_x87() {
     stringbuf sb;
     sb << endl,
       "//", endl,
-      "// NOTE: This program is using a lot of legacy x87 floating point", endl, 
+      "// NOTE: This program is using a lot of legacy x87 floating point", endl,
       "// at ", total_user_insns_committed, " commits, ", sim_cycle, " cycles.", endl,
       "// PTLsim executes x87 code very sub-optimally: it is HIGHLY recommended", endl,
       "// that you recompile the program with SSE/SSE2 support and/or update", endl,
-      "// the standard libraries (libc, libm) to an SSE/SSE2-specific version.", endl, 
+      "// the standard libraries (libc, libm) to an SSE/SSE2-specific version.", endl,
       "//", endl, endl;
     logfile << sb;
     cerr << sb;
@@ -448,7 +448,7 @@ bool TraceDecoder::decode_x87() {
     //
     // op = 0x600 | (lowbits(op, 3) << 4) | modrm.reg;
     //
-    // 0x600 (0xd8): fadd fmul fcom fcomp fsub fsubr fdiv fdivr 
+    // 0x600 (0xd8): fadd fmul fcom fcomp fsub fsubr fdiv fdivr
     // 0x610 (0xd9): fld32 inv fst fstp fldenv fldcw fnstenv fnstcw
     // | (if mod=11) fldreg fxch fnop (n/a) [fchs|fabs|ftst|fxam] fldCONST [f2xm1 fyl2x fptan tpatan fxtract fprem1 fdecstp fincstp] [fprem fyl2xp1 fsqrt fsincos frndint fscale fsin fcos]
     // 0x620 (0xda): fcmovb fcmove fcmovbe fcmovu (inv) (inv|fucompp) (inv) (inv)
@@ -616,7 +616,7 @@ bool TraceDecoder::decode_x87() {
         immediate(REG_ar2, 3, (8<<1) | 0x1);
         microcode_assist(ASSIST_X87_FIST, ripstart, rip);
         end_of_block = 1;
-      } 
+      }
     }
     break;
   }
@@ -681,7 +681,7 @@ bool TraceDecoder::decode_x87() {
   case 0x657: { // fstsw mem16
     //
     // FPSW format:
-    // 
+    //
     // b  C3 (TOS) C2 C1 C0 es sf pe ue oe ze de ie
     // 15 14 13-11 10  9  8  7  6  5  4  3  2  1  0
     //                             T  O  S (shadow_fptos)
@@ -836,7 +836,7 @@ bool TraceDecoder::decode_x87() {
       this << TransOp(OP_xor, REG_temp0, REG_temp0, REG_imm, REG_zero, 3, (1LL << 63));
       x87_store_stack(REG_fptos, REG_temp0);
       break;
-    } 
+    }
     case 1: { // fabs
       x87_load_stack(REG_temp0, REG_fptos);
       this << TransOp(OP_and, REG_temp0, REG_temp0, REG_imm, REG_zero, 3, ~(1LL << 63));
@@ -889,12 +889,12 @@ bool TraceDecoder::decode_x87() {
         this << TransOp(OP_addm, REG_temp1, REG_fptos, REG_imm, REG_imm, 3, 8*modrm.rm, FP_STACK_MASK);
         x87_load_stack(REG_temp0, REG_fptos);
         x87_load_stack(REG_temp1, REG_temp1);
-        
+
         int cmptype = lowbits(op, 2);
         int rcond;
         int cond;
         bool invert = 0; // ((op & 0xff0) == 0x630);
-        
+
         switch (lowbits(op, 2)) {
         case 0: // fcmovb (CF = 1)
           rcond = REG_cf;
@@ -915,7 +915,7 @@ bool TraceDecoder::decode_x87() {
           rcond = REG_temp2;
           break;
         }
-        
+
         TransOp sel(OP_sel, REG_temp0, REG_temp0, REG_temp1, rcond, 3);
         sel.cond = cond;
         this << sel;
@@ -965,12 +965,12 @@ bool TraceDecoder::decode_x87() {
       this << TransOp(OP_addm, REG_temp1, REG_fptos, REG_imm, REG_imm, 3, 8*modrm.rm, FP_STACK_MASK);
       x87_load_stack(REG_temp0, REG_fptos);
       x87_load_stack(REG_temp1, REG_temp1);
-        
+
       int cmptype = lowbits(op, 2);
       int rcond;
       int cond;
       bool invert = 1;
-        
+
       switch (lowbits(op, 2)) {
       case 0: // fcmovb (CF = 1)
         rcond = REG_cf;
@@ -991,7 +991,7 @@ bool TraceDecoder::decode_x87() {
         rcond = REG_temp2;
         break;
       }
-        
+
       TransOp sel(OP_sel, REG_temp0, REG_temp0, REG_temp1, rcond, 3);
       sel.cond = cond;
       this << sel;
@@ -1076,10 +1076,10 @@ bool TraceDecoder::decode_x87() {
       this << TransOp(OP_addm, REG_temp1, REG_fptos, REG_imm, REG_imm, 3, 8*modrm.rm, FP_STACK_MASK);
       x87_load_stack(REG_temp0, REG_fptos);
       x87_load_stack(REG_temp1, REG_temp1);
-        
+
       //
       // comisX and ucomisX set {zf pf cf} according to the comparison,
-      // and always set {of sf af} to zero. The equivalent x87 version 
+      // and always set {of sf af} to zero. The equivalent x87 version
       // is fucomi/fcomi/fucomip/fcomip:
       //
       bool unordered = bit(op, 0);

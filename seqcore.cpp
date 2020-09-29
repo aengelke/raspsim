@@ -391,7 +391,7 @@ ostream& SequentialCoreEvent::print(ostream& os) const {
   }
   }
 
-  if (uop.eom) os << " [EOM #", eomid, "]";  
+  if (uop.eom) os << " [EOM #", eomid, "]";
   os << endl;
 
   return os;
@@ -454,7 +454,7 @@ bool SequentialCoreEventLog::init(size_t bufsize) {
   if unlikely (!start) return false;
   end = start + bufsize;
   tail = start;
-  
+
   foreach (i, bufsize) start[i].type = EVENT_INVALID;
   return true;
 }
@@ -615,7 +615,7 @@ struct SequentialCore {
 
     addr = (STORE) ? (ra + rb) : ((aligntype == LDST_ALIGN_NORMAL) ? (ra + rb) : ra);
     //
-    // x86-64 requires virtual addresses to be canonical: if bit 47 is set, 
+    // x86-64 requires virtual addresses to be canonical: if bit 47 is set,
     // all upper 16 bits must be set. If this is not true, we need to signal
     // a general protection fault.
     //
@@ -636,7 +636,7 @@ struct SequentialCore {
       //
       addr = floor(addr, 8);
       annul = (floor(origaddr + ((1<<sizeshift)-1), 8) == addr);
-      addr += 8; 
+      addr += 8;
       break;
     }
 
@@ -683,7 +683,7 @@ struct SequentialCore {
 
     if likely (exception == EXCEPTION_UnalignedAccess) {
       //
-      // If we have an unaligned access, mark all loads and stores at this 
+      // If we have an unaligned access, mark all loads and stores at this
       // macro-op's rip as being unaligned and remove the basic block from
       // the bbcache so it gets retranslated with properly split loads
       // and stores after we resume fetching.
@@ -938,7 +938,7 @@ struct SequentialCore {
         ") at ", sim_cycle, " cycles, ", total_user_insns_committed, " commits", endl, flush;
     }
 
-    if (logable(6)) logfile << "Calling assist function at ", (void*)assist, "...", endl, flush; 
+    if (logable(6)) logfile << "Calling assist function at ", (void*)assist, "...", endl, flush;
 
     update_assist_stats(assist);
     if (logable(6)) {
@@ -974,7 +974,7 @@ struct SequentialCore {
     core_to_external_state(ctx);
 
     if (logable(4)) {
-      logfile << "PTL Exception ", exception_name(ctx.exception), " called from rip ", (void*)(Waddr)ctx.commitarf[REG_rip], 
+      logfile << "PTL Exception ", exception_name(ctx.exception), " called from rip ", (void*)(Waddr)ctx.commitarf[REG_rip],
         " at ", sim_cycle, " cycles, ", total_user_insns_committed, " commits", endl, flush;
     }
 
@@ -1076,11 +1076,11 @@ struct SequentialCore {
 
   int execute(BasicBlock* bb, W64 insnlimit) {
     arf[REG_rip] = bb->rip;
-    
+
     //
     // Fetch
     //
-    
+
     bool barrier = 0;
 
     if (logable(5)) logfile << "[vcpu ", ctx.vcpuid, "] Sequentially executing basic block ", bb->rip, " (", bb->count, " uops), insn limit ", insnlimit, endl;
@@ -1139,7 +1139,7 @@ struct SequentialCore {
         split_unaligned(uop, unaligned_ldst_buf);
         assert(unaligned_ldst_buf.get(uop, synthop));
       }
-  
+
       if likely (uop.som) {
         current_uop_in_macro_op = 0;
         bytes_in_current_insn = uop.bytes;
@@ -1193,7 +1193,7 @@ struct SequentialCore {
       bool br = isbranch(uop.opcode);
 
       SFR sfr;
-      
+
       bool refetch = 0;
 
       PTEUpdate pteupdate = 0;
@@ -1257,7 +1257,7 @@ struct SequentialCore {
         state.brreg.riptaken = uop.riptaken;
         state.brreg.ripseq = uop.ripseq;
         assert((void*)synthop);
-        synthop(state, radata, rbdata, rcdata, raflags, rbflags, rcflags); 
+        synthop(state, radata, rbdata, rcdata, raflags, rbflags, rcflags);
 
         if unlikely (config.event_log_enabled) {
           SequentialCoreEvent* event = eventlog.add(EVENT_BRANCH, ctx.vcpuid, uop, rip, current_uop_in_macro_op, current_uuid, total_user_insns_committed);
@@ -1321,7 +1321,7 @@ struct SequentialCore {
       } else if likely (uop.rd != REG_zero) {
         arf[uop.rd] = state.reg.rddata;
         arflags[uop.rd] = state.reg.rdflags;
-        
+
         if (!uop.nouserflags) {
           W64 flagmask = setflags_to_x86_flags[uop.setflags];
           arf[REG_flags] = (arf[REG_flags] & ~flagmask) | (state.reg.rdflags & flagmask);
@@ -1403,13 +1403,13 @@ struct SequentialCore {
 
   int execute() {
     Waddr rip = arf[REG_rip];
-    
+
     current_basic_block = fetch_or_translate_basic_block(rip);
 
     bool exiting = 0;
 
     int result = execute(current_basic_block, (config.stop_at_user_insns - total_user_insns_committed));
-    
+
     switch (result) {
     case SEQEXEC_OK:
     case SEQEXEC_SMC:
@@ -1458,27 +1458,27 @@ struct SequentialCore {
 
     foreach (i, bbcount) {
       Waddr rip = arf[REG_rip];
-      
+
       TraceDecoder trans(ctx, rip);
       trans.split_basic_block_at_locks_and_fences = 1;
       trans.split_invalid_basic_blocks = 1;
-      
+
       byte byte_buffer[MAX_BB_BYTES];
       int valid_byte_count = trans.fillbuf(ctx, byte_buffer, lengthof(byte_buffer));
       assert(valid_byte_count <= lengthof(byte_buffer));
-      
+
       for (;;) { if (!trans.translate()) break; }
-      
+
       if likely (trans.ptelo.p) smc_cleardirty(trans.ptelo.mfn);
       if likely (trans.ptehi.p) smc_cleardirty(trans.ptehi.mfn);
-      
+
       W64 user_insns_at_start = seq_total_user_insns_committed;
       result = execute(&trans.bb, insncount);
       W64 delta_insns = seq_total_user_insns_committed - user_insns_at_start;
       insncount -= delta_insns;
-      
+
       if (trans.bb.synthops) delete[] trans.bb.synthops;
-      
+
       if unlikely (config.event_log_enabled) {
         if unlikely (config.flush_event_log_every_cycle) {
           eventlog.flush(true);
@@ -1511,7 +1511,7 @@ struct SequentialCore {
 
       BasicBlock* bb = fetch_or_translate_basic_block(rip);
       assert(bb);
-      
+
       result = execute(bb, insncount);
       insncount -= bb->user_insn_count;
 
@@ -1656,18 +1656,18 @@ struct SequentialMachine: public PTLsimMachine {
 
     return exiting;
   }
-  
+
   virtual void dump_state(ostream& os) {
     os << "Dumping event log for sequential core:", endl;
     eventlog.print(os);
-    
+
     foreach (i, contextcount) {
       SequentialCore& core =* cores[i];
       Context& ctx = contextof(i);
       // core.print_state(os);
     }
   }
-  
+
   //
   // Update any statistics in stats in preparation
   // for writing it somewhere. The model may also

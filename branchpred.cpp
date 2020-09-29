@@ -327,8 +327,8 @@ struct CombinedPredictor {
     BTBEntry* pbtb = (taken) ? btb.select(branchaddr) : null;
 
     //
-    // Now p is a possibly null pointer into the direction prediction table, 
-    // and pbtb is a possibly null pointer into the BTB (either to a 
+    // Now p is a possibly null pointer into the direction prediction table,
+    // and pbtb is a possibly null pointer into the BTB (either to a
     // matched-on entry or a victim which was LRU in its set)
     //
 
@@ -356,7 +356,7 @@ struct CombinedPredictor {
       if (update.bimodal != update.twolevel) {
         //
         // We only update meta predictor if directions were different.
-        // We increment the counter if the twolevel predictor was correct; 
+        // We increment the counter if the twolevel predictor was correct;
         // if the bimodal predictor was correct, we decrement it.
         //
         byte& counter = *update.cpmeta;

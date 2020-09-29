@@ -119,7 +119,7 @@ namespace superstl {
       // Transition from off -> on: first flush, then alloc
       flush();
       assert(!ringbuf);
-      
+
       ringbuf = new byte[bufsize];
       memset(ringbuf, 0, bufsize);
       ringbuf_tail = 0;
@@ -135,7 +135,7 @@ namespace superstl {
       ringbuf_tail = 0;
 
       ringbuf_mode = 0;
-      // Flush out last part of circular buffer: 
+      // Flush out last part of circular buffer:
       flush();
     }
   }
@@ -198,7 +198,7 @@ namespace superstl {
 
   W64 odstream::seek(W64 pos, int whence) {
     flush();
-    offset = sys_seek(fd, pos, whence);    
+    offset = sys_seek(fd, pos, whence);
     return offset;
   }
 
@@ -285,7 +285,7 @@ namespace superstl {
       // MSB first (default):
       for (int i = bs.n-1; i >= 0; i--) os << (char)(bit(bs.bits, i) + '0');
     }
-    
+
     return os;
   }
 
@@ -320,12 +320,12 @@ namespace superstl {
     os << buf;
     return os;
   }
-  
+
   stringbuf& operator <<(stringbuf& os, const bytestring& bs) {
     foreach (i, bs.n) {
       os << hexstring(bs.bytes[i], 8);
-      if (((i % bs.splitat) == (bs.splitat-1)) && (i != bs.n-1)) 
-        os << endl; 
+      if (((i % bs.splitat) == (bs.splitat-1)) && (i != bs.n-1))
+        os << endl;
       else if (i != bs.n-1)
         os << " ";
     }
@@ -338,8 +338,8 @@ namespace superstl {
       if (bit(bs.mask, i))
         os << hexstring(bs.bytes[i], 8);
       else os << "xx";
-      if (((i % bs.splitat) == (bs.splitat-1)) && (i != bs.n-1)) 
-        os << endl; 
+      if (((i % bs.splitat) == (bs.splitat-1)) && (i != bs.n-1))
+        os << endl;
       else if (i != bs.n-1)
         os << " ";
     }
@@ -457,7 +457,7 @@ namespace superstl {
       }
 
       int presize =  pp - pattern;
-    
+
       sb << substring(pattern, 0, pp - pattern);
       sb << replace;
       pattern = pp + strlen(find);
@@ -799,27 +799,27 @@ namespace superstl {
   //
   void RandomNumberGenerator::reseed(W32 seed) {
     if unlikely (seed == 0) seed = 1; // default seed is 1
-    
+
 #define LCG(n) (69069 * n)
     s1 = LCG(seed);
     s2 = LCG(s1);
     s3 = LCG(s2);
 #undef LCG
-    
+
     // warm it up
     foreach (i, 8) random32();
   }
-  
+
   W32 RandomNumberGenerator::random32() {
 #define TAUSWORTHE(s,a,b,c,d) ((s&c)<<d) ^ (((s <<a) ^ s)>>b)
-    
+
     s1 = TAUSWORTHE(s1, 13, 19, 4294967294UL, 12);
     s2 = TAUSWORTHE(s2, 2, 25, 4294967288UL, 4);
     s3 = TAUSWORTHE(s3, 3, 11, 4294967280UL, 17);
-    
+
     return (s1 ^ s2 ^ s3);
   }
-  
+
   W64 RandomNumberGenerator::random64() {
     return (W64(random32()) << 32) | W64(random32());
   }
@@ -871,9 +871,9 @@ namespace superstl {
 
   ostream& operator <<(ostream& os, const CycleTimer& ct) {
     double seconds = ((double)ct.total / ct.gethz());
-    os << "CycleTimer ", padstring(ct.title, -16), " ", intstring(ct.total, 16), " cycles, ", 
-      floatstring(seconds, 9, 3), " seconds, ", 
-      floatstring((float)ct.total / (float)ct.iterations, 18, 1), " cycles/iter, ", 
+    os << "CycleTimer ", padstring(ct.title, -16), " ", intstring(ct.total, 16), " cycles, ",
+      floatstring(seconds, 9, 3), " seconds, ",
+      floatstring((float)ct.total / (float)ct.iterations, 18, 1), " cycles/iter, ",
       floatstring((float)ct.iterations / (float)seconds, 18, 1), " iters/second";
 
     return os;
@@ -1078,7 +1078,7 @@ namespace superstl {
     quotient = dividend / divisor;
     remainder = T(dividend % divisor);
     quotientlo = T(quotient);
-  
+
     if unlikely (quotient != signext64(W64(quotientlo), B)) goto out;
 
     return true;

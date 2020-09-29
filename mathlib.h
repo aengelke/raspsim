@@ -167,7 +167,7 @@ namespace math {
     u.f = x;
 
     int retval = FP_NORMAL;
-    
+
     u.w &= 0x7fffffff;
     if (u.w == 0)
       retval = FP_ZERO;
@@ -175,7 +175,7 @@ namespace math {
       retval = FP_SUBNORMAL;
     else if (u.w >= 0x7f800000)
       retval = u.w > 0x7f800000 ? FP_NAN : FP_INFINITE;
-    
+
     return retval;
   }
 

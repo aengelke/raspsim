@@ -127,7 +127,7 @@ inline void* operator new[](size_t, void* p) { return p; }
 inline void operator delete(void*, void*) { }
 inline void operator delete[](void*, void*) { }
 
-// Add raw data auto-casts to a structured or bitfield type 
+// Add raw data auto-casts to a structured or bitfield type
 #define RawDataAccessors(structtype, rawtype) \
   structtype() { } \
   structtype(rawtype rawbits) { *((rawtype*)this) = rawbits; } \
@@ -229,7 +229,7 @@ inline vec16b x86_sse_onesb() { vec16b rd; asm("pcmpeqb %[rd],%[rd]" : [rd] "+x"
 inline vec8w x86_sse_zerow() { vec8w rd; asm("pxor %[rd],%[rd]" : [rd] "+x" (rd)); return rd; }
 inline vec8w x86_sse_onesw() { vec8w rd; asm("pcmpeqw %[rd],%[rd]" : [rd] "+x" (rd)); return rd; }
 
-// If lddqu is available (SSE3: Athlon 64 (some cores, like X2), Pentium 4 Prescott), use that instead. It may be faster. 
+// If lddqu is available (SSE3: Athlon 64 (some cores, like X2), Pentium 4 Prescott), use that instead. It may be faster.
 
 extern const byte byte_to_vec16b[256][16];
 extern const byte index_bytes_vec16b[16][16];
@@ -409,16 +409,16 @@ template <> struct lg10<0> { static const int value = 0; };
 template <int N, typename T>
 static inline T foldbits(T a) {
   if (N == 0) return 0;
-  
+
   const int B = (sizeof(T) * 8);
   const int S = (B / N) + ((B % N) ? 1 : 0);
-  
+
   T z = 0;
   foreach (i, S) {
     z ^= a;
     a >>= N;
   }
-  
+
   return lowbits(z, N);
 }
 
@@ -774,32 +774,32 @@ static bool makelut(int x) {
 
 inline bool modulo_ranges_intersect(int a0, int a1, int b0, int b1, int size) {
 
-  int idx = 
+  int idx =
     ((a0 <= a1) << 0) |
     ((a1 <= b0) << 1) |
     ((b0 <= b1) << 2) |
     ((b1 <= a0) << 3) |
     ((a0 != b0) << 4) |
     ((a0 != b1) << 5) |
-    ((a1 != b0) << 6) | 
+    ((a1 != b0) << 6) |
     ((a1 != b1) << 7);
 
   static const byte lut[256] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
     1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0
   };
 

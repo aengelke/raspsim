@@ -183,7 +183,7 @@ void ConfigurationParser<PTLsimConfig>::setup() {
   section("Trace Stop Point");
   add(stop_at_user_insns,           "stopinsns",            "Stop after executing <stopinsns> user instructions");
   add(stop_at_cycle,                "stopcycle",            "Stop after <stop> cycles");
-  add(stop_at_iteration,            "stopiter",             "Stop after <stop> iterations (does not apply to cycle-accurate cores)");  
+  add(stop_at_iteration,            "stopiter",             "Stop after <stop> iterations (does not apply to cycle-accurate cores)");
   add(stop_at_rip,                  "stoprip",              "Stop before rip <stoprip> is translated for the first time");
   add(stop_at_marker,               "stop-at-marker",       "Stop after PTLCALL_MARKER with marker X");
   add(stop_at_marker_hits,          "stop-at-marker-hits",  "Stop after PTLCALL_MARKER is called N times");
@@ -253,7 +253,7 @@ void print_banner(ostream& os, const PTLsimStats& stats, int argc, char** argv) 
   os << "//  Copyright 1999-2007 Matt T. Yourst <yourst@yourst.com>", endl;
   os << "// ", endl;
   os << "//  Revision ", stringify(SVNREV), " (", stringify(SVNDATE), ")", endl;
-  os << "//  Built ", __DATE__, " ", __TIME__, " on ", stringify(BUILDHOST), " using gcc-", 
+  os << "//  Built ", __DATE__, " ", __TIME__, " on ", stringify(BUILDHOST), " using gcc-",
     stringify(__GNUC__), ".", stringify(__GNUC_MINOR__), endl;
   os << "//  Running on ", hostinfo.nodename, ".", hostinfo.domainname, endl;
   os << "//  ", endl;
@@ -498,9 +498,9 @@ void update_progress() {
     double seconds = ticks_to_seconds(delta);
     double cycles_per_sec = (sim_cycle - last_printed_status_at_cycle) / seconds;
     double insns_per_sec = (total_user_insns_committed - last_printed_status_at_user_insn) / seconds;
-    
+
     stringbuf sb;
-    sb << "Completed ", intstring(sim_cycle, 13), " cycles, ", intstring(total_user_insns_committed, 13), " commits: ", 
+    sb << "Completed ", intstring(sim_cycle, 13), " cycles, ", intstring(total_user_insns_committed, 13), " commits: ",
       intstring((W64)cycles_per_sec, 9), " Hz, ", intstring((W64)insns_per_sec, 9), " insns/sec";
 
     sb << ": rip";
@@ -508,7 +508,7 @@ void update_progress() {
       Context& ctx = contextof(i);
 #ifdef PTLSIM_HYPERVISOR
       if (!ctx.running) {
-        static const char* runstate_names[] = {"running", "runnable", "blocked", "offline"}; 
+        static const char* runstate_names[] = {"running", "runnable", "blocked", "offline"};
         const char* runstate_name = (inrange(ctx.runstate.state, 0, lengthof(runstate_names)-1)) ? runstate_names[ctx.runstate.state] : "???";
 
         sb << " (", runstate_name, ")";

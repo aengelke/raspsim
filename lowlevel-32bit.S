@@ -124,7 +124,7 @@ saved_fsreg:
   .word 0
 
 .global saved_gsreg
-saved_gsreg: 
+saved_gsreg:
   .word 0
 .previous
 

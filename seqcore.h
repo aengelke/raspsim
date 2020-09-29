@@ -46,7 +46,7 @@ struct CommitRecord: public Context {
   int pte_update_count;
   // PTEUpdate pte_update_list[MAX_STORES_IN_COMMIT_RECORD];
   // Waddr pte_update_virt[MAX_STORES_IN_COMMIT_RECORD];
-  
+
   void reset() {
     store_count = 0;
     pte_update_count = 0;

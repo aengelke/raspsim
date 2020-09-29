@@ -115,7 +115,7 @@ const assist_func_t assistid_to_func[ASSIST_COUNT] = {
 
 int assist_index(assist_func_t assist) {
   foreach (i, ASSIST_COUNT) {
-    if (assistid_to_func[i] == assist) { 
+    if (assistid_to_func[i] == assist) {
       return i;
     }
   }
@@ -125,7 +125,7 @@ int assist_index(assist_func_t assist) {
 
 const char* assist_name(assist_func_t assist) {
   foreach (i, ASSIST_COUNT) {
-    if (assistid_to_func[i] == assist) { 
+    if (assistid_to_func[i] == assist) {
       return assist_names[i];
     }
   }
@@ -274,12 +274,12 @@ const ArchPseudoRegInfo reginfo[APR_COUNT] = {
   // 8-bit
   {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 1}, {0, 1}, {0, 1}, {0, 1},
   // 8-bit with REX, not double-counting the regular 8-bit regs:
-  {0, 0}, {0, 0}, {0, 0}, {0, 0}, 
+  {0, 0}, {0, 0}, {0, 0}, {0, 0},
   {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0},
   // SSE registers
   {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0}, {3, 0},
   // segments:
-  {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, 
+  {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0}, {1, 0},
   // special:
   {3, 0}, {3, 0},
 };
@@ -672,8 +672,8 @@ bool DecodedOperand::gform_ext(TraceDecoder& state, int bytemode, int regfield, 
   case d_mode: this->reg.reg = reg32_to_uniform_reg[regfield + add]; break;
   case q_mode: this->reg.reg = reg64_to_uniform_reg[regfield + add]; break;
   case v_mode:
-  case dq_mode: 
-    this->reg.reg = (state.rex.mode64 | (def64 & (!state.opsize_prefix))) ? reg64_to_uniform_reg[regfield + add] : 
+  case dq_mode:
+    this->reg.reg = (state.rex.mode64 | (def64 & (!state.opsize_prefix))) ? reg64_to_uniform_reg[regfield + add] :
       ((!state.opsize_prefix) | (bytemode == dq_mode)) ? reg32_to_uniform_reg[regfield + add] :
       reg16_to_uniform_reg[regfield + add];
     break;
@@ -866,7 +866,7 @@ bool DecodedOperand::varreg(TraceDecoder& state, int regcode, bool def64) {
     // Always a 64-bit operation
     this->reg.reg = reg64_to_uniform_reg[regcode + (state.rex.extbase * 8)];
   } else {
-    this->reg.reg = (state.rex.mode64) ? reg64_to_uniform_reg[regcode + (state.rex.extbase * 8)] : 
+    this->reg.reg = (state.rex.mode64) ? reg64_to_uniform_reg[regcode + (state.rex.extbase * 8)] :
       (state.opsize_prefix) ? reg16_to_uniform_reg[regcode + (state.rex.extbase * 8)]
       : reg32_to_uniform_reg[regcode + (state.rex.extbase * 8)];
   }
@@ -895,9 +895,9 @@ void TraceDecoder::abs_code_addr_immediate(int rdreg, int sizeshift, W64 imm) {
 
 int TraceDecoder::bias_by_segreg(int basereg) {
   if (prefixes & (PFX_CS|PFX_DS|PFX_ES|PFX_FS|PFX_GS|PFX_SS)) {
-    int segid = 
-      (prefixes & PFX_FS) ? SEGID_FS : 
-      (prefixes & PFX_GS) ? SEGID_GS : 
+    int segid =
+      (prefixes & PFX_FS) ? SEGID_FS :
+      (prefixes & PFX_GS) ? SEGID_GS :
       (prefixes & PFX_DS) ? SEGID_DS :
       (prefixes & PFX_SS) ? SEGID_SS :
       (prefixes & PFX_ES) ? SEGID_ES :
@@ -1057,7 +1057,7 @@ void TraceDecoder::result_store(int srcreg, int tempreg, const DecodedOperand& m
   address_generate_and_load_or_store(REG_mem, srcreg, memref, opcode, datatype, 0, 0, rmw);
 }
 
-void TraceDecoder::alu_reg_or_mem(int opcode, const DecodedOperand& rd, const DecodedOperand& ra, W32 setflags, int rcreg, 
+void TraceDecoder::alu_reg_or_mem(int opcode, const DecodedOperand& rd, const DecodedOperand& ra, W32 setflags, int rcreg,
                                   bool flagsonly, bool isnegop, bool ra_rb_imm_form, W64s ra_rb_imm_form_rbimm) {
   if (flagsonly) prefixes &= ~PFX_LOCK;
 
@@ -1203,7 +1203,7 @@ void TraceDecoder::move_reg_or_mem(const DecodedOperand& rd, const DecodedOperan
     bool rahigh = (isimm) ? 0 : reginfo[ra.reg.reg].hibyte;
 
     if (rdhigh || rahigh) {
-      int maskctl = 
+      int maskctl =
         (rdhigh && !rahigh) ? MaskControlInfo(56, 8, 56) : // insert high byte
         (!rdhigh && rahigh) ? MaskControlInfo(0, 8, 8) : // extract high byte
         (rdhigh && rahigh) ? MaskControlInfo(56, 8, 0) : // move between high bytes
@@ -1227,7 +1227,7 @@ void TraceDecoder::move_reg_or_mem(const DecodedOperand& rd, const DecodedOperan
     } else {
       // need to merge 8-bit or 16-bit data:
       operand_load(REG_temp0, ra);
-      if (reginfo[rd.reg.reg].hibyte) 
+      if (reginfo[rd.reg.reg].hibyte)
         this << TransOp(OP_maskb, destreg, destreg, REG_temp0, REG_imm, 3, 0, MaskControlInfo(56, 8, 56));
       else this << TransOp(OP_mov, destreg, destreg, REG_temp0, REG_zero, sizeshift);
     }
@@ -1243,7 +1243,7 @@ void TraceDecoder::move_reg_or_mem(const DecodedOperand& rd, const DecodedOperan
       // We need to load the immediate separately in any case since stores do not accept immediates:
       this << TransOp(OP_mov, REG_temp1, REG_zero, REG_imm, REG_zero, 3, ra.imm.imm);
       result_store(REG_temp1, REG_temp0, rd);
-    } else if (rahigh) { 
+    } else if (rahigh) {
       this << TransOp(OP_maskb, REG_temp1, REG_zero, srcreg, REG_imm, 3, 0, MaskControlInfo(0, 8, 8));
       result_store(REG_temp1, REG_temp0, rd);
     } else {
@@ -1277,7 +1277,7 @@ void TraceDecoder::signext_reg_or_mem(const DecodedOperand& rd, DecodedOperand& 
     // On x86-64, only 8-bit and 16-bit ops need to be merged; 32-bit is zero extended to full 64 bits:
     if (zeroext && rdsize >= 2) {
       // Just use regular move
-      this << TransOp(OP_mov, rdreg, REG_zero, rareg, REG_zero, rasize);        
+      this << TransOp(OP_mov, rdreg, REG_zero, rareg, REG_zero, rasize);
     } else {
       TransOp transop(OP_maskb, rdreg, (rdsize < 2) ? rdreg : REG_zero, rareg, REG_imm, rdsize, 0, MaskControlInfo(0, (1<<rasize)*8, 0));
       transop.cond = (zeroext) ? 1 : 2;
@@ -1307,7 +1307,7 @@ void TraceDecoder::microcode_assist(int assistid, Waddr selfrip, Waddr nextrip) 
   used_microcode_assist = 1;
   abs_code_addr_immediate(REG_selfrip, 3, (Waddr)selfrip);
   abs_code_addr_immediate(REG_nextrip, 3, (Waddr)nextrip);
-  if (!last_flags_update_was_atomic) 
+  if (!last_flags_update_was_atomic)
     this << TransOp(OP_collcc, REG_temp0, REG_zf, REG_cf, REG_of, 3, 0, 0, FLAGS_DEFAULT_ALU);
   TransOp transop(OP_brp, REG_rip, REG_zero, REG_zero, REG_zero, 3);
   transop.riptaken = transop.ripseq = (Waddr)assistid;
@@ -1448,7 +1448,7 @@ int BasicBlockCache::get_page_bb_count(Waddr mfn) {
 bool BasicBlockCache::invalidate_page(Waddr mfn, int reason) {
   //
   // We may try to invalidate the special invalid mfn if SMC
-  // occurs on a page where the high virtual page is invalid. 
+  // occurs on a page where the high virtual page is invalid.
   //
   if unlikely (mfn == RIPVirtPhys::INVALID) return 0;
 
@@ -1662,7 +1662,7 @@ void assist_exec_page_fault(Context& ctx) {
     if (logable(3)) {
       logfile << "Spurious PageFaultOnExec detected at fault rip ",
         (void*)(Waddr)ctx.commitarf[REG_selfrip], " with faultaddr ",
-        (void*)faultaddr, " @ ", total_user_insns_committed, 
+        (void*)faultaddr, " @ ", total_user_insns_committed,
         " user commits (", sim_cycle, " cycles)";
     }
     bbcache.invalidate(RIPVirtPhys(ctx.commitarf[REG_selfrip]).update(ctx), INVALIDATE_REASON_SPURIOUS);
@@ -1691,7 +1691,7 @@ bool TraceDecoder::invalidate() {
 #endif
     if (logable(3)) {
       logfile << "Translation crosses into invalid page (mfn ", mfn, "): ripstart ", (void*)ripstart, ", rip ", (void*)rip,
-        ", faultaddr ", (void*)faultaddr, "; expected ", (rip - ripstart), " bytes but only got ", valid_byte_count, 
+        ", faultaddr ", (void*)faultaddr, "; expected ", (rip - ripstart), " bytes but only got ", valid_byte_count,
         " (next page ", (void*)(Waddr)ceil(ripstart, 4096), ")", endl;
     }
 
@@ -2206,7 +2206,7 @@ ostream& BasicBlockCache::print(ostream& os) {
     double percent_of_total_uops = ((double)(bb.hitcount * bb.tagcount) / (double)total_uops_committed);
     double percent_of_total_bbs = ((double)(bb.hitcount) / (double)total_basic_blocks_committed);
 
-    os << "  ", bb.rip, ": ", 
+    os << "  ", bb.rip, ": ",
       intstring(bb.tagcount, 4), "t ", intstring(bb.memcount - bb.storecount, 3), "ld ",
       intstring(bb.storecount, 3), "st ", intstring(bb.user_insn_count, 3), "u ",
       intstring(bb.hitcount, 10), "h ", intstring(bb.predcount, 10), "pr ",

@@ -9,8 +9,8 @@
 #include <dcache.h>
 
 const char* opclass_names[OPCLASS_COUNT] = {
-  "logic", "addsub", "addsubc", "addshift", "sel", "cmp", "br.cc", "jmp", "bru", 
-  "assist", "mf", "ld", "st", "ld.pre", "shiftsimple", "shift", "mul", "bitscan", "flags",  "chk", 
+  "logic", "addsub", "addsubc", "addshift", "sel", "cmp", "br.cc", "jmp", "bru",
+  "assist", "mf", "ld", "st", "ld.pre", "shiftsimple", "shift", "mul", "bitscan", "flags",  "chk",
   "fpu", "fp-div-sqrt", "fp-cmp", "fp-perm", "fp-cvt-i2f", "fp-cvt-f2i", "fp-cvt-f2f", "vec",
 };
 
@@ -90,10 +90,10 @@ const OpcodeInfo opinfo[OP_MAX_OPCODE] = {
   {"shr",            OPCLASS_SHIFTROT,      opABC|ccC},
   {"mask",           OPCLASS_SHIFTROT,      opAB     }, // mask rd = ra,rb,[ds,ms,mc]: (rcimm: 18 bits)
   {"sar",            OPCLASS_SHIFTROT,      opABC|ccC},
-  {"rotl",           OPCLASS_SHIFTROT,      opABC|ccC},  
-  {"rotr",           OPCLASS_SHIFTROT,      opABC|ccC},   
+  {"rotl",           OPCLASS_SHIFTROT,      opABC|ccC},
+  {"rotr",           OPCLASS_SHIFTROT,      opABC|ccC},
   {"rotcl",          OPCLASS_SHIFTROT,      opABC|ccC},
-  {"rotcr",          OPCLASS_SHIFTROT,      opABC|ccC},  
+  {"rotcr",          OPCLASS_SHIFTROT,      opABC|ccC},
   // Multiplication
   {"mull",           OPCLASS_MULTIPLY,      opAB },
   {"mulh",           OPCLASS_MULTIPLY,      opAB },
@@ -102,7 +102,7 @@ const OpcodeInfo opinfo[OP_MAX_OPCODE] = {
   // Bit scans
   {"ctz",            OPCLASS_BITSCAN,       opB  },
   {"clz",            OPCLASS_BITSCAN,       opB  },
-  {"ctpop",          OPCLASS_BITSCAN,       opB  },  
+  {"ctpop",          OPCLASS_BITSCAN,       opB  },
   {"permb",          OPCLASS_SHIFTROT,      opABC},
   // Integer divide and remainder step
   {"div",            OPCLASS_MULTIPLY,      opABC}, // unsigned divide
@@ -339,9 +339,9 @@ void Context::fxrstor(const FXSAVEStruct& state) {
 
 const char* datatype_names[DATATYPE_COUNT] = {
   "int", "float", "vec-float",
-  "double", "vec-double", 
-  "vec-8bit", "vec-16bit", 
-  "vec-32bit", "vec-64bit", 
+  "double", "vec-double",
+  "vec-8bit", "vec-16bit",
+  "vec-32bit", "vec-64bit",
   "vec-128bit"
 };
 
@@ -600,7 +600,7 @@ stringbuf& nameof(stringbuf& sbname, const TransOpBase& uop) {
   }
 
   if (uop.internal) sbname << ".p";
-  
+
   return sbname;
 }
 

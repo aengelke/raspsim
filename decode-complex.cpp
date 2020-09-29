@@ -329,7 +329,7 @@ void assist_rdtsc(Context& ctx) {
   W64& rax = ctx.commitarf[REG_rax];
   W64& rdx = ctx.commitarf[REG_rdx];
 #ifdef PTLSIM_HYPERVISOR
-  W64 tsc = ctx.base_tsc + sim_cycle; 
+  W64 tsc = ctx.base_tsc + sim_cycle;
 #else
   W64 tsc = sim_cycle;
 #endif
@@ -363,12 +363,12 @@ void assist_popf(Context& ctx) {
 //
 void assist_cld(Context& ctx) {
   ctx.internal_eflags &= ~FLAG_DF;
-  ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];  
+  ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];
 }
 
 void assist_std(Context& ctx) {
   ctx.internal_eflags |= FLAG_DF;
-  ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];  
+  ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];
 }
 
 //
@@ -402,7 +402,7 @@ void assist_ldmxcsr(Context& ctx) {
   ctx.mxcsr = (ctx.mxcsr & 0xffffffff00000000ULL) | mxcsr;
 
   // We can't have exceptions going on inside PTLsim: virtualize this feature in uopimpl code
-  // Everything else will be used by real SSE insns inside uopimpls. 
+  // Everything else will be used by real SSE insns inside uopimpls.
   mxcsr |= MXCSR_EXCEPTION_DISABLE_MASK;
   x86_set_mxcsr(mxcsr);
 
@@ -452,7 +452,7 @@ void assist_fxrstor(Context& ctx) {
   ctx.fxrstor(state);
 
   // We can't have exceptions going on inside PTLsim: virtualize this feature in uopimpl code
-  // Everything else will be used by real SSE insns inside uopimpls. 
+  // Everything else will be used by real SSE insns inside uopimpls.
   W32 mxcsr = ctx.mxcsr | MXCSR_EXCEPTION_DISABLE_MASK;
   x86_set_mxcsr(mxcsr);
 
@@ -798,7 +798,7 @@ bool TraceDecoder::decode_complex() {
   DecodedOperand ra;
 
   switch (op) {
- 
+
   case 0x60: {
     // pusha
     if (use64) {
@@ -915,13 +915,13 @@ bool TraceDecoder::decode_complex() {
 
       bool moveonly = (!rdhigh && !rahigh);
 
-      int maskctl1 = 
+      int maskctl1 =
         (rdhigh && !rahigh) ? MaskControlInfo(56, 8, 56) : // insert high byte
         (!rdhigh && rahigh) ? MaskControlInfo(0, 8, 8) : // extract high byte
         (rdhigh && rahigh) ? MaskControlInfo(56, 8, 0) : // move between high bytes
         MaskControlInfo(0, 64, 0); // straight move (but cannot synthesize from mask uop)
 
-      int maskctl2 = 
+      int maskctl2 =
         (rdhigh && !rahigh) ? MaskControlInfo(0, 8, 8) : // extract high byte
         (!rdhigh && rahigh) ? MaskControlInfo(56, 8, 56) : // insert high byte
         (rdhigh && rahigh) ? MaskControlInfo(56, 8, 0) : // move between high bytes
@@ -1288,7 +1288,7 @@ bool TraceDecoder::decode_complex() {
             rip = (rcx.z | !t2.z) ? ripseq : riploop;
 
             ornotf   t3 = rcx,t2
-            br.nz    rip = t3,zero [loop, seq]             # all branches are swapped so they are expected to be taken 
+            br.nz    rip = t3,zero [loop, seq]             # all branches are swapped so they are expected to be taken
 
             ===> Equivalent sequence for repnz cmp:
 
@@ -1458,7 +1458,7 @@ bool TraceDecoder::decode_complex() {
     int basereg  = bias_by_segreg(REG_rbx);
     int indexreg = REG_temp0;
     int tempreg  = REG_temp8;
-    
+
     // Only lower 8 bit of offset matter
     this << TransOp(OP_mov, indexreg, REG_zero, srcreg, REG_zero, 0);
 
@@ -1472,7 +1472,7 @@ bool TraceDecoder::decode_complex() {
     // Merge the low 8 bits only
     this << TransOp(OP_mov, srcreg, srcreg, destreg, REG_zero, 0);
 #endif
-    break;  
+    break;
   }
 
   case 0xd8 ... 0xdf: {
@@ -1745,14 +1745,14 @@ bool TraceDecoder::decode_complex() {
           {ASSIST_DIV8,  ASSIST_DIV16,  ASSIST_DIV32,  ASSIST_DIV64},
           {ASSIST_IDIV8, ASSIST_IDIV16, ASSIST_IDIV32, ASSIST_IDIV64}
         };
-        
+
         this << TransOp(OP_mov, REG_ar1, REG_zero, REG_temp2, REG_zero, 3);
         microcode_assist(subop_and_size_to_assist_idx[modrm.reg - 6][sizeshift], ripstart, rip);
         end_of_block = 1;
         */
       }
 
-      break;      
+      break;
     }
     break;
   }
@@ -1789,7 +1789,7 @@ bool TraceDecoder::decode_complex() {
     // in sequence and modify its behavior in a Xen-specific manner. The
     // only supported instruction is CPUID {0x0f, 0xa2}, which Xen extends.
     //
-    if (((valid_byte_count - ((int)(rip - (Waddr)bb.rip))) >= 5) && 
+    if (((valid_byte_count - ((int)(rip - (Waddr)bb.rip))) >= 5) &&
         (fetch(5) == 0xa20f6e6578)) { // 78 65 6e 0f a2 = 'x' 'e' 'n' <cpuid>
       // logfile << "Decode special intercept cpuid at rip ", (void*)ripstart, "; return to rip ", (void*)rip, endl;
       EndOfDecode();
@@ -2054,7 +2054,7 @@ bool TraceDecoder::decode_complex() {
       this << TransOp(OP_nop,   REG_temp0, REG_zero,  REG_zero,  REG_zero, 0);
       break;
     }
-    
+
     if (!immform) {
       if (left) {
         //
@@ -2103,7 +2103,7 @@ bool TraceDecoder::decode_complex() {
     //
     // shrd rd,rs:
     //
-    // shr  t = rd,c          
+    // shr  t = rd,c
     //      t.cf = rd[c-1] last bit shifted out
     //      t.of = rd[63]  or whatever rd's original sign bit position was
     // mask rd = t,rs,[ms=c, mc=c, ds=c]
@@ -2112,7 +2112,7 @@ bool TraceDecoder::decode_complex() {
     //
     // shld rd,rs:
     //
-    // shl  t = rd,c          
+    // shl  t = rd,c
     //      t.cf = rd[64-c] last bit shifted out
     //      t.of = rd[63]   or whatever rd's original sign bit position was
     // mask rd = t,rs,[ms=0, mc=c, ds=64-c]
@@ -2157,10 +2157,10 @@ bool TraceDecoder::decode_complex() {
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
     /*
-      
+
     Action:
-    - Compare rax with [mem] / reg. 
-    - If (rax == [mem] / reg), [mem] / reg := rax. 
+    - Compare rax with [mem] / reg.
+    - If (rax == [mem] / reg), [mem] / reg := rax.
     - Else rax := [mem] / reg
 
     cmpxchg [mem],ra
@@ -2226,7 +2226,7 @@ bool TraceDecoder::decode_complex() {
     // cmpxchg16b
     prefixes |= PFX_LOCK;
     if (memory_fence_if_locked(0)) break;
-      
+
     /*
 
     Microcode:
@@ -2242,13 +2242,13 @@ bool TraceDecoder::decode_complex() {
     sel.eq rdx = t1,rdx,(t7)
     st     [mem],t2
     st     [mem+8],t3
-    
+
     */
-    
+
     operand_load(REG_temp0, ra, OP_ld);
     ra.mem.offset += sizeincr;
     operand_load(REG_temp1, ra, OP_ld);
-    
+
     TransOp sublo(OP_sub, REG_temp2, REG_temp0, REG_rax, REG_zero, sizeshift, 0, 0, FLAGS_DEFAULT_ALU); sublo.nouserflags = 1; this << sublo;
     TransOp subhi(OP_sub, REG_temp3, REG_temp1, REG_rdx, REG_zero, sizeshift, 0, 0, FLAGS_DEFAULT_ALU); subhi.nouserflags = 1; this << subhi;
     this << TransOp(OP_andcc, REG_temp7, REG_temp2, REG_temp3, REG_zero, sizeshift, 0, 0, FLAGS_DEFAULT_ALU);
@@ -2259,7 +2259,7 @@ bool TraceDecoder::decode_complex() {
     result_store(REG_temp2, REG_temp4, rd);
     rd.mem.offset += sizeincr;
     result_store(REG_temp3, REG_temp5, rd);
-    
+
     if (memory_fence_if_locked(1)) break;
 
     break;
@@ -2275,9 +2275,9 @@ bool TraceDecoder::decode_complex() {
     int sizeshift = reginfo[ra.reg.reg].sizeshift;
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
-    int tmpreg = REG_temp0;    
+    int tmpreg = REG_temp0;
     /*
-      
+
     Action:
     - Exchange [rd],ra
     - Add [rd]+ra and set flags
@@ -2365,7 +2365,7 @@ bool TraceDecoder::decode_complex() {
 
       ra.type = OPTYPE_REG;
       ra.reg.reg = 0; // get the requested mxcsr into ar1
-      ra.mem.size = 2; // always 32-bit 
+      ra.mem.size = 2; // always 32-bit
       operand_load(REG_ar1, ra);
       //
       // LDMXCSR needs to flush the pipeline since future FP instructions will
@@ -2461,7 +2461,7 @@ bool TraceDecoder::decode_complex() {
 
   case 0x137: { // 0f 37: PTL undocumented opcode
     EndOfDecode();
-    microcode_assist(ASSIST_PTLCALL, ripstart, rip);      
+    microcode_assist(ASSIST_PTLCALL, ripstart, rip);
     end_of_block = 1;
     break;
   }

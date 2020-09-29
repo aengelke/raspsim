@@ -267,7 +267,7 @@ static inline W64 do_syscall_64bit(W64 syscallid, W64 arg1, W64 arg2, W64 arg3, 
                 : "=a" (rc)
                 : "0" (syscallid),"D" ((W64)(arg1)),"S" ((W64)(arg2)),
                 "d" ((W64)(arg3)), "g" ((W64)(arg4)), "g" ((W64)(arg5)),
-                "g" ((W64)(arg6)) 
+                "g" ((W64)(arg6))
                 : "r11","rcx","memory" ,"r8", "r10", "r9" );
   return rc;
 }
@@ -524,7 +524,7 @@ void Context::update_shadow_segment_descriptors() {
   es.present = 1;
   es.base = 0;
   es.limit = limit;
-  
+
   SegmentDescriptorCache& fs = seg[SEGID_FS];
   fs.present = 1;
   fs.base = get_fs_base();
@@ -592,7 +592,7 @@ extern "C" void assert_fail(const char *__assertion, const char *__file, unsigne
 }
 
 //
-// Shadow page accessibility table format (x86-64 only): 
+// Shadow page accessibility table format (x86-64 only):
 // Top level:  1048576 bytes: 131072 64-bit pointers to chunks
 //
 // Leaf level: 65536 bytes per chunk: 524288 bits, one per 4 KB page
@@ -624,7 +624,7 @@ void AddressSpace::make_accessible(void* p, Waddr size, spat_t top) {
   Waddr lastpage = ((Waddr)address + size - 1) >> log2(PAGE_SIZE);
   if (logable(1)) {
     logfile << "SPT: Making byte range ", (void*)(firstpage << log2(PAGE_SIZE)), " to ",
-      (void*)(lastpage << log2(PAGE_SIZE)), " (size ", size, ") accessible for ", 
+      (void*)(lastpage << log2(PAGE_SIZE)), " (size ", size, ") accessible for ",
     ((top == readmap) ? "read" : (top == writemap) ? "write" : (top == execmap) ? "exec" : "UNKNOWN"),
       endl, flush;
   }
@@ -638,7 +638,7 @@ void AddressSpace::make_inaccessible(void* p, Waddr size, spat_t top) {
   Waddr lastpage = ((Waddr)address + size - 1) >> log2(PAGE_SIZE);
   if (logable(1)) {
     logfile << "SPT: Making byte range ", (void*)(firstpage << log2(PAGE_SIZE)), " to ",
-      (void*)(lastpage << log2(PAGE_SIZE)), " (size ", size, ") inaccessible for ", 
+      (void*)(lastpage << log2(PAGE_SIZE)), " (size ", size, ") inaccessible for ",
     ((top == readmap) ? "read" : (top == writemap) ? "write" : (top == execmap) ? "exec" : "UNKNOWN"),
       endl, flush;
   }
@@ -653,7 +653,7 @@ AddressSpace::~AddressSpace() { }
 AddressSpace::spat_t AddressSpace::allocmap() {
 #ifdef __x86_64__
   return (spat_t)ptl_mm_alloc_private_pages(SPAT_TOPLEVEL_CHUNKS * sizeof(SPATChunk*));
-#else 
+#else
   return (spat_t)ptl_mm_alloc_private_pages(SPAT_BYTES);
 #endif
 }
@@ -722,14 +722,14 @@ int AddressSpace::getattr(void* addr) {
 
   Waddr page = pageid(address);
 
-  int prot = 
+  int prot =
     (bit(pageid_to_map_byte(readmap, page), lowbits(page, 3)) ? PROT_READ : 0) |
     (bit(pageid_to_map_byte(writemap, page), lowbits(page, 3)) ? PROT_WRITE : 0) |
     (bit(pageid_to_map_byte(execmap, page), lowbits(page, 3)) ? PROT_EXEC : 0);
 
   return prot;
 }
- 
+
 int AddressSpace::mprotect(void* start, Waddr length, int prot) {
   length = ceil(length, PAGE_SIZE);
   int rc = sys_mprotect(start, length, prot);
@@ -875,7 +875,7 @@ ostream& operator <<(ostream& os, const MemoryMapExtent& map);
 int mqueryall(MemoryMapExtent* startmap, size_t count) {
   MemoryMapExtent* map = startmap;
 
-  // Atomically capture process memory: otherwise we may allocate our own memory while reading /proc/self/maps 
+  // Atomically capture process memory: otherwise we may allocate our own memory while reading /proc/self/maps
 #define MAX_PROC_MAPS_SIZE 16*1024*1024
 
   char* mapdata = (char*)ptl_mm_alloc_private_pages(MAX_PROC_MAPS_SIZE);
@@ -946,15 +946,15 @@ int mqueryall(MemoryMapExtent* startmap, size_t count) {
     map->start = start;
     map->length = stop - start;
 
-    bool vdso = ((pattr && strequal(pattr, "[vdso]")) || 
+    bool vdso = ((pattr && strequal(pattr, "[vdso]")) ||
         ((map->start == (byte*)0xffffe000) &&
          (map->length == PAGE_SIZE)));
 
     // 2.6 kernels always have the stack second-to-last and vdso last in the list:
-    bool stack = (((pattr && strequal(pattr, "[stack]")) || 
+    bool stack = (((pattr && strequal(pattr, "[stack]")) ||
                    (line == (linecount-2))) ? MAP_STACK : 0);
 
-    map->prot = 
+    map->prot =
       ((rperm == 'r') ? PROT_READ : 0) |
       ((wperm == 'w') ? PROT_WRITE : 0) |
       ((xperm == 'x') ? PROT_EXEC : 0);
@@ -992,11 +992,11 @@ ostream& operator <<(ostream& os, const MemoryMapExtent& map) {
   os << ((map.prot & PROT_READ) ? 'r' : '-');
   os << ((map.prot & PROT_WRITE) ? 'w' : '-');
   os << ((map.prot & PROT_EXEC) ? 'x' : '-');
-  os << ((map.flags & MAP_PRIVATE) ? 'p' : 
+  os << ((map.flags & MAP_PRIVATE) ? 'p' :
          (map.flags & MAP_SHARED) ? 's' : '-');
-  os << ((map.flags & MAP_STACK) ? 'S' : 
+  os << ((map.flags & MAP_STACK) ? 'S' :
          (map.flags & MAP_HEAP) ? 'h' :
-         (map.flags & MAP_VDSO) ? 'v' : 
+         (map.flags & MAP_VDSO) ? 'v' :
          (map.flags & MAP_ZERO) ? 'z' : '-');
   os << " ";
   stringbuf sb;
@@ -1045,7 +1045,7 @@ void AddressSpace::resync_with_process_maps() {
 
   if (DEBUG) {
     logfile << "resync_with_process_maps: fs ", hexstring(ctx.seg[SEGID_FS].selector, 16),
-      ", fsbase ", (void*)(Waddr)ctx.seg[SEGID_FS].base, 
+      ", fsbase ", (void*)(Waddr)ctx.seg[SEGID_FS].base,
       ", gs ", hexstring(ctx.seg[SEGID_GS].selector, 16),
       ", gsbase ", (void*)(Waddr)ctx.seg[SEGID_GS].base, endl;
   }
@@ -1058,7 +1058,7 @@ void AddressSpace::resync_with_process_maps() {
 
   //
   // Make sure the user code does not see and cannot access PTL native code.
-  // When running x86-64 apps, all PTL native code resides (for now) at 
+  // When running x86-64 apps, all PTL native code resides (for now) at
   // 0x70000000 - 0x78000000. This region is marked as do-not-touch.
   //
   // In arch/x86_64/kernel/sys_x86_64.c: find_start_end() and arch_get_unmapped_area():
@@ -1098,7 +1098,7 @@ W16 saved_gs;
 
 extern "C" void switch_to_sim_save_context();
 
-// This can be brought down considerably in the future: 
+// This can be brought down considerably in the future:
 #define SIM_THREAD_STACK_SIZE (1024*1024*4)
 
 extern "C" void switch_to_sim_save_context();
@@ -1132,7 +1132,7 @@ void switch_stack_and_jump_32_or_64(void* code, void* stack, bool use64) {
                  "jmp *%[code]\n" : : [code] "r" (code), [stack] "m" (stack));
   } else {
     // 64-bit PTLsim to 32-bit x86 jump:
-    
+
     switch_to_native_desc.offset = (W64)code;
     switch_to_native_desc.seg = 0x23;
 
@@ -1196,7 +1196,7 @@ extern "C" void inside_sim_escape_code_template_32bit();
 extern "C" void inside_sim_escape_code_template_32bit_end();
 #endif
 
-struct InsideSimEscapeCode { 
+struct InsideSimEscapeCode {
   byte bytes[64];
 
   void prep() {
@@ -1237,7 +1237,7 @@ struct SwitchToSimThunkCode {
 extern "C" void inside_sim_escape_code_template_32bit();
 extern "C" void inside_sim_escape_code_template_32bit_end();
 
-struct InsideSimEscapeCode { 
+struct InsideSimEscapeCode {
   byte bytes[64];
 
   void prep() {
@@ -1328,7 +1328,7 @@ void switch_to_native_restore_context() {
   saved_fs = ctx.seg[SEGID_FS].selector;
   saved_gs = ctx.seg[SEGID_GS].selector;
 
-  ctx.commitarf[REG_flags] = 
+  ctx.commitarf[REG_flags] =
     (ctx.internal_eflags & ~(FLAG_ZAPS|FLAG_CF|FLAG_OF)) |
     (ctx.commitarf[REG_flags] & (FLAG_ZAPS|FLAG_CF|FLAG_OF));
 
@@ -1428,8 +1428,8 @@ void handle_syscall_64bit() {
   W64 arg5 = ctx.commitarf[REG_r8];
   W64 arg6 = ctx.commitarf[REG_r9];
 
-  if (DEBUG) 
-    logfile << "handle_syscall -> (#", syscallid, " ", ((syscallid < lengthof(syscall_names_64bit)) ? syscall_names_64bit[syscallid] : "???"), 
+  if (DEBUG)
+    logfile << "handle_syscall -> (#", syscallid, " ", ((syscallid < lengthof(syscall_names_64bit)) ? syscall_names_64bit[syscallid] : "???"),
       ") from ", (void*)ctx.commitarf[REG_rcx], " args ", " (", (void*)arg1, ", ", (void*)arg2, ", ", (void*)arg3, ", ", (void*)arg4, ", ",
       (void*)arg5, ", ", (void*)arg6, ") at iteration ", iterations, endl, flush;
 
@@ -1586,8 +1586,8 @@ void handle_syscall_32bit(int semantics) {
     if (!asp.check(arg6ptr, PROT_READ)) {
       ctx.commitarf[REG_rax] = (W64)(-EFAULT);
       ctx.commitarf[REG_rip] = retaddr;
-      if (DEBUG) logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"), 
-                   " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ", (void*)(Waddr)arg2, ", ", 
+      if (DEBUG) logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"),
+                   " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ", (void*)(Waddr)arg2, ", ",
                    (void*)(Waddr)arg3, ", ", (void*)(Waddr)arg4, ", ", (void*)(Waddr)arg5, ", ???", ") at iteration ", iterations, ": arg6 @ ", arg6ptr,
                    " inaccessible via SYSENTER; returning -EFAULT", endl, flush;
     }
@@ -1603,12 +1603,12 @@ void handle_syscall_32bit(int semantics) {
     // Arguments:
     // %eax System call number.
     // %ebx Arg1
-    // %ecx return EIP 
+    // %ecx return EIP
     // %edx Arg3
     // %esi Arg4
     // %edi Arg5
     // %ebp Arg2    [note: not saved in the stack frame, should not be touched]
-    // %esp user stack 
+    // %esp user stack
     // 0(%esp) Arg6
     //
     syscallid = LO32(ctx.commitarf[REG_rax]);
@@ -1624,8 +1624,8 @@ void handle_syscall_32bit(int semantics) {
     if (!asp.check(arg6ptr, PROT_READ)) {
       ctx.commitarf[REG_rax] = (W64)(-EFAULT);
       ctx.commitarf[REG_rip] = retaddr;
-      if (DEBUG) logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"), 
-                   " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ", (void*)(Waddr)arg2, ", ", 
+      if (DEBUG) logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"),
+                   " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ", (void*)(Waddr)arg2, ", ",
                    (void*)(Waddr)arg3, ", ", (void*)(Waddr)arg4, ", ", (void*)(Waddr)arg5, ", ???", ") at iteration ", iterations, ": arg6 @ ", arg6ptr,
                    " inaccessible; returning -EFAULT", endl, flush;
     }
@@ -1635,9 +1635,9 @@ void handle_syscall_32bit(int semantics) {
     assert(false);
   }
 
-  if (DEBUG) 
-    logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"), 
-      " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ", 
+  if (DEBUG)
+    logfile << "handle_syscall (#", syscallid, " ", ((syscallid < lengthof(syscall_names_32bit)) ? syscall_names_32bit[syscallid] : "???"),
+      " via ", semantics_name[semantics], ") from ", (void*)(Waddr)retaddr, " args ", " (", (void*)(Waddr)arg1, ", ",
       (void*)(Waddr)arg2, ", ", (void*)(Waddr)arg3, ", ", (void*)(Waddr)arg4, ", ", (void*)(Waddr)arg5, ", ", (void*)(Waddr)arg6,
       ") at iteration ", iterations, endl, flush;
 
@@ -1671,7 +1671,7 @@ void handle_syscall_32bit(int semantics) {
     user_desc_32bit* desc = (user_desc_32bit*)(Waddr)arg1;
     ctx.commitarf[REG_rax] = do_syscall_32bit(syscallid, arg1, 0, 0, 0, 0, 0);
     if (!ctx.commitarf[REG_rax]) {
-      logfile << "handle_syscall at iteration ", iterations, ": set_thread_area: LDT desc 0x", 
+      logfile << "handle_syscall at iteration ", iterations, ": set_thread_area: LDT desc 0x",
         hexstring(((desc->entry_number << 3) + 3), 16), " now has base ", (void*)(Waddr)desc->base_addr, endl, flush;
       ldt_seg_base_cache[desc->entry_number] = desc->base_addr;
       ctx.update_shadow_segment_descriptors();
@@ -1718,7 +1718,7 @@ const char* ptlcall_names[PTLCALL_COUNT] = {"nop", "marker", "switch_to_sim", "s
 bool requested_switch_to_native = 0;
 
 W64 handle_ptlcall(W64 rip, W64 callid, W64 arg1, W64 arg2, W64 arg3, W64 arg4, W64 arg5) {
-  logfile << "PTL call from userspace (", (void*)(Waddr)rip, "): callid ", callid, " (", ((callid < PTLCALL_COUNT) ? ptlcall_names[callid] : "UNKNOWN"), 
+  logfile << "PTL call from userspace (", (void*)(Waddr)rip, "): callid ", callid, " (", ((callid < PTLCALL_COUNT) ? ptlcall_names[callid] : "UNKNOWN"),
     ") args (", (void*)(Waddr)arg1, ", ", (void*)(Waddr)arg2, ", ", (void*)(Waddr)arg3, ", ", (void*)(Waddr)arg4, ", ", (void*)(Waddr)arg5, ")", endl, flush;
   if (callid >= PTLCALL_COUNT) return (W64)(-EINVAL);
 
@@ -1773,30 +1773,30 @@ W64 get_core_freq_hz() {
   istream cpufreqis("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
   if (cpufreqis) {
     char s[256];
-    cpufreqis >> readline(s, sizeof(s));      
-    
+    cpufreqis >> readline(s, sizeof(s));
+
     int khz;
     int n = sscanf(s, "%d", &khz);
-    
+
     if (n == 1) {
       hz = (W64)khz * 1000;
       core_freq_hz = hz;
       return hz;
     }
   }
-  
+
   istream is("/proc/cpuinfo");
-  
+
   if (!is) {
     cerr << "get_core_freq_hz(): warning: cannot open /proc/cpuinfo. Is this a Linux machine?", endl;
     core_freq_hz = hz;
     return hz;
   }
-  
+
   while (is) {
     char s[256];
     is >> readline(s, sizeof(s));
-    
+
     int mhz;
     int n = sscanf(s, "cpu MHz : %d", &mhz);
     if (n == 1) {
@@ -2313,8 +2313,8 @@ int init_config(int argc, char** argv) {
 
   //
   // argv[] is a suffix of the parent argv[] of length argc.
-  // If the parent has some configuration between the initial ptlsim 
-  // executable in argv[0] and the argv[X] that starts the suffix (noting 
+  // If the parent has some configuration between the initial ptlsim
+  // executable in argv[0] and the argv[X] that starts the suffix (noting
   // that argv[X-1] will be "--"), then send that to configparser.parse().
   //
 
@@ -2334,7 +2334,7 @@ int init_config(int argc, char** argv) {
 
   dynarray<char*> parent_args;
   stringbuf line;
-  
+
   for (;;) {
     line.reset();
     is >> line;
@@ -2342,14 +2342,14 @@ int init_config(int argc, char** argv) {
     parent_args.push(strdup(line));
   }
   is.close();
-  
+
   unsigned p_argc = parent_args.length;
 
   //
   // ConfigurationParser.parse() will automatically stop parsing at
   // the first non-option (i.e. not starting with "-xxx") argument
   // it finds (conveniently, this is always the target program name).
-  //  
+  //
   int ptlsim_arg_count = 1 + configparser.parse(config, p_argc-1, parent_args+1);
 
   handle_config_change(config, ptlsim_arg_count, parent_args+1);
@@ -2472,7 +2472,7 @@ byte* copy_args_env_auxv(byte* destptr, const byte* origargv) {
     }
     auxv++; destauxv++;
   }
-  
+
   destauxv->a_type = AT_NULL;
   destauxv->a_un.a_val = 0;
   auxv++; destauxv++;
@@ -2653,7 +2653,7 @@ void switch_to_sim() {
   x86_set_mxcsr(MXCSR_DEFAULT);
 
   if (config.exit_after_fullsim) {
-    logfile << endl, "=== Exiting after full simulation on tid ", sys_gettid(), " at rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " (", 
+    logfile << endl, "=== Exiting after full simulation on tid ", sys_gettid(), " at rip ", (void*)(Waddr)ctx.commitarf[REG_rip], " (",
       sim_cycle, " cycles, ", total_user_insns_committed, " user commits, ", iterations, " iterations) ===", endl, endl;
     shutdown_subsystems();
     logfile.flush();

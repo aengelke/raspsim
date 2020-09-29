@@ -55,7 +55,7 @@ declare_syscall3(__NR_open, int, syscall_open, const char*, filename, int, flags
 declare_syscall3(__NR_mprotect, int, syscall_mprotect, const void*, addr, size_t, len, int, prot);
 declare_syscall1(__NR_exit, void, syscall_exit, int, status);
 declare_syscall1(__NR_close, void, syscall_close, int, status);
-  
+
 #ifdef __x86_64__
 declare_syscall6(__NR_mmap, void*, syscall_mmap, void*, start, size_t, length, int, prot, int, flags, int, fd, unsigned long, offset);
 #else // 32-bit

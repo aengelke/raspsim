@@ -38,7 +38,7 @@ namespace CacheSubsystem {
 
   //#define CACHE_ALWAYS_HITS
   //#define L2_ALWAYS_HITS
-  
+
   // 16 KB L1 at 2 cycles       // increase to 32 KB to match Core 2
   const int L1_LINE_SIZE = 64;
   const int L1_SET_COUNT = 64;
@@ -68,7 +68,7 @@ namespace CacheSubsystem {
   // Load Fill Request Queue (maximum number of missed loads)
   // const int LFRQ_SIZE = 63;
   const int LFRQ_SIZE = 64;
-  
+
   // Allow up to 32 outstanding lines in the L2 awaiting service:
   const int MISSBUF_COUNT = 64;
   // const int MISSBUF_COUNT = 4;
@@ -246,7 +246,7 @@ namespace CacheSubsystem {
       filled(line, newtag);
     }
 
-    static void probed(V& line, W64 tag, int way, bool hit) { 
+    static void probed(V& line, W64 tag, int way, bool hit) {
       if (logable(6) | FORCE_DEBUG) logfile << "[", cache_names[uniq], "] ", sim_cycle, ": probe(", (void*)tag, "): ", (hit ? "HIT" : "miss"), " way ", way, ": hitcount ", line.hitcount, ", filltime ", line.filltime, ", lasttime ", line.lasttime, " (line addr ", &line, ")", endl;
       if (hit) {
         line.hitcount++;
@@ -269,24 +269,24 @@ namespace CacheSubsystem {
   };
 
   typedef HistogramAssociativeArrayStatisticsCollector<0, L1CacheLine,
-    DCACHE_L1_LINE_LIFETIME_INTERVAL, DCACHE_L1_LINE_LIFETIME_SLOTS, 
-    DCACHE_L1_LINE_DEADTIME_INTERVAL, DCACHE_L1_LINE_DEADTIME_SLOTS, 
+    DCACHE_L1_LINE_LIFETIME_INTERVAL, DCACHE_L1_LINE_LIFETIME_SLOTS,
+    DCACHE_L1_LINE_DEADTIME_INTERVAL, DCACHE_L1_LINE_DEADTIME_SLOTS,
     DCACHE_L1_LINE_HITCOUNT_INTERVAL, DCACHE_L1_LINE_HITCOUNT_SLOTS> L1StatsCollectorBase;
 
   typedef HistogramAssociativeArrayStatisticsCollector<1, L1ICacheLine,
-    DCACHE_L1I_LINE_LIFETIME_INTERVAL, DCACHE_L1I_LINE_LIFETIME_SLOTS, 
-    DCACHE_L1I_LINE_DEADTIME_INTERVAL, DCACHE_L1I_LINE_DEADTIME_SLOTS, 
+    DCACHE_L1I_LINE_LIFETIME_INTERVAL, DCACHE_L1I_LINE_LIFETIME_SLOTS,
+    DCACHE_L1I_LINE_DEADTIME_INTERVAL, DCACHE_L1I_LINE_DEADTIME_SLOTS,
     DCACHE_L1I_LINE_HITCOUNT_INTERVAL, DCACHE_L1I_LINE_HITCOUNT_SLOTS> L1IStatsCollectorBase;
 
   typedef HistogramAssociativeArrayStatisticsCollector<2, L2CacheLine,
-    DCACHE_L2_LINE_LIFETIME_INTERVAL, DCACHE_L2_LINE_LIFETIME_SLOTS, 
-    DCACHE_L2_LINE_DEADTIME_INTERVAL, DCACHE_L2_LINE_DEADTIME_SLOTS, 
+    DCACHE_L2_LINE_LIFETIME_INTERVAL, DCACHE_L2_LINE_LIFETIME_SLOTS,
+    DCACHE_L2_LINE_DEADTIME_INTERVAL, DCACHE_L2_LINE_DEADTIME_SLOTS,
     DCACHE_L2_LINE_HITCOUNT_INTERVAL, DCACHE_L2_LINE_HITCOUNT_SLOTS> L2StatsCollectorBase;
 
 #ifdef ENABLE_L3_CACHE
   typedef HistogramAssociativeArrayStatisticsCollector<3, L3CacheLine,
-    DCACHE_L3_LINE_LIFETIME_INTERVAL, DCACHE_L3_LINE_LIFETIME_SLOTS, 
-    DCACHE_L3_LINE_DEADTIME_INTERVAL, DCACHE_L3_LINE_DEADTIME_SLOTS, 
+    DCACHE_L3_LINE_LIFETIME_INTERVAL, DCACHE_L3_LINE_LIFETIME_SLOTS,
+    DCACHE_L3_LINE_DEADTIME_INTERVAL, DCACHE_L3_LINE_DEADTIME_SLOTS,
     DCACHE_L3_LINE_HITCOUNT_INTERVAL, DCACHE_L3_LINE_HITCOUNT_SLOTS> L3StatsCollectorBase;
 #endif
 
@@ -306,7 +306,7 @@ namespace CacheSubsystem {
 #endif
 #endif
 
-  template <typename V, int setcount, int waycount, int linesize, typename stats = NullAssociativeArrayStatisticsCollector<W64, V> > 
+  template <typename V, int setcount, int waycount, int linesize, typename stats = NullAssociativeArrayStatisticsCollector<W64, V> >
   struct DataCache: public AssociativeArray<W64, V, setcount, waycount, linesize, stats> {
     typedef AssociativeArray<W64, V, setcount, waycount, linesize, stats> base_t;
     void clearstats() {
@@ -424,7 +424,7 @@ namespace CacheSubsystem {
       int way = base_t::select(tag, oldtag);
       W64 oldaddr = lowbits(oldtag, 36) << 12;
       if (logable(6)) {
-        logfile << "TLB insertion of virt page ", (void*)(Waddr)addr, " (virt addr ", 
+        logfile << "TLB insertion of virt page ", (void*)(Waddr)addr, " (virt addr ",
           (void*)(Waddr)(addr), ") into way ", way, ": ",
           ((oldtag != tag) ? "evicted old entry" : "already present"), endl;
       }
@@ -462,7 +462,7 @@ namespace CacheSubsystem {
 
   //
   // Load fill request queue (LFRQ) contains any requests for outstanding
-  // loads from both the L2 or L1. 
+  // loads from both the L2 or L1.
   //
   struct LoadFillReq {
     W64 addr;       // physical address
@@ -474,7 +474,7 @@ namespace CacheSubsystem {
     W8s  mbidx;
 
     inline LoadFillReq() { }
-  
+
     LoadFillReq(W64 addr, W64 data, byte mask, LoadStoreInfo lsi);
     ostream& print(ostream& os) const;
   };
@@ -663,7 +663,7 @@ struct PerContextDataCacheStats { // rootnode:
       W64 L3;
       W64 mem;
     } hit;
-        
+
     struct dtlb { // node: summable
       W64 hits;
       W64 misses;
@@ -675,7 +675,7 @@ struct PerContextDataCacheStats { // rootnode:
       W64 no_lfrq_mb;
     } tlbwalk;
   } load;
- 
+
   struct fetch {
     struct hit { // node: summable
       W64 L1;
@@ -683,7 +683,7 @@ struct PerContextDataCacheStats { // rootnode:
       W64 L3;
       W64 mem;
     } hit;
-    
+
     struct itlb { // node: summable
       W64 hits;
       W64 misses;
@@ -692,10 +692,10 @@ struct PerContextDataCacheStats { // rootnode:
     struct tlbwalk { // node: summable
       W64 L1_dcache_hit;
       W64 L1_dcache_miss;
-      W64 no_lfrq_mb;      
+      W64 no_lfrq_mb;
     } tlbwalk;
   } fetch;
-  
+
   struct store {
     W64 prefetches;
   } store;

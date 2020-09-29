@@ -104,7 +104,7 @@ int LoadFillReqQueue<size>::add(const LoadFillReq& req) {
   }
 #endif
   int idx = freemap.lsb();
-  changestate(idx, freemap, waiting);         
+  changestate(idx, freemap, waiting);
   reqs[idx] = req;
   assert(count < size);
   count++;
@@ -118,7 +118,7 @@ int LoadFillReqQueue<size>::add(const LoadFillReq& req) {
 // line at the L1 level. Once a line is delivered,
 // it is copied into the L1 cache and the corresponding
 // miss buffer can be freed.
-// 
+//
 template <int size>
 void LoadFillReqQueue<size>::wakeup(W64 address, const bitvec<LFRQ_SIZE>& lfrqmask) {
   if (logable(6)) logfile << "LFRQ.wakeup(", (void*)(Waddr)address, ", ", lfrqmask, ")", endl;
@@ -152,7 +152,7 @@ void LoadFillReqQueue<size>::clock() {
 
     int idx = ready.lsb();
     LoadFillReq& req = reqs[idx];
-    
+
     if (logable(6)) logfile << "[vcpu ", req.lsi.threadid, "] at cycle ", sim_cycle, ": wakeup LFRQ slot ", idx, ": ", req, endl;
 
     W64 delta = LO32(sim_cycle) - LO32(req.initcycle);
@@ -162,7 +162,7 @@ void LoadFillReqQueue<size>::clock() {
     } else {
       stats.dcache.lfrq.total_latency += delta;
     }
-        
+
     stats.dcache.lfrq.wakeups++;
     wakeupcount++;
     if likely (hierarchy.callback) hierarchy.callback->dcache_wakeup(req.lsi, req.addr);
@@ -181,7 +181,7 @@ LoadFillReq::LoadFillReq(W64 addr, W64 data, byte mask, LoadStoreInfo lsi) {
   this->data = data;
   this->mask = mask;
   this->lsi = lsi;
-  this->lsi.threadid = lsi.threadid; 
+  this->lsi.threadid = lsi.threadid;
   this->fillL1 = 1;
   this->fillL2 = 1;
   this->initcycle = sim_cycle;
@@ -212,7 +212,7 @@ ostream& LoadFillReqQueue<size>::print(ostream& os) const {
 // Miss Buffer
 //
 
-template <int SIZE>    
+template <int SIZE>
 void MissBuffer<SIZE>::reset() {
   foreach (i, SIZE) {
     missbufs[i].reset();
@@ -222,7 +222,7 @@ void MissBuffer<SIZE>::reset() {
 }
 
 
-template <int SIZE>    
+template <int SIZE>
 void MissBuffer<SIZE>::reset(int threadid) {
   foreach (i, SIZE) {
     Entry& mb = missbufs[i];
@@ -279,7 +279,7 @@ void MissBuffer<SIZE>::reset(int threadid) {
   }
 }
 
-template <int SIZE>    
+template <int SIZE>
 void MissBuffer<SIZE>::restart() {
   if likely (!(freemap.allset())) {
     foreach (i, SIZE) {
@@ -288,7 +288,7 @@ void MissBuffer<SIZE>::restart() {
   }
 }
 
-template <int SIZE>    
+template <int SIZE>
 int MissBuffer<SIZE>::find(W64 addr) {
   W64 match = 0;
   foreach (i, SIZE) {
@@ -314,7 +314,7 @@ int MissBuffer<SIZE>::initiate_miss(W64 addr, bool hit_in_L2, bool icache, int r
   //          Further note that prefetches and store commits have their own bogus thread IDs
   // if unlikely (idx >= 0 && threadid == missbufs[idx].threadid) {
   if unlikely (idx >= 0) {
-    // Handle case where dcache miss is already in progress but some 
+    // Handle case where dcache miss is already in progress but some
     // code needed in icache is also stored in that line:
     Entry& mb = missbufs[idx];
     mb.icache |= icache;
@@ -343,7 +343,7 @@ int MissBuffer<SIZE>::initiate_miss(W64 addr, bool hit_in_L2, bool icache, int r
   mb.dcache = (!icache);
   mb.rob = rob;
   mb.threadid = threadid;
- 
+
   if (DEBUG) logfile << "[vcpu ", mb.threadid, "] mb", idx, ": allocated for address ", (void*)(Waddr)addr, " (iter ", iterations, ")", endl;
 
   if likely (hit_in_L2) {
@@ -385,7 +385,7 @@ int MissBuffer<SIZE>::initiate_miss(LoadFillReq& req, bool hit_in_L2, int rob) {
   if (logable(6)) logfile << "[vcpu ", req.lsi.threadid, "] missbuf.initiate_miss(req ", req, ", L2hit? ", hit_in_L2, ") -> lfrqslot ", lfrqslot, endl;
 
   if unlikely (lfrqslot < 0) return -1;
-  
+
   int mbidx = initiate_miss(req.addr, hit_in_L2, 0, rob, req.lsi.threadid);
   if unlikely (mbidx < 0) {
     hierarchy.lfrq.free(lfrqslot);
@@ -485,12 +485,12 @@ void MissBuffer<SIZE>::annul_lfrq(int slot) {
 
 template <int SIZE>
 ostream& MissBuffer<SIZE>::print(ostream& os) const {
- 
+
   os << "MissBuffer<", SIZE, ">:", endl;
   foreach (i, SIZE) {
     if likely (freemap[i]) continue;
     const Entry& mb = missbufs[i];
-    os << "slot ", intstring(i, 2), ": vcpu ", mb.threadid, ", addr ", (void*)(Waddr)mb.addr, " state ", 
+    os << "slot ", intstring(i, 2), ": vcpu ", mb.threadid, ", addr ", (void*)(Waddr)mb.addr, " state ",
       padstring(missbuf_state_names[mb.state], -8), " ", (mb.dcache ? "dcache" : "      "),
       " ", (mb.icache ? "icache" : "      "), " on ", mb.cycles, " cycles -> lfrq ", mb.lfrqmap, endl;
   }
@@ -531,7 +531,7 @@ int CacheHierarchy::issueload_slowpath(Waddr physaddr, SFR& sfra, LoadStoreInfo 
   //
   // Loads and stores that also miss the L2 Stores that
   // miss both the L1 and L2 do not require this since
-  // there could not possibly be a previous load or 
+  // there could not possibly be a previous load or
   // store within the current trace that accessed that
   // line (otherwise it would already have been allocated
   // and locked in the L2). In this case, allocate a
@@ -552,7 +552,7 @@ int CacheHierarchy::issueload_slowpath(Waddr physaddr, SFR& sfra, LoadStoreInfo 
   }
 
   L2hit = 0;
-    
+
   L2CacheLine* L2line = L2.probe(physaddr);
 
   if likely (L2line) {
@@ -663,33 +663,33 @@ bool CacheHierarchy::probe_cache_and_sfr(W64 addr, const SFR* sfr, int sizeshift
 void CacheHierarchy::annul_lfrq_slot(int lfrqslot) {
   lfrq.annul(lfrqslot);
 }
-  
+
 //
 // NOTE: lsi should specify destination of REG_null for prefetches!
 //
 static const int PREFETCH_STOPS_AT_L2 = 0;
-  
+
 void CacheHierarchy::initiate_prefetch(W64 addr, int cachelevel, int threadid) {
   static const bool DEBUG = 0;
 
   addr = floor(addr, L1_LINE_SIZE);
-    
+
   L1CacheLine* L1line = L1.probe(addr);
-    
+
   if unlikely (L1line) {
     stats.dcache.prefetch.in_L1++;
     return;
   }
-    
+
   L2CacheLine* L2line = L2.probe(addr);
-    
+
   if unlikely (L2line) {
     stats.dcache.prefetch.in_L2++;
     if (PREFETCH_STOPS_AT_L2) return; // only move up to L2 level, and it's already there
   }
-    
+
   if (DEBUG) logfile << "Prefetch requested for ", (void*)(Waddr)addr, " to cache level ", cachelevel, endl;
-    
+
   missbuf.initiate_miss(addr, L2line, false /*, 0xffff, threadid*/); // NB: no threadid -> default bogus threadid -> not flushed on pipeline flush
   stats.dcache.prefetch.required++;
 }
@@ -701,7 +701,7 @@ void CacheHierarchy::initiate_prefetch(W64 addr, int cachelevel, int threadid) {
 bool CacheHierarchy::probe_icache(Waddr virtaddr, Waddr physaddr) {
   L1ICacheLine* L1line = L1I.probe(physaddr);
   bool hit = (L1line != null);
-    
+
   return hit;
 }
 
@@ -709,10 +709,10 @@ int CacheHierarchy::initiate_icache_miss(W64 addr, int rob, int threadid) {
   addr = floor(addr, L1I_LINE_SIZE);
   bool line_in_L2 = (L2.probe(addr) != null);
   int mb = missbuf.initiate_miss(addr, L2.probe(addr), true, rob, threadid);
-    
+
   if (logable(6))
     logfile << "[vcpu ", threadid, "] Initiate icache miss on ", (void*)(Waddr)addr, " to missbuf ", mb, " (", (line_in_L2 ? "in L2" : "not in L2"), ")", endl;
-    
+
   return mb;
 }
 
@@ -801,8 +801,8 @@ ostream& CacheHierarchy::print(ostream& os) {
   os << "Data Cache Subsystem:", endl;
   os << lfrq;
   os << missbuf;
-  // logfile << L1; 
-  // logfile << L2; 
+  // logfile << L1;
+  // logfile << L2;
   return os;
 }
 

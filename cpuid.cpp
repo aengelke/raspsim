@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
   }
 
   if (maxfuncs < 1) return 0;
- 
+
   {
     cout << "Function 1:", endl;
     ProcessorModelInfo model;

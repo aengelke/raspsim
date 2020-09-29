@@ -20,20 +20,20 @@ extern "C" {
   W64 sys_seek(int fd, W64 offset, unsigned int origin);
   int sys_unlink(const char* pathname);
   int sys_rename(const char* oldpath, const char* newpath);
-  
+
   void* sys_mmap(void* start, size_t length, int prot, int flags, int fd, W64 offset);
   int sys_munmap(void * start, size_t length);
   void* sys_mremap(void* old_address, size_t old_size, size_t new_size, unsigned long flags);
   int sys_mprotect(void* addr, size_t len, int prot);
   int sys_madvise(void* addr, size_t len, int action);
-  int sys_mlock(const void *addr, size_t len);  
-  int sys_munlock(const void *addr, size_t len); 
-  int sys_mlockall(int flags);  
+  int sys_mlock(const void *addr, size_t len);
+  int sys_munlock(const void *addr, size_t len);
+  int sys_mlockall(int flags);
   int sys_munlockall(void);
-  
+
   pid_t sys_fork();
   int sys_execve(const char* filename, const char** argv, const char** envp);
-  
+
   pid_t sys_gettid();
   pid_t sys_getppid();
   pid_t sys_getpid();
@@ -44,7 +44,7 @@ extern "C" {
 
   struct utsname;
   int sys_uname(struct utsname* buf);
-  
+
   void* malloc(size_t size) __attribute__((__malloc__));
   void free(void* ptr);
   char* getenv(const char* name);
@@ -85,7 +85,7 @@ extern "C" {
 
 #undef __syscall_return
 #define __syscall_return(type, res) return (type)(res);
-#define __syscall_clobber "r11","rcx","memory" 
+#define __syscall_clobber "r11","rcx","memory"
 #define __syscall "syscall"
 
 #define declare_syscall0(sysid,type,name) syslinkage type name(void) { long __res; asm volatile \
@@ -299,7 +299,7 @@ extern "C" {
 #define __NR_nfsservctl                        180
 #define __NR_getpmsg                           181	/* reserved for LiS/STREAMS */
 #define __NR_putpmsg                           182	/* reserved for LiS/STREAMS */
-#define __NR_afs_syscall                       183	/* reserved for AFS */ 
+#define __NR_afs_syscall                       183	/* reserved for AFS */
 #define __NR_tuxcall      		184 /* reserved for tux */
 #define __NR_security			185
 #define __NR_gettid		186
