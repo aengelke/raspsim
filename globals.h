@@ -10,6 +10,8 @@
 #define _GLOBALS_H_
 
 #include <assert.h>
+#include <cmath>
+#include <cstddef>
 extern "C" {
 #include <sys/ptrace.h>
 }
@@ -24,7 +26,6 @@ typedef signed short W16s;
 typedef unsigned char byte;
 typedef unsigned char W8;
 typedef signed char W8s;
-#define NULL 0
 #define null NULL
 
 #ifdef __x86_64__
@@ -115,8 +116,7 @@ template <typename T> struct ispointer_t<T*> { static const bool pointer = 1; };
 #define isprimitive(T) (isprimitive_t<T>::primitive)
 
 // Null pointer to the specified object type, for computing field offsets
-template <typename T> static inline T* nullptr() { return (T*)(Waddr)0; }
-#define offsetof_(T, field) ((Waddr)(&(nullptr<T>()->field)) - ((Waddr)nullptr<T>()))
+#define offsetof_(T, field) ((Waddr)(&(reinterpret_cast<T*>(NULL)->field)) - ((Waddr)reinterpret_cast<T*>(NULL)))
 #define baseof(T, field, ptr) ((T*)(((byte*)(ptr)) - offsetof_(T, field)))
 // Restricted (non-aliased) pointers:
 #define noalias __restrict__
@@ -532,7 +532,6 @@ asmlinkage {
 
 #include <stdarg.h>
 
-#include <mathlib.h>
 #include <syscalls.h>
 
 #ifdef PAGE_SIZE
@@ -556,13 +555,13 @@ asmlinkage {
  * really follow the math, not the IEEE FP standard's idea of "equal".
  */
 static inline bool fcmpeqtol(float a, float b) {
-  return (a == b) || (math::fabs(a-b) <= TOLERANCE);
+  return (a == b) || (std::fabs(a-b) <= TOLERANCE);
 }
 
 /*
  * Make these math functions available even inside of member functions with the same name:
  */
-static inline float fsqrt(float v) { return (float)math::sqrt(v); }
+static inline float fsqrt(float v) { return (float)std::sqrt(v); }
 static inline void freemem(void* p) { free(p); }
 
 template <typename T> static inline void setzero(T& x) { memset(&x, 0, sizeof(T)); }

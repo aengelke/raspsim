@@ -136,7 +136,7 @@ void assist_x87_fscale(Context& ctx) {
   W64& st0 = ctx.fpstack[tos >> 3];
   W64& st1 = ctx.fpstack[((tos >> 3) + 1) & 0x7];
   SSEType st0u(st0); SSEType st1u(st1);
-  st0u.d = st0u.d * math::exp2(math::trunc(st1u.d));
+  st0u.d = st0u.d * std::exp2(std::trunc(st1u.d));
   st0 = st0u.w64;
   X87StatusWord* sw = (X87StatusWord*)&ctx.commitarf[REG_fpsw];
   sw->c1 = 0; sw->c2 = 0;
@@ -154,10 +154,10 @@ void assist_x87_##name(Context& ctx) { \
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip]; \
 }
 
-make_unary_x87_func(fsqrt, math::sqrt(ra.d));
-make_unary_x87_func(fsin, math::sin(ra.d));
-make_unary_x87_func(fcos, math::cos(ra.d));
-make_unary_x87_func(f2xm1, math::exp2(ra.d) - 1);
+make_unary_x87_func(fsqrt, std::sqrt(ra.d));
+make_unary_x87_func(fsin, std::sin(ra.d));
+make_unary_x87_func(fcos, std::cos(ra.d));
+make_unary_x87_func(f2xm1, std::exp2(ra.d) - 1);
 
 void assist_x87_frndint(Context& ctx) {
   W64& r = ctx.fpstack[ctx.commitarf[REG_fptos] >> 3];
@@ -166,13 +166,13 @@ void assist_x87_frndint(Context& ctx) {
   SSEType ra(r);
   switch (ctx.fpcw.rc) {
   case 0: // round to nearest (round)
-    ra.d = math::round(ra.d); break;
+    ra.d = std::round(ra.d); break;
   case 1: // round down (floor)
-    ra.d = math::floor(ra.d); break;
+    ra.d = std::floor(ra.d); break;
   case 2: // round up (ceil)
-    ra.d = math::ceil(ra.d); break;
+    ra.d = std::ceil(ra.d); break;
   case 3: // round towards zero (trunc)
-    ra.d = math::trunc(ra.d); break;
+    ra.d = std::trunc(ra.d); break;
   }
   r = ra.w64;
 #else
@@ -210,12 +210,12 @@ void assist_x87_##name(Context& ctx) { \
 }
 
 // st(0) = sin(st(0)) and push cos(orig st(0))
-make_two_output_x87_func_with_push(fsincos, (st1u.d = math::cos(st0u.d), st0u.d = math::sin(st0u.d)));
+make_two_output_x87_func_with_push(fsincos, (st1u.d = std::cos(st0u.d), st0u.d = std::sin(st0u.d)));
 
 // st(0) = tan(st(0)) and push value 1.0
-make_two_output_x87_func_with_push(fptan, (st1u.d = 1.0, st0u.d = math::tan(st0u.d)));
+make_two_output_x87_func_with_push(fptan, (st1u.d = 1.0, st0u.d = std::tan(st0u.d)));
 
-make_two_output_x87_func_with_push(fxtract, (st1u.d = math::significand(st0u.d), st0u.d = math::ilogb(st0u.d)));
+make_two_output_x87_func_with_push(fxtract, (st1u.d = significand(st0u.d), st0u.d = std::ilogb(st0u.d)));
 
 void assist_x87_fprem1(Context& ctx) {
   W64& tos = ctx.commitarf[REG_fptos];

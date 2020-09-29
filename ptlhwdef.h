@@ -1229,7 +1229,7 @@ union MaskControlInfo {
 };
 
 #define MakePermuteControlInfo(b7, b6, b5, b4, b3, b2, b1, b0) \
-  (b7 << (7*4)) + (b6 << (6*4)) + (b5 << (5*4)) + (b4 << (4*4)) + \
+  (W32) (b7 << (7*4)) + (b6 << (6*4)) + (b5 << (5*4)) + (b4 << (4*4)) + \
   (b3 << (3*4)) + (b2 << (2*4)) + (b1 << (1*4)) + (b0 << (0*4))
 
 union PermbControlInfo {

@@ -1277,15 +1277,15 @@ int format_float(char* buf, int bufsize, double v, int precision, int pad) {
   u.ieee.negative = 0;
   v = u.d;
 
-  double whole = math::trunc(v);
+  double whole = std::trunc(v);
   double frac = v - whole;
 
-  if (math::isnan(u.d)) {
+  if (std::isnan(u.d)) {
     snprintf(buf, bufsize, "%snan", (signbit ? "-" : "+"));
     return 0;
   }
 
-  if (math::isinf(u.d)) {
+  if (std::isinf(u.d)) {
     snprintf(buf, bufsize, "%sinf", (signbit ? "-" : "+"));
     return 0;
   }
@@ -1297,7 +1297,7 @@ int format_float(char* buf, int bufsize, double v, int precision, int pad) {
 
   int i;
 
-  W64 fracint = (W64)math::trunc(frac * M);
+  W64 fracint = (W64)std::trunc(frac * M);
   W64 wholeint = (W64)whole;
 
   bool left = (pad < 0);

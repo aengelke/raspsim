@@ -153,7 +153,7 @@ void OutOfOrderCore::reset() {
   setzero(robs_on_fu);
   foreach_issueq(reset(coreid));
 
-  reserved_iq_entries = (int)math::sqrt((double) ISSUE_QUEUE_SIZE / MAX_THREADS_PER_CORE);
+  reserved_iq_entries = (int)std::sqrt((double) ISSUE_QUEUE_SIZE / MAX_THREADS_PER_CORE);
   assert(reserved_iq_entries && reserved_iq_entries < ISSUE_QUEUE_SIZE);
 
   foreach_issueq(set_reserved_entries(reserved_iq_entries * MAX_THREADS_PER_CORE));
