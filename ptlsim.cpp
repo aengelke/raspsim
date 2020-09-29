@@ -365,14 +365,6 @@ bool handle_config_change(PTLsimConfig& config, int argc, char** argv) {
 
   logfile.setchain((config.log_on_console) ? &cout : null);
 
-  if (config.stats_filename.set() && (config.stats_filename != current_stats_filename)) {
-    // Can also use "-logfile /dev/fd/1" to send to stdout (or /dev/fd/2 for stderr):
-    statswriter.open(config.stats_filename, &_binary_ptlsim_dst_start,
-                     &_binary_ptlsim_dst_end - &_binary_ptlsim_dst_start,
-                     sizeof(PTLsimStats));
-    current_stats_filename = config.stats_filename;
-  }
-
   logfile.setbuf(config.log_buffer_size);
 
   if ((config.loglevel > 0) & (config.start_log_at_rip == INVALIDRIP) & (config.start_log_at_iteration == infinity)) {
