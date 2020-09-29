@@ -25,6 +25,10 @@
 #define FMT_SPECIAL	32 /* 0x */
 #define FMT_LARGE	  64 /* use 'ABCDEF' instead of 'abcdef' */
 
+char* format_number(char* buf, char* end, W64 num, int base, int size, int precision, int type);
+int format_integer(char* buf, int bufsize, W64s v, int size = 0, int flags = 0, int base = 10, int precision = 0);
+int format_float(char* buf, int bufsize, double v, int precision = 6, int pad = 0);
+
 int current_vcpuid();
 
 extern bool force_synchronous_streams;

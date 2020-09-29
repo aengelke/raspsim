@@ -9,6 +9,7 @@
 #ifndef _GLOBALS_H_
 #define _GLOBALS_H_
 
+#include <assert.h>
 extern "C" {
 #include <sys/ptrace.h>
 }
@@ -69,7 +70,6 @@ static inline void assert_fail_trap(const char *__assertion, const char *__file,
 
 #define __CONCAT(x,y)	x ## y
 #define __STRING(x)	#x
-#define assert(expr) (__ASSERT_VOID_CAST ((unlikely(expr)) ? 0 : (assert_fail (__STRING(expr), __FILE__, __LINE__, __PRETTY_FUNCTION__), 0)))
 
 #define nan NAN
 #define inf INFINITY
@@ -533,7 +533,7 @@ asmlinkage {
 #include <stdarg.h>
 
 #include <mathlib.h>
-#include <klibc.h>
+#include <syscalls.h>
 
 #ifdef PAGE_SIZE
 #undef PAGE_SIZE

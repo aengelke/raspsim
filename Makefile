@@ -55,16 +55,16 @@ CFLAGS += -fno-trapping-math -fno-stack-protector -fno-exceptions -fno-rtti -fun
 
 
 BASEOBJS = superstl.o config.o mathlib.o syscalls.o
-COMMONOBJS = ptlsim.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o $(BASEOBJS) klibc.o
+COMMONOBJS = ptlsim.o mm.o ptlhwdef.o decode-core.o decode-fast.o decode-complex.o decode-x87.o decode-sse.o uopimpl.o seqcore.o $(BASEOBJS)
 
 OOOOBJS = branchpred.o dcache.o ooocore.o ooopipe.o oooexec.o
-RASPSIM_OBJFILES = linkstart.o raspsim-64bit.o $(COMMONOBJS) raspsim.o $(OOOOBJS) linkend.o
+RASPSIM_OBJFILES = $(COMMONOBJS) raspsim.o $(OOOOBJS)
 
-COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h superstl.h globals.h ptlsim-api.h mm.h loader.h mathlib.h klibc.h syscalls.h stats.h
+COMMONINCLUDES = logic.h ptlhwdef.h decode.h seqexec.h dcache.h dcache-amd-k8.h config.h ptlsim.h superstl.h globals.h ptlsim-api.h mm.h loader.h mathlib.h syscalls.h stats.h
 OOOINCLUDES = branchpred.h ooocore.h ooocore-amd-k8.h
 INCLUDEFILES = $(COMMONINCLUDES) $(OOOINCLUDES)
 
-COMMONCPPFILES = ptlsim.cpp raspsim.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp linkstart.S linkend.S uopimpl.cpp dcache.cpp config.cpp klibc.cpp mathlib.cpp syscalls.cpp
+COMMONCPPFILES = ptlsim.cpp raspsim.cpp mm.cpp superstl.cpp ptlhwdef.cpp decode-core.cpp decode-fast.cpp decode-complex.cpp decode-x87.cpp decode-sse.cpp uopimpl.cpp dcache.cpp config.cpp mathlib.cpp syscalls.cpp
 
 OOOCPPFILES = ooocore.cpp ooopipe.cpp oooexec.cpp seqcore.cpp branchpred.cpp
 
@@ -79,7 +79,7 @@ all: $(TOPLEVEL)
 
 ifdef __x86_64__
 raspsim: $(RASPSIM_OBJFILES) Makefile
-	$(CXX) -nostdlib $(RASPSIM_OBJFILES) -static -static-libgcc -o $@ -Wl,--allow-multiple-definition -Wl,-e,raspsim_entry
+	$(CXX) $(RASPSIM_OBJFILES) -o $@ -Wl,--allow-multiple-definition
 endif
 
 %.o: %.cpp
@@ -94,7 +94,6 @@ endif
 clean:
 	rm -fv raspsim *.o core core.[0-9]* .depend *.gch
 
-OBJFILES = linkstart.o $(COMMONOBJS) $(PT2XOBJS) $(OOOOBJS) linkend.o
 INCLUDEFILES = $(COMMONINCLUDES) $(PT2XINCLUDES) $(OOOINCLUDES)
 CPPFILES = $(COMMONCPPFILES) $(PT2XCPPFILES) $(OOOCPPFILES)
 

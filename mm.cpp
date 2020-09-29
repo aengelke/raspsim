@@ -1579,27 +1579,3 @@ void ptl_mm_reclaim(size_t bytes, int urgency) {
 
   ptl_mm_add_event(PTL_MM_EVENT_RECLAIM_END, PTL_MM_POOL_ALL, getcaller(), null, bytes);
 }
-
-asmlinkage void* malloc(size_t size) {
-  return ptl_mm_alloc(size, getcaller());
-}
-
-asmlinkage void free(void* ptr) {
-  ptl_mm_free(ptr, getcaller());
-}
-
-void* operator new(size_t sz) {
-  return ptl_mm_alloc(sz, getcaller());
-}
-
-void operator delete(void* m) {
-  ptl_mm_free(m, getcaller());
-}
-
-void* operator new[](size_t sz) {
-  return ptl_mm_alloc(sz, getcaller());
-}
-
-void operator delete[](void* m) {
-  ptl_mm_free(m, getcaller());
-}

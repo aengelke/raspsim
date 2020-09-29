@@ -807,7 +807,6 @@ bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
 //
 int main(int argc, char** argv) {
   ptl_mm_init();
-  call_global_constuctors();
 
   configparser.setup();
   config.reset();

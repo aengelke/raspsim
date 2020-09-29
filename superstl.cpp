@@ -1125,6 +1125,38 @@ namespace superstl {
 
 using namespace superstl;
 
+//
+// Division functions
+//
+#ifdef __x86_64__
+
+#define do_div(n,base) ({         \
+  W32 __base = (base);        \
+  W32 __rem;            \
+  __rem = ((W64)(n)) % __base;      \
+  (n) = ((W64)(n)) / __base;        \
+  __rem;              \
+ })
+
+#else
+
+// 32-bit x86
+#define do_div(n,base) ({ \
+  W32 __upper, __low, __high, __mod, __base; \
+  __base = (base); \
+  asm("":"=a" (__low), "=d" (__high):"A" (n)); \
+  __upper = __high; \
+  if (__high) { \
+    __upper = __high % (__base); \
+    __high = __high / (__base); \
+  } \
+  asm("divl %2":"=a" (__low), "=d" (__mod):"rm" (__base), "0" (__low), "1" (__upper)); \
+  asm("":"=A" (n):"a" (__low),"d" (__high)); \
+  __mod; \
+})
+
+#endif
+
 char* format_number(char* buf, char* end, W64 num, int base, int size, int precision, int type) {
 	char c,sign,tmp[66];
 	const char *digits;
@@ -1226,6 +1258,73 @@ int format_integer(char* buf, int bufsize, W64s v, int size, int flags, int base
   // null terminate
   *end = 0;
   return (end - buf);
+}
+
+//
+// This function is very simple and does not handle FP numbers
+// larger than the range of a W64. It avoids a lot of the baggage
+// associated with the normal glibc implementation.
+//
+int format_float(char* buf, int bufsize, double v, int precision, int pad) {
+  static const double M = 1e18;
+  static const double Ms = 1e-18;
+  static const int logM = 18;
+
+  W64orDouble u;
+  u.d = v;
+
+  bool signbit = u.ieee.negative;
+  u.ieee.negative = 0;
+  v = u.d;
+
+  double whole = math::trunc(v);
+  double frac = v - whole;
+
+  if (math::isnan(u.d)) {
+    snprintf(buf, bufsize, "%snan", (signbit ? "-" : "+"));
+    return 0;
+  }
+
+  if (math::isinf(u.d)) {
+    snprintf(buf, bufsize, "%sinf", (signbit ? "-" : "+"));
+    return 0;
+  }
+
+  if (v >= M) {
+    snprintf(buf, bufsize, "<too large>");
+    return 0;
+  }
+
+  int i;
+
+  W64 fracint = (W64)math::trunc(frac * M);
+  W64 wholeint = (W64)whole;
+
+  bool left = (pad < 0);
+
+  int total = 0;
+
+  int remaining = bufsize;
+
+  if (signbit) {
+    buf[0] = '-';
+    buf++;
+    total++;
+    remaining--;
+  }
+
+  int n = format_integer(buf, remaining, wholeint, abs<int>(pad), (left ? FMT_LEFT : 0));
+  remaining = max(remaining - n, 0);
+  total += n;
+  if (remaining < 1) return total;
+  assert(n < bufsize-1);
+  buf[n] = '.';
+  total++;
+  remaining--;
+  n = format_integer(buf + n + 1, max(min(remaining, precision+1), 0), fracint, 0, 0);
+  total += n;
+  buf[total] = 0;
+  return total;
 }
 
 const unsigned char popcountlut8bit[] = {
