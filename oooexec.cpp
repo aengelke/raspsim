@@ -35,9 +35,9 @@ using namespace OutOfOrderModel;
 //
 template <int size, int operandcount>
 void IssueQueue<size, operandcount>::reset(int coreid) {
-  OutOfOrderCore& core = getcore();
-
   this->coreid = coreid;
+
+  OutOfOrderCore& core = getcore();
   count = 0;
   valid = 0;
   issued = 0;
