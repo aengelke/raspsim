@@ -806,8 +806,6 @@ bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
 // PTLsim main: called after ptlsim_preinit() brings up boot subsystems
 //
 int main(int argc, char** argv) {
-  ptl_mm_init();
-
   configparser.setup();
   config.reset();
 
@@ -818,7 +816,6 @@ int main(int argc, char** argv) {
   CycleTimer::gethz();
 
   init_uops();
-  init_decode();
 
 
   // Set up initial context:

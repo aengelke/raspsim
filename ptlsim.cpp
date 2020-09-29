@@ -367,9 +367,6 @@ bool handle_config_change(PTLsimConfig& config, int argc, char** argv) {
     config.log_trigger_virt_addr_end = config.log_trigger_virt_addr_start;
   }
 
-  ptl_mm_set_logging(config.mm_logfile.set() ? (char*)(config.mm_logfile) : null, config.mm_log_buffer_size, config.enable_inline_mm_logging);
-  ptl_mm_set_validate(config.enable_mm_validate);
-
 #ifdef __x86_64__
   config.start_log_at_rip = signext64(config.start_log_at_rip, 48);
   config.log_backwards_from_trigger_rip = signext64(config.log_backwards_from_trigger_rip, 48);
@@ -571,7 +568,6 @@ void shutdown_subsystems() {
   //
   shutdown_uops();
   shutdown_decode();
-  ptl_mm_flush_logging();
 }
 
 #endif // CONFIG_ONLY

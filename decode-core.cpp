@@ -1500,7 +1500,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
   W64 oldest = limits<W64>::max;
   W64 newest = 0;
   W64 average = 0;
-  W64 total_bytes = 0;
 
   int n = 0;
 
@@ -1511,7 +1510,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
     oldest = min(oldest, bb->lastused);
     newest = max(newest, bb->lastused);
     average += bb->lastused;
-    total_bytes += ptl_mm_getsize(bb);
     n++;
   }
 
@@ -1519,7 +1517,7 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
   assert(n > 0);
   average /= n;
 
-  if unlikely (urgency >= MAX_URGENCY) {
+  if unlikely (urgency >= /*MAX_URGENCY*/10000000) {
     //
     // The allocator is so strapped for memory, we need to free
     // everything possible at all costs:
@@ -1530,7 +1528,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
   if (DEBUG) {
     logfile << "Before:", endl;
     logfile << "  Basic blocks:   ", intstring(count, 12), endl;
-    logfile << "  Bytes occupied: ", intstring(total_bytes, 12), endl;
     logfile << "  Oldest cycle:   ", intstring(oldest, 12), endl;
     logfile << "  Average cycle:  ", intstring(average, 12), endl;
     logfile << "  Newest cycle:   ", intstring(newest, 12), endl;
@@ -1540,7 +1537,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
   // Reclaim all objects older than the average
   //
   n = 0;
-  W64 reclaimed_bytes = 0;
   int reclaimed_objs = 0;
 
   iter.reset(this);
@@ -1557,7 +1553,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
 
     // We use '<=' to guarantee even a uniform distribution will eventually be reclaimed:
     if likely (bb->lastused <= average) {
-      reclaimed_bytes += ptl_mm_getsize(bb);
       reclaimed_objs++;
       invalidate(bb, INVALIDATE_REASON_RECLAIM);
     }
@@ -1567,7 +1562,6 @@ int BasicBlockCache::reclaim(size_t bytesreq, int urgency) {
   if (DEBUG) {
     logfile << "After:", endl;
     logfile << "  Basic blocks:   ", intstring(reclaimed_objs, 12), " BBs reclaimed", endl;
-    logfile << "  Bytes occupied: ", intstring(reclaimed_bytes, 12), " bytes reclaimed", endl;
     logfile << "  New pool size:  ", intstring(count, 12), " BBs", endl;
     logfile.flush();
   }
@@ -2220,14 +2214,6 @@ ostream& BasicBlockCache::print(ostream& os) {
 
   delete& bblist;
   return os;
-}
-
-void bbcache_reclaim(size_t bytes, int urgency) {
-  bbcache.reclaim(bytes, urgency);
-}
-
-void init_decode() {
-  ptl_mm_register_reclaim_handler(bbcache_reclaim);
 }
 
 void shutdown_decode() {
