@@ -742,8 +742,6 @@ int ReorderBufferEntry::issuestore(LoadStoreQueueEntry& state, Waddr& origaddr, 
   Queue<ReorderBufferEntry, ROB_SIZE>& ROB = thread.ROB;
   LoadStoreAliasPredictor& lsap = thread.lsap;
 
-  time_this_scope(ctissuestore);
-
   OutOfOrderCore& core = getcore();
   OutOfOrderCoreEvent* event;
 
@@ -1063,8 +1061,6 @@ static inline W64 extract_bytes(void* target, int SIZESHIFT, bool SIGNEXT) {
 }
 
 int ReorderBufferEntry::issueload(LoadStoreQueueEntry& state, Waddr& origaddr, W64 ra, W64 rb, W64 rc, PTEUpdate& pteupdate) {
-  time_this_scope(ctissueload);
-
   OutOfOrderCore& core = getcore();
   ThreadContext& thread = getthread();
   Queue<LoadStoreQueueEntry, LSQ_SIZE>& LSQ = thread.LSQ;
@@ -1592,8 +1588,6 @@ void ReorderBufferEntry::tlbwalk() {
 }
 
 void ThreadContext::tlbwalk() {
-  time_this_scope(ctfrontend);
-
   ReorderBufferEntry* rob;
   foreach_list_mutable(rob_tlb_miss_list, rob, entry, nextentry) {
    rob->tlbwalk();
@@ -1927,8 +1921,6 @@ void ReorderBufferEntry::release() {
 // Process the ready to issue queue and issue as many ROBs as possible
 //
 int OutOfOrderCore::issue(int cluster) {
-  time_this_scope(ctissue);
-
   int issuecount = 0;
   ReorderBufferEntry* rob;
 

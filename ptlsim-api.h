@@ -12,9 +12,6 @@
 #include <globals.h>
 #include <ptlhwdef.h>
 
-// From globals.h
-// W64 get_core_freq_hz();
-
 // From ptlhwdef.h
 // void Context::propagate_x86_exception(byte exception, W32 errorcode, Waddr virtaddr);
 // int Context::copy_from_user(void* target, Waddr addr, int bytes, PageFaultErrorCode& pfec, Waddr& faultaddr, bool forexec, Level1PTE& ptelo, Level1PTE& ptehi);
@@ -55,15 +52,6 @@ void handle_syscall_32bit(int semantics);
 
 // x86-64 mode has only one type of system call (the syscall instruction)
 void handle_syscall_64bit();
-
-//
-// This is set if we are running within the target process address space;
-// it controls the way PTLsim behaves on startup. If not set, PTLsim is
-// acting as a regular program, typically to inject itself into another
-// process (which will then have inside_ptlsim set) or to print help info.
-//
-// TODO(AE): remove requirement from mm.cpp
-extern bool inside_ptlsim;
 
 // Used to determine whether to exit emulation.
 extern bool requested_switch_to_native;

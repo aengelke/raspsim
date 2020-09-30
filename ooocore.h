@@ -35,17 +35,6 @@ static const int MAX_THREADS_PER_CORE = 2;
 static const int MAX_THREADS_PER_CORE = 1;
 #endif
 
-//#define ENABLE_SIM_TIMING
-#ifdef ENABLE_SIM_TIMING
-#define time_this_scope(ct) CycleTimerScope ctscope(ct)
-#define start_timer(ct) ct.start()
-#define stop_timer(ct) ct.stop()
-#else
-#define time_this_scope(ct) (0)
-#define start_timer(ct) (0)
-#define stop_timer(ct) (0)
-#endif
-
 #define per_context_ooocore_stats_ref(vcpuid) (*(((PerContextOutOfOrderCoreStats*)&stats.ooocore.vcpu0) + (vcpuid)))
 #define per_context_ooocore_stats_update(vcpuid, expr) stats.ooocore.total.expr, per_context_ooocore_stats_ref(vcpuid).expr
 
@@ -1676,19 +1665,6 @@ namespace OutOfOrderModel {
     void flush_all_pipelines();
   };
 
-  extern CycleTimer cttotal;
-  extern CycleTimer ctfetch;
-  extern CycleTimer ctdecode;
-  extern CycleTimer ctrename;
-  extern CycleTimer ctfrontend;
-  extern CycleTimer ctdispatch;
-  extern CycleTimer ctissue;
-  extern CycleTimer ctissueload;
-  extern CycleTimer ctissuestore;
-  extern CycleTimer ctcomplete;
-  extern CycleTimer cttransfer;
-  extern CycleTimer ctwriteback;
-  extern CycleTimer ctcommit;
 
 #ifdef DECLARE_STRUCTURES
   //

@@ -550,8 +550,6 @@ struct SequentialCore {
   W64 bbcache_inserts;
   W64 bbcache_removes;
 
-  CycleTimer ctseq;
-
   W64 seq_total_basic_blocks;
   W64 seq_total_uops_committed;
   W64 seq_total_user_insns_committed;
@@ -773,13 +771,6 @@ struct SequentialCore {
       event->loadstore.pteused = pteused;
     }
 
-    if unlikely (inrange(W64(addr), config.log_trigger_virt_addr_start, config.log_trigger_virt_addr_end)) {
-      W64 mfn = physaddr >> 12;
-      logfile << "Trigger hit for virtual address range: STORE virt ", (void*)addr, ", phys mfn ", mfn, "+0x", hexstring(addr, 12), " <= 0x", hexstring(rc, (1 << sizeshift)*8),
-        " (SFR ", state, ") by insn @ rip ", (void*)arf[REG_rip], " at cycle ", sim_cycle, ", uuid ", current_uuid, ", commits ", total_user_insns_committed, endl;
-      eventlog.print_one_basic_block(logfile);
-    }
-
     return ISSUE_COMPLETED;
   }
 
@@ -894,14 +885,6 @@ struct SequentialCore {
       event->loadstore.pfec = pfec;
       event->loadstore.pteused = pteused;
     }
-
-    if unlikely (inrange(W64(addr), config.log_trigger_virt_addr_start, config.log_trigger_virt_addr_end)) {
-      W64 mfn = physaddr >> 12;
-      logfile << "Trigger hit for virtual address range: LOAD virt ", (void*)addr, ", phys mfn ", mfn, "+0x", hexstring(addr, 12), " => 0x", hexstring(state.data, 64), " (SFR ", state, ") at cycle ",
-        " by insn @ rip ", (void*)arf[REG_rip], " at cycle ", sim_cycle, ", uuid ", current_uuid, ", commits ", total_user_insns_committed, endl;
-      eventlog.print_one_basic_block(logfile);
-    }
-
 
     return ISSUE_COMPLETED;
   }
@@ -1420,20 +1403,14 @@ struct SequentialCore {
       break;
     case SEQEXEC_EXCEPTION:
     case SEQEXEC_INVALIDRIP:
-      ctseq.stop();
       exiting = (!handle_exception());
-      ctseq.start();
       break;
     case SEQEXEC_BARRIER:
-      ctseq.stop();
       exiting = (!handle_barrier());
-      ctseq.start();
       break;
 #ifdef PTLSIM_HYPERVISOR
     case SEQEXEC_INTERRUPT:
-      ctseq.stop();
       handle_interrupt();
-      ctseq.start();
       break;
 #endif
     default:
@@ -1598,7 +1575,6 @@ struct SequentialMachine: public PTLsimMachine {
     for (;;) {
       if unlikely (iterations >= config.start_log_at_iteration) logenable = 1;
 
-      update_progress();
       inject_events();
 
       int running_thread_count = 0;

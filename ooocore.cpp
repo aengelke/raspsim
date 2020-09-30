@@ -1687,8 +1687,6 @@ bool OutOfOrderMachine::init(PTLsimConfig& config) {
 // is hit (as configured elsewhere in config).
 //
 int OutOfOrderMachine::run(PTLsimConfig& config) {
-  time_this_scope(cttotal);
-
   logfile << "Starting out-of-order core toplevel loop", endl, flush;
 
   // All VCPUs are running:
@@ -1718,7 +1716,6 @@ int OutOfOrderMachine::run(PTLsimConfig& config) {
       logenable = 1;
     }
 
-    update_progress();
     inject_events();
 
     OutOfOrderCore& core =* cores[0]; // only one core for now
@@ -1867,22 +1864,6 @@ void OutOfOrderMachine::dump_state(ostream& os) {
 #endif
 }
 
-namespace OutOfOrderModel {
-  CycleTimer cttotal;
-  CycleTimer ctfetch;
-  CycleTimer ctdecode;
-  CycleTimer ctrename;
-  CycleTimer ctfrontend;
-  CycleTimer ctdispatch;
-  CycleTimer ctissue;
-  CycleTimer ctissueload;
-  CycleTimer ctissuestore;
-  CycleTimer ctcomplete;
-  CycleTimer cttransfer;
-  CycleTimer ctwriteback;
-  CycleTimer ctcommit;
-};
-
 void OutOfOrderMachine::update_stats(PTLsimStats& stats) {
   foreach (vcpuid, contextcount) {
     PerContextOutOfOrderCoreStats& s = per_context_ooocore_stats_ref(vcpuid);
@@ -1895,20 +1876,6 @@ void OutOfOrderMachine::update_stats(PTLsimStats& stats) {
   s.issue.uipc = s.issue.uops / (double)stats.ooocore.cycles;
   s.commit.uipc = (double)s.commit.uops / (double)stats.ooocore.cycles;
   s.commit.ipc = (double)s.commit.insns / (double)stats.ooocore.cycles;
-
-  stats.ooocore.simulator.total_time = cttotal.seconds();
-  stats.ooocore.simulator.cputime.fetch = ctfetch.seconds();
-  stats.ooocore.simulator.cputime.decode = ctdecode.seconds();
-  stats.ooocore.simulator.cputime.rename = ctrename.seconds();
-  stats.ooocore.simulator.cputime.frontend = ctfrontend.seconds();
-  stats.ooocore.simulator.cputime.dispatch = ctdispatch.seconds();
-  stats.ooocore.simulator.cputime.issue = ctissue.seconds() - (ctissueload.seconds() + ctissuestore.seconds());
-  stats.ooocore.simulator.cputime.issueload = ctissueload.seconds();
-  stats.ooocore.simulator.cputime.issuestore = ctissuestore.seconds();
-  stats.ooocore.simulator.cputime.complete = ctcomplete.seconds();
-  stats.ooocore.simulator.cputime.transfer = cttransfer.seconds();
-  stats.ooocore.simulator.cputime.writeback = ctwriteback.seconds();
-  stats.ooocore.simulator.cputime.commit = ctcommit.seconds();
 }
 
 //

@@ -380,8 +380,6 @@ bool ThreadContext::fetch() {
   OutOfOrderCore& core = getcore();
   EventLog& eventlog = core.eventlog;
 
-  time_this_scope(ctfetch);
-
   int fetchcount = 0;
   int taken_branch_count = 0;
 
@@ -626,8 +624,6 @@ bool ThreadContext::fetch() {
 }
 
 BasicBlock* ThreadContext::fetch_or_translate_basic_block(const RIPVirtPhys& rvp) {
-  time_this_scope(ctdecode);
-
   if likely (current_basic_block) {
     // Release our ref to the old basic block being fetched
     current_basic_block->release();
@@ -671,8 +667,6 @@ BasicBlock* ThreadContext::fetch_or_translate_basic_block(const RIPVirtPhys& rvp
 
 void ThreadContext::rename() {
   OutOfOrderCoreEvent* event;
-
-  time_this_scope(ctrename);
 
   int prepcount = 0;
 
@@ -918,8 +912,6 @@ void ThreadContext::rename() {
 }
 
 void ThreadContext::frontend() {
-  time_this_scope(ctfrontend);
-
   ReorderBufferEntry* rob;
   foreach_list_mutable(rob_frontend_list, rob, entry, nextentry) {
     if unlikely (rob->cycles_left <= 0) {
@@ -1209,8 +1201,6 @@ int ReorderBufferEntry::select_cluster() {
 //
 
 int ThreadContext::dispatch() {
-  time_this_scope(ctdispatch);
-
   OutOfOrderCoreEvent* event;
   ReorderBufferEntry* rob;
   foreach_list_mutable(rob_ready_to_dispatch_list, rob, entry, nextentry) {
@@ -1320,8 +1310,6 @@ int ThreadContext::dispatch() {
 //
 
 int ThreadContext::complete(int cluster) {
-  time_this_scope(ctcomplete);
-
   int completecount = 0;
   ReorderBufferEntry* rob;
 
@@ -1352,8 +1340,6 @@ int ThreadContext::complete(int cluster) {
 //
 
 int ThreadContext::transfer(int cluster) {
-  time_this_scope(cttransfer);
-
   int wakeupcount = 0;
   ReorderBufferEntry* rob;
   foreach_list_mutable(rob_completed_list[cluster], rob, entry, nextentry) {
@@ -1375,8 +1361,6 @@ int ThreadContext::transfer(int cluster) {
 //
 
 int ThreadContext::writeback(int cluster) {
-  time_this_scope(ctwriteback);
-
   //  int writecount = 0;
   int wakeupcount = 0;
   ReorderBufferEntry* rob;
@@ -1507,8 +1491,6 @@ int ThreadContext::writeback(int cluster) {
 //
 
 int ThreadContext::commit() {
-  time_this_scope(ctcommit);
-
   //
   // Recycle physical registers for which all references have been dropped
   //

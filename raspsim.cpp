@@ -573,16 +573,6 @@ void Context::propagate_x86_exception(byte exception, W32 errorcode, Waddr virta
     cerr    << "PageFault error code: 0x", hexstring(errorcode, 32), ", Flags: ", (pk ? "PK " : ""), (id ? "I " : "D "), (rsvd ? "RSVD " : ""), (us ? "U " : "S "), (wr ? "W " : "R "), (p ? "P" : ""), endl, flush;
   }
 
-  if (config.dumpcode_filename.set()) {
-    byte insnbuf[1024];
-    PageFaultErrorCode insn_pfec;
-    Waddr insn_faultaddr;
-    int valid_byte_count = copy_from_user(insnbuf, rip, sizeof(insnbuf), insn_pfec, insn_faultaddr);
-
-    logfile << "Writing ", valid_byte_count, " bytes from rip ", (void*)rip, " to ", ((char*)config.dumpcode_filename), "...", endl, flush;
-    odstream("dumpcode.dat").write(insnbuf, sizeof(insnbuf));
-  }
-
   logfile << "Aborting...", endl, flush;
   cerr << "Aborting...", endl, flush;
   assert(false);
@@ -640,64 +630,6 @@ void handle_syscall_32bit(int semantics) {
   }
 
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];
-}
-
-//
-// Get the processor core frequency in cycles/second:
-//
-static W64 core_freq_hz = 0;
-
-W64 get_core_freq_hz() {
-  if likely (core_freq_hz) return core_freq_hz;
-
-  W64 hz = 0;
-
-  istream cpufreqis("/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq");
-  if (cpufreqis) {
-    char s[256];
-    cpufreqis >> readline(s, sizeof(s));
-
-    int khz;
-    int n = sscanf(s, "%d", &khz);
-
-    if (n == 1) {
-      hz = (W64)khz * 1000;
-      core_freq_hz = hz;
-      return hz;
-    }
-  }
-
-  istream is("/proc/cpuinfo");
-
-  if (!is) {
-    cerr << "get_core_freq_hz(): warning: cannot open /proc/cpuinfo. Is this a Linux machine?", endl;
-    core_freq_hz = hz;
-    return hz;
-  }
-
-  while (is) {
-    char s[256];
-    is >> readline(s, sizeof(s));
-
-    int mhz;
-    int n = sscanf(s, "cpu MHz : %d", &mhz);
-    if (n == 1) {
-      hz = (W64)mhz * 1000000;
-      core_freq_hz = hz;
-      return hz;
-    }
-  }
-
-  // Can't read either of these procfiles: abort
-  assert(false);
-  return 0;
-}
-
-//
-// Main simulation driver function
-//
-void switch_to_sim() {
-  static const bool DEBUG = 0;
 }
 
 bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
@@ -813,8 +745,6 @@ int main(int argc, char** argv) {
   if (ptlsim_arg_count == 0) ptlsim_arg_count = argc;
   handle_config_change(config, ptlsim_arg_count - 1, argv+1);
 
-  CycleTimer::gethz();
-
   init_uops();
 
 
@@ -924,8 +854,8 @@ int main(int argc, char** argv) {
     sim_cycle, " cycles, ", total_user_insns_committed, " user commits, ", iterations, " iterations) ===", endl, endl;
   shutdown_subsystems();
   logfile.flush();
+  cerr.flush();
   sys_exit(0);
 }
 
-bool inside_ptlsim = 1;
 bool requested_switch_to_native = 0;

@@ -286,26 +286,6 @@ template <typename T> inline bool x86_locked_btc(T& r, T b) { byte c; asm volati
 
 template <typename T> inline T bswap(T r) { asm("bswap %[r]" : [r] "+r" (r)); return r; }
 
-// Return v with groups of N bits swapped
-template <typename T, int N>
-static inline T bitswap(T v) {
-  T m =
-    (N == 1) ? T(0x5555555555555555ULL) :
-    (N == 2) ? T(0x3333333333333333ULL) :
-    (N == 4) ? T(0x0f0f0f0f0f0f0f0fULL) : 0;
-
-  return ((v & m) << N) | ((v & (~m)) >> N);
-}
-
-template <typename T>
-T reversebits(T v) {
-  v = bitswap<T, 1>(v);
-  v = bitswap<T, 2>(v);
-  v = bitswap<T, 4>(v);
-  v = bswap(v);
-  return v;
-}
-
 static inline W16 x86_sse_maskeqb(const vec16b v, byte target) { return x86_sse_pmovmskb(x86_sse_pcmpeqb(v, x86_sse_dupb(target))); }
 
 // This is a barrier for the compiler only, NOT the processor!
@@ -383,20 +363,6 @@ inline W64 x86_ror(W64 r, int n) {
 template <typename T>
 static inline T dupb(const byte b) { return T(b) * T(0x0101010101010101ULL); }
 
-//
-// Get the frequency of the CPU core(s) in cycles per second
-// Defined differently depending on the (usermode vs bare hardware in kernel mode)
-//
-W64 get_core_freq_hz();
-
-static inline double ticks_to_seconds(W64 ticks) {
-  return (double)ticks / (double)get_core_freq_hz();
-}
-
-static inline W64 seconds_to_ticks(double seconds) {
-  return (W64)(seconds * (double)get_core_freq_hz());
-}
-
 template <int n> struct lg { static const int value = 1 + lg<n/2>::value; };
 template <> struct lg<1> { static const int value = 0; };
 #define log2(v) (lg<(v)>::value)
@@ -426,92 +392,6 @@ static inline T foldbits(T a) {
 // For specifying easy to read arrays
 #define _ (0)
 
-template <bool b00,     bool b01 = 0, bool b02 = 0, bool b03 = 0,
-          bool b04 = 0, bool b05 = 0, bool b06 = 0, bool b07 = 0,
-          bool b08 = 0, bool b09 = 0, bool b10 = 0, bool b11 = 0,
-          bool b12 = 0, bool b13 = 0, bool b14 = 0, bool b15 = 0,
-          bool b16 = 0, bool b17 = 0, bool b18 = 0, bool b19 = 0,
-          bool b20 = 0, bool b21 = 0, bool b22 = 0, bool b23 = 0,
-          bool b24 = 0, bool b25 = 0, bool b26 = 0, bool b27 = 0,
-          bool b28 = 0, bool b29 = 0, bool b30 = 0, bool b31 = 0,
-          bool b32 = 0, bool b33 = 0, bool b34 = 0, bool b35 = 0,
-          bool b36 = 0, bool b37 = 0, bool b38 = 0, bool b39 = 0,
-          bool b40 = 0, bool b41 = 0, bool b42 = 0, bool b43 = 0,
-          bool b44 = 0, bool b45 = 0, bool b46 = 0, bool b47 = 0,
-          bool b48 = 0, bool b49 = 0, bool b50 = 0, bool b51 = 0,
-          bool b52 = 0, bool b53 = 0, bool b54 = 0, bool b55 = 0,
-          bool b56 = 0, bool b57 = 0, bool b58 = 0, bool b59 = 0,
-          bool b60 = 0, bool b61 = 0, bool b62 = 0, bool b63 = 0>
-struct constbits {
-  static const W64 value =
-  (((W64)b00)  <<  0) +
-  (((W64)b01)  <<  1) +
-  (((W64)b02)  <<  2) +
-  (((W64)b03)  <<  3) +
-  (((W64)b04)  <<  4) +
-  (((W64)b05)  <<  5) +
-  (((W64)b06)  <<  6) +
-  (((W64)b07)  <<  7) +
-  (((W64)b08)  <<  8) +
-  (((W64)b09)  <<  9) +
-  (((W64)b10)  << 10) +
-  (((W64)b11)  << 11) +
-  (((W64)b12)  << 12) +
-  (((W64)b13)  << 13) +
-  (((W64)b14)  << 14) +
-  (((W64)b15)  << 15) +
-  (((W64)b16)  << 16) +
-  (((W64)b17)  << 17) +
-  (((W64)b18)  << 18) +
-  (((W64)b19)  << 19) +
-  (((W64)b20)  << 20) +
-  (((W64)b21)  << 21) +
-  (((W64)b22)  << 22) +
-  (((W64)b23)  << 23) +
-  (((W64)b24)  << 24) +
-  (((W64)b25)  << 25) +
-  (((W64)b26)  << 26) +
-  (((W64)b27)  << 27) +
-  (((W64)b28)  << 28) +
-  (((W64)b29)  << 29) +
-  (((W64)b30)  << 30) +
-  (((W64)b31)  << 31) +
-  (((W64)b32)  << 32) +
-  (((W64)b33)  << 33) +
-  (((W64)b34)  << 34) +
-  (((W64)b35)  << 35) +
-  (((W64)b36)  << 36) +
-  (((W64)b37)  << 37) +
-  (((W64)b38)  << 38) +
-  (((W64)b39)  << 39) +
-  (((W64)b40)  << 40) +
-  (((W64)b41)  << 41) +
-  (((W64)b42)  << 42) +
-  (((W64)b43)  << 43) +
-  (((W64)b44)  << 44) +
-  (((W64)b45)  << 45) +
-  (((W64)b46)  << 46) +
-  (((W64)b47)  << 47) +
-  (((W64)b48)  << 48) +
-  (((W64)b49)  << 49) +
-  (((W64)b50)  << 50) +
-  (((W64)b51)  << 51) +
-  (((W64)b52)  << 52) +
-  (((W64)b53)  << 53) +
-  (((W64)b54)  << 54) +
-  (((W64)b55)  << 55) +
-  (((W64)b56)  << 56) +
-  (((W64)b57)  << 57) +
-  (((W64)b58)  << 58) +
-  (((W64)b59)  << 59) +
-  (((W64)b60)  << 60) +
-  (((W64)b61)  << 61) +
-  (((W64)b62)  << 62) +
-  (((W64)b63)  << 63);
-
-  operator W64() const { return value; }
-};
-
 asmlinkage {
 #include <unistd.h>
 #include <sys/types.h>
@@ -540,32 +420,12 @@ asmlinkage {
 #define PAGE_SIZE 4096
 #endif
 
-// e.g., head (a, b, c) => a
-// e.g., if list = (a, b, c), head list => a
-//#define head(h, ...) (h)
-//#define tail(h, ...) __VA_ARGS__
-
-#define TOLERANCE 0.00001
-
-/*
- * Sometimes floating point numbers do strange things. Like the fact
- * that -0 and +0 are in fact not bit-for-bit equal even though the
- * math says they are. Similar issues come up when dealing with numbers
- * computed from infinities, etc. This function is to make sure we
- * really follow the math, not the IEEE FP standard's idea of "equal".
- */
-static inline bool fcmpeqtol(float a, float b) {
-  return (a == b) || (std::fabs(a-b) <= TOLERANCE);
-}
-
 /*
  * Make these math functions available even inside of member functions with the same name:
  */
 static inline float fsqrt(float v) { return (float)std::sqrt(v); }
-static inline void freemem(void* p) { free(p); }
 
 template <typename T> static inline void setzero(T& x) { memset(&x, 0, sizeof(T)); }
-template <typename T> static inline void fillwith(T& x, byte v) { memset(&x, v, sizeof(T)); }
 
 #define HI32(x) (W32)((x) >> 32LL)
 #define LO32(x) (W32)((x) & 0xffffffffLL)
@@ -711,12 +571,6 @@ inline unsigned int msbindex(W64 n) { return msbindex64(n); }
 
 #define percent(x, total) (100.0 * ((float)(x)) / ((float)(total)))
 
-inline int modulo_span(int lower, int upper, int modulus) {
-  int result = (upper - lower);
-  if (upper < lower) result += modulus;
-  return result;
-}
-
 inline int add_index_modulo(int index, int increment, int bufsize) {
   // Only if power of 2: return (index + increment) & (bufsize-1);
   index += increment;
@@ -724,114 +578,6 @@ inline int add_index_modulo(int index, int increment, int bufsize) {
   if (index >= bufsize) index -= bufsize;
   return index;
 }
-
-/*
-//
-// (for making the lookup table used in modulo_ranges_intersect():
-//
-static bool makelut(int x) {
-  //
-  // There are only four cases where the spans DO NOT intersect:
-  //
-  // [a0 a1 b0 b1] ...Aaaaa........ no
-  //               .........Bbbb...
-  //
-  // [b0 b1 a0 a1] .........Aaaa... no
-  //               ...Bbbbb........
-  //
-  // [b1 a0 a1 b0] ...Aaaaa........ no
-  //               bb.......Bbbbbbb
-  //
-  // [a1 b0 b1 a0] aa.......Aaaaaaa no
-  //               ...Bbbbb........
-  //
-  // AND (a0 != b0) & (a0 != b1) & (a1 != b0) & (a1 != b1);
-  //
-  // All other cases intersect.
-  //
-
-  bool le_a0a1 = bit(x, 0);
-  bool le_a1b0 = bit(x, 1);
-  bool le_b0b1 = bit(x, 2);
-  bool le_b1a0 = bit(x, 3);
-  bool ne_a0b0 = bit(x, 4);
-  bool ne_a0b1 = bit(x, 5);
-  bool ne_a1b0 = bit(x, 6);
-  bool ne_a1b1 = bit(x, 7);
-
-  bool separate1 =
-    (le_a0a1 & le_a1b0 & le_b0b1) |
-    (le_b0b1 & le_b1a0 & le_a0a1) |
-    (le_b1a0 & le_a0a1 & le_a1b0) |
-    (le_a1b0 & le_b0b1 & le_b1a0);
-
-  bool separate2 = ne_a0b0 & ne_a0b1 & ne_a1b0 & ne_a1b1;
-
-  return !(separate1 & separate2);
-}
-*/
-
-inline bool modulo_ranges_intersect(int a0, int a1, int b0, int b1, int size) {
-
-  int idx =
-    ((a0 <= a1) << 0) |
-    ((a1 <= b0) << 1) |
-    ((b0 <= b1) << 2) |
-    ((b1 <= a0) << 3) |
-    ((a0 != b0) << 4) |
-    ((a0 != b1) << 5) |
-    ((a1 != b0) << 6) |
-    ((a1 != b1) << 7);
-
-  static const byte lut[256] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 0
-  };
-
-  return lut[idx];
-}
-
-//
-// Express bitstring constant as octal but convert
-// to binary for easy Verilog-style expressions:
-//
-#define bitseq(x) \
-  (bit((W64)x,  0*3) <<  0) + \
-  (bit((W64)x,  1*3) <<  1) + \
-  (bit((W64)x,  2*3) <<  2) + \
-  (bit((W64)x,  3*3) <<  3) + \
-  (bit((W64)x,  4*3) <<  4) + \
-  (bit((W64)x,  5*3) <<  5) + \
-  (bit((W64)x,  6*3) <<  6) + \
-  (bit((W64)x,  7*3) <<  7) + \
-  (bit((W64)x,  8*3) <<  8) + \
-  (bit((W64)x,  9*3) <<  9) + \
-  (bit((W64)x, 10*3) << 10) + \
-  (bit((W64)x, 11*3) << 11) + \
-  (bit((W64)x, 12*3) << 12) + \
-  (bit((W64)x, 13*3) << 13) + \
-  (bit((W64)x, 14*3) << 14) + \
-  (bit((W64)x, 15*3) << 15) + \
-  (bit((W64)x, 16*3) << 16) + \
-  (bit((W64)x, 17*3) << 17) + \
-  (bit((W64)x, 18*3) << 18) + \
-  (bit((W64)x, 19*3) << 19) + \
-  (bit((W64)x, 20*3) << 20) + \
-  (bit((W64)x, 21*3) << 21)
 
 #include <superstl.h>
 

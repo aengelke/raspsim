@@ -155,14 +155,6 @@ struct PTLsimConfig {
   bool dump_state_now;
   bool abort_at_end;
 
-  W64 log_trigger_virt_addr_start;
-  W64 log_trigger_virt_addr_end;
-
-  // Statistics Database
-  stringbuf stats_filename;
-  W64 snapshot_cycles;
-  stringbuf snapshot_now;
-
 #ifndef PTLSIM_HYPERVISOR
   // Starting Point
   W64 start_at_rip;
@@ -173,15 +165,8 @@ struct PTLsimConfig {
 
   // Stopping Point
   W64 stop_at_user_insns;
-  W64 stop_at_cycle;
   W64 stop_at_iteration;
   W64 stop_at_rip;
-  W64 stop_at_marker;
-  W64 stop_at_marker_hits;
-  W64 insns_in_last_basic_block;
-  W64 stop_at_user_insns_relative;
-  W64 flush_interval;
-  bool kill_after_run;
 
 #ifdef PTLSIM_HYPERVISOR
   // Event tracing
@@ -201,16 +186,10 @@ struct PTLsimConfig {
   bool force_native;
 #endif
 
-  bool continuous_validation;
-  W64 validation_start_cycle;
-
   // Out of order core features
   bool perfect_cache;
 
   // Other info
-  stringbuf dumpcode_filename;
-  bool dump_at_end;
-  bool overshoot_and_dump;
   stringbuf bbcache_dump_filename;
 
 #ifndef PTLSIM_HYPERVISOR

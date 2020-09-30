@@ -946,17 +946,6 @@ namespace superstl {
     return crc << v;
   }
 
-  struct RandomNumberGenerator {
-    W32 s1, s2, s3;
-
-    RandomNumberGenerator(W32 seed = 123) { reseed(seed); }
-
-    void reseed(W32 seed);
-    W32 random32();
-    W64 random64();
-    void fill(void* p, size_t count);
-  };
-
   //
   // selflistlink class
   // Double linked list without pointer: useful as root
@@ -3600,62 +3589,6 @@ namespace superstl {
 
     return f;
   }
-
-  class CycleTimer {
-  public:
-    CycleTimer() { total = 0; tstart = 0; iterations = 0; title = "(generic)"; running = 0; }
-    CycleTimer(const char* title) { total = 0; tstart = 0; iterations = 1; this->title = title; running = 0; }
-
-    inline void start() { W64 t = rdtsc(); if (running) return; iterations++; tstart = t; running = 1; }
-    inline W64 stop() {
-      W64 t = rdtsc() - tstart;
-
-      if unlikely (!running) return total;
-
-      tstart = 0;
-      total += t;
-      running = 0;
-      return t;
-    }
-
-    inline W64 cycles() const {
-      return total;
-    }
-
-    inline double seconds() const {
-      return (double)total / hz;
-    }
-
-    inline void reset() {
-      stop();
-      tstart = 0;
-      total = 0;
-    }
-
-  public:
-    W64 total;
-    W64 tstart;
-    int iterations;
-    const char* title;
-    bool running;
-
-    static double gethz();
-
-  protected:
-    static double hz;
-  };
-
-  ostream& operator <<(ostream& os, const CycleTimer& ct);
-
-  //
-  // Automatically start cycle timer at top of block and
-  // stop it when this struct leaves the scope
-  //
-  struct CycleTimerScope {
-    CycleTimer& ct;
-    CycleTimerScope(CycleTimer& ct_): ct(ct_) { ct.start(); }
-    ~CycleTimerScope() { ct.stop(); }
-  };
 
   //
   // Standard spinlock

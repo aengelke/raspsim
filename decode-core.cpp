@@ -30,7 +30,6 @@ struct BasicBlockChunkListHashtableLinkManager {
 typedef SelfHashtable<W64, BasicBlockChunkList, 16384, BasicBlockChunkListHashtableLinkManager> BasicBlockPageCache;
 
 BasicBlockPageCache bbpages;
-CycleTimer translate_timer("translate");
 
 odstream bbcache_dump_file;
 
@@ -2019,8 +2018,6 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
   BasicBlock* bb = get(rvp);
   if likely (bb) return bb;
 
-  translate_timer.start();
-
   byte insnbuf[MAX_BB_BYTES];
 
   TraceDecoder trans(rvp);
@@ -2104,8 +2101,6 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
     logfile << *bb, endl;
     logfile << "End of basic block: rip ", trans.bb.rip, " -> taken rip 0x", (void*)(Waddr)trans.bb.rip_taken, ", not taken rip 0x", (void*)(Waddr)trans.bb.rip_not_taken, endl;
   }
-
-  translate_timer.stop();
 
   bb->release();
 
