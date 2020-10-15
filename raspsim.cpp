@@ -573,9 +573,9 @@ void Context::propagate_x86_exception(byte exception, W32 errorcode, Waddr virta
     cerr    << "PageFault error code: 0x", hexstring(errorcode, 32), ", Flags: ", (pk ? "PK " : ""), (id ? "I " : "D "), (rsvd ? "RSVD " : ""), (us ? "U " : "S "), (wr ? "W " : "R "), (p ? "P" : ""), endl, flush;
   }
 
-  logfile << "Aborting...", endl, flush;
-  cerr << "Aborting...", endl, flush;
-  assert(false);
+  cerr << "End state:", endl;
+  cerr << ctx, endl;
+  exit(1);
 }
 
 #ifdef __x86_64__
