@@ -294,9 +294,11 @@ struct CombinedPredictor {
       return (pbtb ? pbtb->target : target);
     }
 
-    //
-    // Predict conditional branch:
-    //
+    // Predict conditional branch. If this is the first time, predict backward
+    // jumps as taken and forward jumps as not-taken.
+    if unlikely (!pbtb) {
+      return target < branchaddr ? target : branchaddr;
+    }
     return (*(update.cp1) >= 2) ? target : branchaddr;
   }
 
@@ -322,9 +324,9 @@ struct CombinedPredictor {
     }
 
     //
-    // Find BTB entry if it's a taken branch (don't allocate for non-taken)
+    // Find BTB entry. Allocate always to detect first use of conditional branch
     //
-    BTBEntry* pbtb = (taken) ? btb.select(branchaddr) : null;
+    BTBEntry* pbtb = btb.select(branchaddr);
 
     //
     // Now p is a possibly null pointer into the direction prediction table,
