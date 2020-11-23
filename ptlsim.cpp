@@ -93,6 +93,7 @@ void PTLsimConfig::reset() {
 #endif
 
   perfect_cache = 0;
+  static_branchpred = 0;
 
   bbcache_dump_filename.reset();
 

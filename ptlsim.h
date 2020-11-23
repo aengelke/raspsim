@@ -188,6 +188,7 @@ struct PTLsimConfig {
 
   // Out of order core features
   bool perfect_cache;
+  bool static_branchpred;
 
   // Other info
   stringbuf bbcache_dump_filename;

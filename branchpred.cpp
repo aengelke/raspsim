@@ -296,7 +296,7 @@ struct CombinedPredictor {
 
     // Predict conditional branch. If this is the first time, predict backward
     // jumps as taken and forward jumps as not-taken.
-    if unlikely (!pbtb) {
+    if unlikely (!pbtb && config.static_branchpred) {
       return target < branchaddr ? target : branchaddr;
     }
     return (*(update.cp1) >= 2) ? target : branchaddr;

@@ -707,6 +707,8 @@ bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
     ctx.no_sse = 1;
   } else if (!strcmp(toks[0], "Fnocache")) {
     config.perfect_cache = 1;
+  } else if (!strcmp(toks[0], "Fstbrpred")) {
+    config.static_branchpred = 1;
   } else {
     if (toks.size() != 2) {
       cerr << "Error: option ", line, " has wrong number of arguments", endl;
