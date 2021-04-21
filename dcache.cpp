@@ -351,7 +351,7 @@ int MissBuffer<SIZE>::initiate_miss(W64 addr, bool hit_in_L2, bool icache, int r
     mb.state = STATE_DELIVER_TO_L1;
     mb.cycles = L2_LATENCY;
 
-    if unlikely (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.L2++); else per_context_dcache_stats_update(mb.threadid, load.hit.L2++);
+    if (mb.threadid <= 31) { if unlikely (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.L2++); else per_context_dcache_stats_update(mb.threadid, load.hit.L2++); }
     return idx;
   }
 #ifdef ENABLE_L3_CACHE
@@ -360,7 +360,7 @@ int MissBuffer<SIZE>::initiate_miss(W64 addr, bool hit_in_L2, bool icache, int r
     if (DEBUG) logfile << "[vcpu ", mb.threadid, "] mb", idx, ": enter state deliver to L2 on ", (void*)(Waddr)addr, " (iter ", iterations, ")", endl;
     mb.state = STATE_DELIVER_TO_L2;
     mb.cycles = L3_LATENCY;
-    if (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.L3++); else per_context_dcache_stats_update(mb.threadid, load.hit.L3++);
+    if (mb.threadid <= 31) { if (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.L3++); else per_context_dcache_stats_update(mb.threadid, load.hit.L3++); };
     return idx;
   }
 
@@ -373,7 +373,7 @@ int MissBuffer<SIZE>::initiate_miss(W64 addr, bool hit_in_L2, bool icache, int r
   mb.state = STATE_DELIVER_TO_L2;
   mb.cycles = MAIN_MEM_LATENCY;
 #endif
-  if unlikely (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.mem++); else per_context_dcache_stats_update(mb.threadid, load.hit.mem++);
+  if (mb.threadid <= 31) { if unlikely (icache) per_context_dcache_stats_update(mb.threadid, fetch.hit.mem++); else per_context_dcache_stats_update(mb.threadid, load.hit.mem++); };
 
   return idx;
 }
@@ -459,7 +459,7 @@ void MissBuffer<SIZE>::clock() {
           stats.dcache.missbuf.deliver.L2_to_L1I++;
           LoadStoreInfo lsi = 0;
           lsi.rob = mb.rob;
-          lsi.threadid = mb.threadid;
+          lsi.threadid = mb.threadid; /* FIXME: can mb.threadid be 0xfe at this point, and does that matter ? */
           if likely (hierarchy.callback) hierarchy.callback->icache_wakeup(lsi, mb.addr);
         }
 
