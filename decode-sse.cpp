@@ -1018,8 +1018,11 @@ bool TraceDecoder::decode_sse() {
     int base2 = bits(imm.imm.imm, 2*2, 2) * 4;
     int base3 = bits(imm.imm.imm, 3*2, 2) * 4;
 
-    this << TransOp(OP_permb, rdreg+0, ((mix) ? rdreg+0 : rareg+0), ((mix) ? rdreg+1 : rareg+1), REG_imm, 3, 0, PermbControlInfo(base1+3, base1+2, base1+1, base1+0, base0+3, base0+2, base0+1, base0+0));
-    this << TransOp(OP_permb, rdreg+1, ((mix) ? rareg+0 : rareg+0), ((mix) ? rareg+1 : rareg+1), REG_imm, 3, 0, PermbControlInfo(base3+3, base3+2, base3+1, base3+0, base2+3, base2+2, base2+1, base2+0));
+    // We may need to write to temporaries since this is a full 1:1 permute.
+    this << TransOp(OP_permb, REG_temp2, ((mix) ? rdreg+0 : rareg+0), ((mix) ? rdreg+1 : rareg+1), REG_imm, 3, 0, PermbControlInfo(base1+3, base1+2, base1+1, base1+0, base0+3, base0+2, base0+1, base0+0));
+    this << TransOp(OP_permb, REG_temp3, ((mix) ? rareg+0 : rareg+0), ((mix) ? rareg+1 : rareg+1), REG_imm, 3, 0, PermbControlInfo(base3+3, base3+2, base3+1, base3+0, base2+3, base2+2, base2+1, base2+0));
+    this << TransOp(OP_mov, rdreg+0, REG_zero, REG_temp2, REG_zero, 3);
+    this << TransOp(OP_mov, rdreg+1, REG_zero, REG_temp3, REG_zero, 3);
 
     break;
   }
@@ -1078,8 +1081,10 @@ bool TraceDecoder::decode_sse() {
       rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     }
 
-    this << TransOp(OP_mov, rdreg+0, REG_zero, rdreg + bit(imm.imm.imm, 0), REG_imm, 3);
-    this << TransOp(OP_mov, rdreg+1, REG_zero, rareg + bit(imm.imm.imm, 1), REG_imm, 3);
+    // When rareg == rdreg, a swap of low and high may need an additional move.
+    this << TransOp(OP_mov, REG_temp2, REG_zero, rdreg + bit(imm.imm.imm, 0), REG_imm, 3);
+    this << TransOp(OP_mov, rdreg+1,   REG_zero, rareg + bit(imm.imm.imm, 1), REG_imm, 3);
+    this << TransOp(OP_mov, rdreg+0, REG_zero, REG_temp2, REG_zero, 3);
     break;
   }
 
