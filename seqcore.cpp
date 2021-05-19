@@ -1297,8 +1297,8 @@ struct SequentialCore {
             storemask(sfr.physaddr << 3, sfr.data, sfr.bytemask);
           }
 
-          Waddr mfn = (sfr.physaddr << 3) >> 12;
-          smc_setdirty(mfn); // why is this being passed zero?
+          /* see ooopipe.cpp for a short comment why we can't use sfr->physaddr */
+          smc_setdirty(sfr.smc_mfn);
         }
       } else if likely (uop.rd != REG_zero) {
         arf[uop.rd] = state.reg.rddata;

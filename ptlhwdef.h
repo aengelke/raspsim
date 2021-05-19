@@ -266,6 +266,7 @@ static inline ostream& operator <<(ostream& os, const RIPVirtPhys& rvp) { return
 struct SFR {
   W64 data;
   W64 addrvalid:1, invalid:1, datavalid:1, physaddr:45, bytemask:8, tag:8;
+  W64 smc_mfn; /* hack to pass along the address for smc_setdirty */
 };
 
 stringbuf& operator <<(stringbuf& sb, const SFR& sfr);

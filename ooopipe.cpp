@@ -1914,8 +1914,12 @@ int ReorderBufferEntry::commit() {
   }
 
   if unlikely (uop.opcode == OP_st || uop.opcode == OP_st_a16) {
-    Waddr mfn = (lsq->physaddr << 3) >> 12;
-    smc_setdirty(mfn);
+    /* lsq->physaddr is the fully computed memory pointer not the
+     * actual physical address like the name would make one think,
+     * For SMC detection we need the physical address that has been passed
+     * along in the appropiate format for smc_setdirty
+     */
+    smc_setdirty(lsq->smc_mfn);
 
     if (lsq->bytemask) assert(core.caches.commitstore(*lsq, thread.threadid) == 0);
   }

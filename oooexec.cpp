@@ -765,6 +765,7 @@ int ReorderBufferEntry::issuestore(LoadStoreQueueEntry& state, Waddr& origaddr, 
   per_context_ooocore_stats_update(threadid, dcache.store.size[sizeshift]++);
 
   state.physaddr = (annul) ? INVALID_PHYSADDR : (physaddr >> 3);
+  state.smc_mfn = addr >> 12; /* magic values */
 
   //
   // The STQ is then searched for the most recent prior store S to same 64-bit block. If found, U's
