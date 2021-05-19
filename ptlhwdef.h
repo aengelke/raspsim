@@ -1386,7 +1386,14 @@ typedef void (*uopimpl_func_t)(IssueState& state, W64 ra, W64 rb, W64 rc, W16 ra
 #ifdef PTLSIM_HYPERVISOR
 typedef shortptr<BasicBlock, W32, PTLSIM_VIRT_BASE> BasicBlockPtr;
 #else
+#if 0
 typedef shortptr<BasicBlock> BasicBlockPtr;
+#else
+/* the above does weird things and causes a segfault in BasicBlockCache::invalidate_page
+ * So turn it into a normal pointer basically
+ */
+typedef shortptr<BasicBlock, W64> BasicBlockPtr;
+#endif
 #endif
 
 struct BasicBlockChunkList: public ChunkList<BasicBlockPtr, BB_PTRS_PER_CHUNK> {
