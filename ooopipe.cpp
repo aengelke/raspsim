@@ -1708,11 +1708,33 @@ int ReorderBufferEntry::commit() {
     return COMMIT_RESULT_NONE;
   }
 
+  /*
+   * SMC: check if any previous instruction has dirtied page(s) on which the next macroop
+   * to execute resides, if so we do not execute it but invalidate all bb caches immediately
+   * because the store has happened before the macroop started execution and thus needs to be retranslated.
+   */
+  const bool page_crossing = ((lowbits(uop.rip.rip, 12) + (uop.bytes-1)) >> 12);
+
+  if unlikely (uop.som && (smc_isdirty(uop.rip.mfnlo) | (page_crossing && smc_isdirty(uop.rip.mfnhi)))) {
+    /* If we're at the start of a macroop and the macroop has already been invalidated
+     * aport execution immediately, to make effects visible
+     */
+    printf("TEST: Speculative execution shoot down due to SOM invalidated before execution!\n");
+    if unlikely (config.event_log_enabled) {
+      core.eventlog.add_commit(EVENT_COMMIT_SMC_DETECTED, this);
+    }
+
+    thread.smc_invalidate_pending = 1;
+    thread.smc_invalidate_rvp = uop.rip;
+
+    return COMMIT_RESULT_SMC;
+  }
+
   PhysicalRegister* oldphysreg = thread.commitrrt[uop.rd];
 
-  bool ld = isload(uop.opcode);
-  bool st = isstore(uop.opcode);
-  bool br = isbranch(uop.opcode);
+  const bool ld = isload(uop.opcode);
+  const bool st = isstore(uop.opcode);
+  const bool br = isbranch(uop.opcode);
 
   per_context_ooocore_stats_update(threadid, commit.opclass[opclassof(uop.opcode)]++);
 
@@ -1738,10 +1760,8 @@ int ReorderBufferEntry::commit() {
   // store to overwrite its own instruction bytes, but this update only
   // becomes visible after the store has committed.
   //
-  bool page_crossing = ((lowbits(uop.rip.rip, 12) + (uop.bytes-1)) >> 12);
   if unlikely (uop.eom && (smc_isdirty(uop.rip.mfnlo) | (page_crossing && smc_isdirty(uop.rip.mfnhi)))) {
     if unlikely (config.event_log_enabled) core.eventlog.add_commit(EVENT_COMMIT_SMC_DETECTED, this);
-
     //
     // Invalidate the pages only after the pipeline is flushed: we may still
     // hold refs to the affected basic blocks in the pipeline. Queue the

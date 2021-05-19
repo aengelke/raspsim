@@ -658,6 +658,7 @@ bool handle_config_arg(char* line, dynarray<Waddr>* dump_pages) {
     if (!strcmp(toks[1], "ro")) prot = PROT_READ;
     else if (!strcmp(toks[1], "rw")) prot = PROT_READ | PROT_WRITE;
     else if (!strcmp(toks[1], "rx")) prot = PROT_READ | PROT_EXEC;
+    else if (!strcmp(toks[1], "rwx")) prot = PROT_READ | PROT_WRITE | PROT_EXEC;
     else {
       cerr << "Error: invalid mem prot ", toks[1], endl;
       return true;

@@ -2003,7 +2003,6 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
     logenable = 1;
   }
 
-  /*
   if unlikely (smc_isdirty(rvp.mfnlo)) {
     if (logable(5) | log_code_page_ops) logfile << "Pre-invalidate low mfn for ", rvp, endl;
     if unlikely (!invalidate_page(rvp.mfnlo, INVALIDATE_REASON_DIRTY)) return null;
@@ -2013,7 +2012,6 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
     if (logable(5) | log_code_page_ops) logfile << "Pre-invalidate high mfn for ", rvp, endl;
     if unlikely (!invalidate_page(rvp.mfnhi, INVALIDATE_REASON_DIRTY)) return null;
   }
-  */
 
   BasicBlock* bb = get(rvp);
   if likely (bb) return bb;
@@ -2054,7 +2052,7 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
 
   BasicBlockChunkList* pagelist;
 
-  //smc_cleardirty(bb->rip.mfnlo);
+  smc_cleardirty(bb->rip.mfnlo);
   pagelist = bbpages.get(bb->rip.mfnlo);
   if (!pagelist) {
     pagelist = new BasicBlockChunkList(bb->rip.mfnlo);
@@ -2078,7 +2076,7 @@ BasicBlock* BasicBlockCache::translate(Context& ctx, const RIPVirtPhys& rvp) {
   int page_crossing = ((lowbits(bb->rip, 12) + (bb->bytes-1)) >> 12);
 
   if (page_crossing) {
-    //smc_cleardirty(bb->rip.mfnhi);
+    smc_cleardirty(bb->rip.mfnhi);
     BasicBlockChunkList* pagelisthi = bbpages.get(bb->rip.mfnhi);
     if (!pagelisthi) {
       pagelisthi = new BasicBlockChunkList(bb->rip.mfnhi);
