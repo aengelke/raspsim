@@ -1458,24 +1458,31 @@ bool BasicBlockCache::invalidate_page(Waddr mfn, int reason) {
 
   if unlikely (!pagelist) return 0;
 
-  int oldcount = pagelist->count();
-  int n = 0;
+  /* bbcache.invalidate calls pagelist.remove so we can't really use an iterator
+   * Hack around this by resetting the iterator after every call to bbcache.invalidate
+   * Reusing the same iterator should atleast keep the performance impact small
+   */
   BasicBlockChunkList::Iterator iter(pagelist);
-  BasicBlockPtr* entry;
-  while (entry = iter.next()) {
-    BasicBlock* bb = *entry;
-    if (logable(3) | log_code_page_ops) logfile << "  Invalidate bb ", bb, " (", bb->rip, ", ", bb->bytes, " bytes)", endl;
+  while (pagelist->count() > 0) {
+    iter.reset(pagelist);
+
+    BasicBlock *bb = *iter.next();
+    if (logable(3) | log_code_page_ops) {
+      logfile << "  Invalidate bb ", bb, " (", bb->rip, ", ", bb->bytes, " bytes)", endl;
+    }
+
     if unlikely (!bbcache.invalidate(bb, reason)) {
-      if (logable(3) | log_code_page_ops) logfile << "  Could not invalidate bb ", bb, " (", bb->rip, ", ", bb->bytes, " bytes): still has refcount ", bb->refcount, endl;
+      if (logable(3) | log_code_page_ops) {
+        logfile << "  Could not invalidate bb ", bb, " (", bb->rip, ", ", bb->bytes, " bytes): still has refcount ", bb->refcount, endl;
+      }
       return false;
     }
-    n++;
   }
 
-  assert(n == oldcount);
-  assert(pagelist->count() == 0);
+  /* assert that a call to pagelist->clear() is unecessary */
+  assert(pagelist->head == NULL);
+  assert(pagelist->elemcount == 0);
 
-  pagelist->clear();
   stats.decoder.pagecache.count = bbpages.count;
   stats.decoder.pagecache.invalidates[reason]++;
 
