@@ -340,7 +340,7 @@ bool TraceDecoder::decode_sse() {
       bool left = (opcode != OP_shr);
 
       if unlikely (!imm) {
-        this << TransOp(OP_nop, REG_zero, REG_zero, REG_zero, REG_zero, 3);
+        this << TransOp(OP_nop, REG_temp0, REG_zero, REG_zero, REG_zero, 3);
       } else if likely (imm < 8) {
         if (left) {
           this << TransOp(OP_rotl, REG_temp0, rdreg+0, REG_imm, REG_zero, 3, imm*8);
