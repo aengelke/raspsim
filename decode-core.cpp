@@ -1456,7 +1456,12 @@ bool BasicBlockCache::invalidate_page(Waddr mfn, int reason) {
 
   smc_cleardirty(mfn);
 
-  if unlikely (!pagelist) return 0;
+  /* In the event that there are no basicblocks for this page,
+   * i.e. we have no pagelist, then this is a successfull NOP
+   */
+  if unlikely (!pagelist) {
+      return true;
+  }
 
   /* bbcache.invalidate calls pagelist.remove so we can't really use an iterator
    * Hack around this by resetting the iterator after every call to bbcache.invalidate
