@@ -594,7 +594,7 @@ void handle_syscall_64bit() {
   // (This is called from the assist_syscall ucode assist)
   //
 
-  int syscallid = ctx.commitarf[REG_rax];
+  size_t syscallid = ctx.commitarf[REG_rax];
   W64 arg1 = ctx.commitarf[REG_rdi];
   W64 arg2 = ctx.commitarf[REG_rsi];
   W64 arg3 = ctx.commitarf[REG_rdx];
@@ -603,7 +603,7 @@ void handle_syscall_64bit() {
   W64 arg6 = ctx.commitarf[REG_r9];
 
   if (DEBUG)
-    logfile << "handle_syscall -> (#", syscallid, " ", ((syscallid < lengthof(syscall_names_64bit)) ? syscall_names_64bit[syscallid] : "???"),
+    logfile << "handle_syscall -> (#", syscallid, " ", ((syscallid < (size_t)lengthof(syscall_names_64bit)) ? syscall_names_64bit[syscallid] : "???"),
       ") from ", (void*)ctx.commitarf[REG_rcx], " args ", " (", (void*)arg1, ", ", (void*)arg2, ", ", (void*)arg3, ", ", (void*)arg4, ", ",
       (void*)arg5, ", ", (void*)arg6, ") at iteration ", iterations, endl, flush;
 
