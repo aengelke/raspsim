@@ -16,7 +16,7 @@ struct BimodalPredictor {
   array<byte, SIZE> table;
 
   void reset() {
-    foreach (i, SIZE) table[i] = bit(i, 0) + 1;
+    foreach (i, SIZE) table[i] = 1;
   }
 
   inline int hash(W64 branchaddr) {
@@ -34,8 +34,8 @@ struct TwoLevelPredictor {
   array<byte, L2SIZE> L2table;  // L2 prediction state table
 
   void reset() {
-    // initialize counters to weakly this-or-that
-    foreach (i, L2SIZE) L2table[i] = bit(i, 0) + 1;
+    // initialize counters uniformly
+    foreach (i, L2SIZE) L2table[i] = 1;
   }
 
   byte* predict(W64 branchaddr) {
