@@ -1979,7 +1979,7 @@ int ReorderBufferEntry::commit() {
   }
 
   if likely (!(br|st)) {
-    int k = clipto((int)consumer_count, 0, lengthof(stats.ooocore.total.frontend.consumer_count) - 1);
+    int k = clipto((int)consumer_count, 0, (int)lengthof(stats.ooocore.total.frontend.consumer_count) - 1);
     per_context_ooocore_stats_update(threadid, frontend.consumer_count[k]++);
   }
 
