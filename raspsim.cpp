@@ -792,8 +792,8 @@ int main(int argc, char** argv) {
 
       for (;;) {
         line.reset();
-        is >> line;
         if (!is) break;
+        is >> line;
 
         char* p = strchr(line, '#');
         if (p) *p = 0;
