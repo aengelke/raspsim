@@ -481,7 +481,7 @@ inline bool strequal(const char* a, const char* b) {
   return (strcmp(a, b) == 0);
 }
 
-template <typename T, int size> int lengthof(T (&)[size]) { return size; }
+template <typename T, size_t size> size_t lengthof(T (&)[size]) { return size; }
 
 extern const byte popcountlut8bit[];
 extern const byte lsbindexlut8bit[];
