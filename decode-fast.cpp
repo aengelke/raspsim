@@ -745,10 +745,17 @@ bool TraceDecoder::decode_fast() {
     DECODE(eform, rd, b_mode);
     EndOfDecode();
 
-    int r;
+    int r, oreg;
+    bool rdhigh = false;
 
     if (rd.type == OPTYPE_REG) {
       r = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
+      rdhigh = reginfo[rd.reg.reg].hibyte;
+      if (rdhigh) {
+        this << TransOp(OP_maskb, REG_temp2, REG_zero, r, REG_imm, 3, 0, MaskControlInfo(0, 8, 8));
+        oreg = r;
+        r = REG_temp2;
+      }
     } else {
       assert(rd.type == OPTYPE_MEM);
       r = REG_temp7;
@@ -765,6 +772,8 @@ bool TraceDecoder::decode_fast() {
       rd.mem.size = 0;
       prefixes &= ~PFX_LOCK;
       result_store(r, REG_temp0, rd);
+    } else if (rdhigh) {
+      this << TransOp(OP_maskb, oreg, oreg, REG_temp2, REG_imm, 3, 0, MaskControlInfo(56, 8, 56));
     }
     break;
   }
