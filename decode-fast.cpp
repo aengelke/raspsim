@@ -742,13 +742,15 @@ bool TraceDecoder::decode_fast() {
 
   case 0x190 ... 0x19f: {
     // conditional sets
-    DECODE(eform, rd, v_mode);
+    DECODE(eform, rd, b_mode);
     EndOfDecode();
 
     int r;
+    bool rdhigh = false;
 
     if (rd.type == OPTYPE_REG) {
-      r = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
+      rdhigh = reginfo[rd.reg.reg].hibyte;
+      r = rdhigh ? REG_temp0 : arch_pseudo_reg_to_arch_reg[rd.reg.reg];
     } else {
       assert(rd.type == OPTYPE_MEM);
       r = REG_temp7;
@@ -757,7 +759,7 @@ bool TraceDecoder::decode_fast() {
     int condcode = bits(op, 0, 4);
     const CondCodeToFlagRegs& cctfr = cond_code_to_flag_regs[condcode];
 
-    TransOp transop(OP_set, r, cctfr.ra, cctfr.rb, (rd.type == OPTYPE_MEM) ? REG_zero : r, 0);
+    TransOp transop(OP_set, r, cctfr.ra, cctfr.rb, (rd.type == OPTYPE_MEM && !rdhigh) ? REG_zero : r, 0);
     transop.cond = condcode;
     this << transop, endl;
 
@@ -765,6 +767,9 @@ bool TraceDecoder::decode_fast() {
       rd.mem.size = 0;
       prefixes &= ~PFX_LOCK;
       result_store(r, REG_temp0, rd);
+    } else if (rdhigh) {
+      int rdreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
+      this << TransOp(OP_maskb, rdreg, rdreg, r, REG_imm, 3, 0, MaskControlInfo(56, 8, 56));
     }
     break;
   }
