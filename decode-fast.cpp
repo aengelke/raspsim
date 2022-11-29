@@ -742,7 +742,7 @@ bool TraceDecoder::decode_fast() {
 
   case 0x190 ... 0x19f: {
     // conditional sets
-    DECODE(eform, rd, v_mode);
+    DECODE(eform, rd, b_mode);
     EndOfDecode();
 
     int r;
