@@ -243,6 +243,8 @@ bool TraceDecoder::decode_fast() {
 
   case 0x90: {
     // 0x90 (xchg eax,eax) is a NOP and in x86-64 is treated as such (i.e. does not zero upper 32 bits as usual)
+    if (rex.extbase) // 4190 is xchg rax, r8; complex decoder handles this
+      return false;
     EndOfDecode();
     this << TransOp(OP_nop, REG_temp0, REG_zero, REG_zero, REG_zero, 3);
     break;

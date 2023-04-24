@@ -1063,8 +1063,9 @@ bool TraceDecoder::decode_complex() {
     break;
   }
 
-  case 0x91 ... 0x97: {
+  case 0x90 ... 0x97: {
     // xchg A,reg (A = ax|eax|rax):
+    // 90 without REX.B is nop, fast decoder handles this
     ra.gform_ext(*this, v_mode, bits(op, 0, 3), false, true);
     EndOfDecode();
 
