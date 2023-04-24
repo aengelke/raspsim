@@ -1149,7 +1149,8 @@ bool TraceDecoder::decode_complex() {
     //++MTY TODO: this is very rare: move to slowpath decoder
     // TransOp(int opcode, int rd, int ra, int rb, int rc, int size, W64s rbimm = 0, W64s rcimm = 0, W32 setflags = 0)
     EndOfDecode();
-    this << TransOp(OP_xorcc, REG_temp0, REG_cf, REG_imm, REG_zero, 3, FLAG_CF, 0, SETFLAG_CF);
+    this << TransOp(OP_movrcc, REG_temp0, REG_zero, REG_imm, REG_zero, 3, FLAG_CF, 0, 0);
+    this << TransOp(OP_xorcc, REG_temp0, REG_cf, REG_temp0, REG_zero, 3, FLAG_CF, 0, SETFLAG_CF);
     if unlikely (no_partial_flag_updates_per_insn) this << TransOp(OP_collcc, REG_temp10, REG_zf, REG_cf, REG_of, 3, 0, 0, FLAGS_DEFAULT_ALU);
     break;
   }
