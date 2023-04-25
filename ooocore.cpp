@@ -392,6 +392,12 @@ bool OutOfOrderCore::runcycle() {
 #endif
 
   //
+  // Always clock the issue queues: they're independent of all threads
+  // NOTE(AE): do it here so that forwarding can happen without one cycle delay
+  //
+  foreach_issueq(clock());
+
+  //
   // Issue whatever is ready
   //
   for_each_cluster(i) { issue(i); }
@@ -406,9 +412,9 @@ bool OutOfOrderCore::runcycle() {
     ThreadContext* thread = threads[tid];
     if unlikely (!thread->ctx.running) continue;
 
-    for_each_cluster(j) { thread->complete(j); }
-
     dispatchrc[tid] = thread->dispatch();
+
+    for_each_cluster(j) { thread->complete(j); }
 
     if likely (dispatchrc[tid] >= 0) {
       thread->frontend();
@@ -460,11 +466,6 @@ bool OutOfOrderCore::runcycle() {
       thread->fetch();
     }
   }
-
-  //
-  // Always clock the issue queues: they're independent of all threads
-  //
-  foreach_issueq(clock());
 
   //
   // Advance the round robin priority index
