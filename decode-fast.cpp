@@ -235,9 +235,19 @@ bool TraceDecoder::decode_fast() {
 
     int destreg = arch_pseudo_reg_to_arch_reg[rd.reg.reg];
 
-    ra.mem.size = (use64 ? (addrsize_prefix ? 2 : 3) : (addrsize_prefix ? 1 : 2));
+    // address size determines the computation width, but actual store can be
+    // larger or smaller (operand size).
+    int sizeshift = (rex.mode64) ? 3 : ((opsize_prefix) ? 1 : 2);
+    int addrsz = (use64 ? (addrsize_prefix ? 2 : 3) : (addrsize_prefix ? 1 : 2));
+    ra.mem.size = (sizeshift < addrsz) ? sizeshift : addrsz;
 
-    address_generate_and_load_or_store(destreg, REG_zero, ra, OP_add);
+    if (sizeshift == 1) {
+      address_generate_and_load_or_store(REG_temp1, REG_zero, ra, OP_add);
+      // move 16 bits
+      this << TransOp(OP_mov, destreg, destreg, REG_temp1, REG_zero, sizeshift, 0);
+    } else {
+      address_generate_and_load_or_store(destreg, REG_zero, ra, OP_add);
+    }
     break;
   }
 
@@ -252,7 +262,7 @@ bool TraceDecoder::decode_fast() {
 
   case 0x98: {
     // cbw cwde cdqe
-    int rashift = (opsize_prefix) ? 0 : ((rex.mode64) ? 2 : 1);
+    int rashift = (rex.mode64) ? 2 : ((opsize_prefix) ? 0 : 1);
     int rdshift = rashift + 1;
     EndOfDecode();
     TransOp transop(OP_maskb, REG_rax, (rdshift < 3) ? REG_rax : REG_zero, REG_rax, REG_imm, rdshift, 0, MaskControlInfo(0, (1<<rashift)*8, 0));
@@ -264,7 +274,7 @@ bool TraceDecoder::decode_fast() {
   case 0x99: {
     // cwd cdq cqo
     EndOfDecode();
-    int rashift = (opsize_prefix) ? 1 : ((rex.mode64) ? 3 : 2);
+    int rashift = (rex.mode64) ? 3 : ((opsize_prefix) ? 1 : 2);
 
     TransOp bt(OP_bt, REG_temp0, REG_rax, REG_imm, REG_zero, rashift, ((1<<rashift)*8)-1, 0, SETFLAG_CF);
     bt.nouserflags = 1; // it still generates flags, but does not rename the user flags
