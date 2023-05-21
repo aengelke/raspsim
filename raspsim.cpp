@@ -199,7 +199,7 @@ bool smc_isdirty(Waddr mfn) { return asp.isdirty(mfn); }
 void smc_setdirty(Waddr mfn) { asp.setdirty(mfn); }
 void smc_cleardirty(Waddr mfn) { asp.cleardirty(mfn); }
 
-bool check_for_async_sim_break() { return false; }
+bool check_for_async_sim_break() { return iterations >= config.stop_at_iteration; }
 
 int inject_events() { return 0; }
 void print_sysinfo(ostream& os) {}
