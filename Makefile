@@ -79,7 +79,7 @@ all: $(TOPLEVEL)
 
 ifdef __x86_64__
 raspsim: $(RASPSIM_OBJFILES) Makefile
-	$(CXX) $(RASPSIM_OBJFILES) -o $@ -Wl,--allow-multiple-definition
+	$(CXX) $(RASPSIM_OBJFILES) -o $@ -Wl,--allow-multiple-definition -static
 endif
 
 %.o: %.cpp
