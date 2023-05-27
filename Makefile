@@ -38,7 +38,7 @@ SVNDATE=unknown
 INCFLAGS = -I. -DBUILDHOST="`hostname -f`" -DSVNREV="$(SVNREV)" -DSVNDATE="$(SVNDATE)"
 
 ifdef __x86_64__
-CFLAGS = -std=gnu++11 -O1 -g -fomit-frame-pointer -pipe -march=k8 -fno-builtin-memmove -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
+CFLAGS = -std=gnu++11 -O2 -fomit-frame-pointer -pipe -march=k8 -fno-builtin-memmove -falign-functions=16 -funroll-loops -funit-at-a-time -minline-all-stringops
 #CFLAGS = -O2 -g3 -march=k8 -falign-functions=16 -minline-all-stringops
 # -O1 doesn't work
 CFLAGS32BIT = $(CFLAGS) -m32
