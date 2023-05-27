@@ -116,7 +116,7 @@ template <typename T> struct ispointer_t<T*> { static const bool pointer = 1; };
 #define isprimitive(T) (isprimitive_t<T>::primitive)
 
 // Null pointer to the specified object type, for computing field offsets
-#define offsetof_(T, field) ((Waddr)(&(reinterpret_cast<T*>(NULL)->field)) - ((Waddr)reinterpret_cast<T*>(NULL)))
+#define offsetof_(T, field) ((Waddr)(&(reinterpret_cast<T*>(0)->field)) - ((Waddr)reinterpret_cast<T*>(0)))
 #define baseof(T, field, ptr) ((T*)(((byte*)(ptr)) - offsetof_(T, field)))
 // Restricted (non-aliased) pointers:
 #define noalias __restrict__
@@ -405,7 +405,7 @@ asmlinkage {
 #include <sys/mman.h>
 #include <sys/utsname.h>
 #include <sys/ptrace.h>
-#include <sys/signal.h>
+#include <signal.h>
 #include <sys/resource.h>
 #include <sys/user.h>
 };

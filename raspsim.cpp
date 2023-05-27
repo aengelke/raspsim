@@ -10,12 +10,6 @@
 #include <mm.h>
 
 #include <elf.h>
-#include <asm/ldt.h>
-#include <asm/ptrace.h>
-
-#ifdef __x86_64__
-#include <asm/prctl.h>
-#endif
 
 #include <ptlsim.h>
 #include <ptlsim-api.h>
