@@ -1126,7 +1126,6 @@ void EventLog::reset() {
 }
 
 void EventLog::flush(bool only_to_tail) {
-  if likely (!logable(6)) return;
   if unlikely (!logfile) return;
   if unlikely (!logfile->ok()) return;
   print(*logfile, only_to_tail);
