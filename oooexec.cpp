@@ -162,13 +162,9 @@ template <int size, int operandcount>
 bool IssueQueue<size, operandcount>::broadcast(tag_t uopid) {
   vec_t tagvec = assoc_t::prep(uopid);
 
-  if (logable(6)) {
-    foreach (operand, operandcount) {
-      bitvec<size> mask = tags[operand].invalidate(tagvec);
-      if unlikely (config.event_log_enabled) tally_broadcast_matches(uopid, mask, operand);
-    }
-  } else {
-    foreach (operand, operandcount) tags[operand].invalidate(tagvec);
+  foreach (operand, operandcount) {
+    bitvec<size> mask = tags[operand].invalidate(tagvec);
+    if unlikely (config.event_log_enabled) tally_broadcast_matches(uopid, mask, operand);
   }
   return true;
 }
