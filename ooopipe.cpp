@@ -2031,6 +2031,7 @@ int ReorderBufferEntry::commit() {
   per_context_ooocore_stats_update(threadid, commit.uops++);
   thread.total_uops_committed++;
 
+  W32 uop_uuid = uop.uuid;
   bool uop_is_eom = uop.eom;
   bool uop_is_barrier = isclass(uop.opcode, OPCLASS_BARRIER);
   bool uop_is_fence = (uop.opcode == OP_mf);
@@ -2042,7 +2043,11 @@ int ReorderBufferEntry::commit() {
     return COMMIT_RESULT_SMC;
 
   if unlikely (uop_is_barrier) {
-    if unlikely (config.event_log_enabled) core.eventlog.add(EVENT_COMMIT_ASSIST, RIPVirtPhys(ctx.commitarf[REG_rip]))->threadid = thread.threadid;
+    if unlikely (config.event_log_enabled) {
+      OutOfOrderCoreEvent* event = core.eventlog.add(EVENT_COMMIT_ASSIST, RIPVirtPhys(ctx.commitarf[REG_rip]));
+      event->uuid = uop_uuid;
+      event->threadid = thread.threadid;
+    }
     per_context_ooocore_stats_update(threadid, commit.result.barrier++);
     return COMMIT_RESULT_BARRIER;
   }
