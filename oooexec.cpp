@@ -1414,10 +1414,7 @@ int ReorderBufferEntry::issueload(LoadStoreQueueEntry& state, Waddr& origaddr, W
     load_store_second_phase = 1;
     state.datavalid = 1;
     physreg->flags &= ~FLAG_WAIT;
-    physreg->complete();
-    changestate(thread.rob_issued_list[cluster]);
     lfrqslot = -1;
-    forward_cycle = 0;
 
     return ISSUE_COMPLETED;
   }
@@ -1466,10 +1463,7 @@ int ReorderBufferEntry::probecache(Waddr addr, LoadStoreQueueEntry* sfra) {
     load_store_second_phase = 1;
     state.datavalid = 1;
     physreg->flags &= ~FLAG_WAIT;
-    physreg->complete();
-    changestate(thread.rob_issued_list[cluster]);
     lfrqslot = -1;
-    forward_cycle = 0;
 
     per_context_ooocore_stats_update(threadid, dcache.load.issue.complete++);
     per_context_dcache_stats_update(threadid, load.hit.L1++);
