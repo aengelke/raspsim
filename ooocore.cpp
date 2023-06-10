@@ -1169,8 +1169,6 @@ ostream& OutOfOrderCoreEvent::print(ostream& os) const {
   bool ld = isload(uop.opcode);
   bool st = isstore(uop.opcode);
   bool br = isbranch(uop.opcode);
-  W32 exception = LO32(commit.state.reg.rddata);
-  W32 error_code = HI32(commit.state.reg.rddata);
 
   stringbuf uopname;
   nameof(uopname, uop);
@@ -1462,13 +1460,13 @@ ostream& OutOfOrderCoreEvent::print(ostream& os) const {
   case EVENT_LOAD_EXCEPTION: {
     os << (loadstore.load_store_second_phase ? "load2 " : "load  "), " rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " stq ", lsq,
       " r", intstring(physreg, -3), " on ", padstring(fu_names[fu], -4), " @ ",
-      (void*)(Waddr)loadstore.virtaddr, ": exception ", exception_name(exception), ", pfec ", PageFaultErrorCode(error_code);
+      (void*)(Waddr)loadstore.virtaddr, ": exception ", exception_name(LO32(loadstore.sfr.data)), ", pfec ", PageFaultErrorCode(HI32(loadstore.sfr.data));
     break;
   }
   case EVENT_STORE_EXCEPTION: {
     os << "store", (loadstore.load_store_second_phase ? "2" : " "), " rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " stq ", lsq,
       " r", intstring(physreg, -3), " on ", padstring(fu_names[fu], -4), " @ ",
-      (void*)(Waddr)loadstore.virtaddr, ": exception ", exception_name(exception), ", pfec ", PageFaultErrorCode(error_code);
+      (void*)(Waddr)loadstore.virtaddr, ": exception ", exception_name(LO32(loadstore.sfr.data)), ", pfec ", PageFaultErrorCode(HI32(loadstore.sfr.data));
     break;
   }
   case EVENT_ALIGNMENT_FIXUP:
@@ -1565,9 +1563,9 @@ ostream& OutOfOrderCoreEvent::print(ostream& os) const {
   case EVENT_COMMIT_FENCE_COMPLETED:
     os << "mfcmit rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " fence committed: wake up waiting memory uops"; break;
   case EVENT_COMMIT_EXCEPTION_DETECTED:
-    os << "detect rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " exception ", exception_name(exception), " (", exception, "), error code ", hexstring(error_code, 16), ", origvirt ", (void*)(Waddr)commit.origvirt; break;
+    os << "detect rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " exception ", exception_name(LO32(commit.state.reg.rddata)), " (", LO32(commit.state.reg.rddata), "), error code ", hexstring(HI32(commit.state.reg.rddata), 16), ", origvirt ", (void*)(Waddr)commit.origvirt; break;
   case EVENT_COMMIT_EXCEPTION_ACKNOWLEDGED:
-    os << "except rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " exception ", exception_name(exception), " [EOM #", commit.total_user_insns_committed, "]"; break;
+    os << "except rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " exception ", exception_name(LO32(commit.state.reg.rddata)), " [EOM #", commit.total_user_insns_committed, "]"; break;
   case EVENT_COMMIT_SKIPBLOCK:
     os << "skipbk rob ", intstring(rob, -3), "(",padstring(uopname,-5),")", " skip block: advance rip by ", uop.bytes, " to ", (void*)(Waddr)(rip.rip + uop.bytes), " [EOM #", commit.total_user_insns_committed, "]"; break;
   case EVENT_COMMIT_SMC_DETECTED:
