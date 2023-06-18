@@ -2217,7 +2217,6 @@ ostream& BasicBlockCache::print(ostream& os) {
     os << endl;
   }
 
-  delete& bblist;
   return os;
 }
 
