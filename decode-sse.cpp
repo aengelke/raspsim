@@ -874,7 +874,7 @@ bool TraceDecoder::decode_sse() {
     int rareg = arch_pseudo_reg_to_arch_reg[ra.reg.reg];
     int datatype = sse_float_datatype_to_ptl_datatype[(op >> 8) - 2];
     if (rd.type == OPTYPE_MEM) {
-      bool a16 = op == 0x329 || op == 0x529 || op == 0x57f || op == 0x5e7 || op == 0x5e2b || op == 0x32b;
+      bool a16 = op == 0x329 || op == 0x529 || op == 0x57f || op == 0x5e7 || op == 0x52b || op == 0x32b;
       // Store
       // This is still idempotent since if the second one was unaligned, the first one must be too
       result_store(rareg+0, REG_temp0, rd, a16 ? OP_st_a16 : OP_st, datatype);
