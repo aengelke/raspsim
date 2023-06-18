@@ -436,7 +436,13 @@ void TraceDecoder::reset() {
   rex = 0;
   modrm = 0;
   user_insn_count = 0;
-  last_flags_update_was_atomic = 0;
+  // Note(AE): commit d278b597 changed this to zero, previously this was always
+  // reset to 1 from the very beginning. The commit mentions that this was done
+  // to ensure that every basic block updates flags at least once, but does not
+  // give any reason/indication of *why* this was done. I'm unsure whether
+  // anything depends on this behavior now, but at least theoretically, there
+  // should be no harm in setting this to one.
+  last_flags_update_was_atomic = 1;
   invalid = 0;
   some_insns_complex = 0;
   used_microcode_assist = 0;
