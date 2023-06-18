@@ -200,6 +200,7 @@ void print_sysinfo(ostream& os) {}
 
 // This is where we end up after issuing opcode 0x0f37 (undocumented x86 PTL call opcode)
 void assist_ptlcall(Context& ctx) {
+  requested_switch_to_native = 1; // exit
   ctx.commitarf[REG_rip] = ctx.commitarf[REG_nextrip];
 }
 
